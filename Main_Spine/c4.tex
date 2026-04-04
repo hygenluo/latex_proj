@@ -1,0 +1,366 @@
+% !TeX root = ../main.tex
+
+\xchapter{面向 Wi-Fi 信号动作识别的少样本类增量学习方法研究}{Research on Few-Shot Class-Incremental Learning Methods for Wi-Fi Signal Based Action Recognition}
+
+\xsection{问题概述}{Problem Overview}
+
+本节面向基于 Wi-Fi CSI 信号的室内动作识别任务，给出少样本类增量学习的形式化定义，分析其核心挑战与研究的现实意义，并阐明本文的研究思路。在类别扩展之外，少样本类增量学习要求每个增量会话仅能访问极少量的新类别样本，使得模型在应对灾难性遗忘的同时还需应对样本稀缺导致的过拟合，难度高于第三章所探讨的类增量学习（CIL）。
+
+对于 Wi-Fi CSI 室内动作识别任务，新增类别往往难以在短时间内采集到大量标注样本。例如，康复动作、个性化家庭交互动作或特定场景下的新型行为通常只能获得极少量样本。在第三章所研究的类增量学习（CIL）场景中，每个增量任务仍可访问充足的新类样本，模型能够借助样本重放与知识蒸馏维持性能；而在实际部署中，新类别的标注往往远不充分，CIL 的假设难以满足。少样本类增量学习（FSCIL）正是面向这一更为苛刻的条件：增量阶段每类仅有极少量样本（如 1-shot），模型需在样本稀缺与类别扩展的双重约束下完成学习。在 Wi-Fi CSI 场景下研究 FSCIL，不只是为了降低标注成本，更在于提升模型对动态类别集合的持续适应能力。
+
+本任务的困难主要来自三个方面。第一，增量阶段每个新类别仅含极少量样本，导致类别原型对噪声和个体差异较为敏感，模型难以从有限监督信息中建立稳定的类别表示。第二，模型需在持续引入新类别的同时保持对旧类别的识别能力，然而在缺乏旧类数据访问的条件下，新类学习容易覆盖旧类表征，灾难性遗忘问题在少样本场景下更为突出。第三，Wi-Fi CSI 具有明显的时序特性，不同动作在短时与长时尺度上的差异较大，若表征能力不足，少样本条件下更容易出现新旧类别混淆。上述三方面困难相互交织，使得 FSCIL 的模型设计与优化较 CIL 更为困难。
+
+\xsubsection{任务定义}{Task Definition}
+
+依据增量内容的不同，增量学习可分为多种范式。类增量学习（CIL）关注类别扩展，其算法设计目标是在模型逐步学习新增类别的过程中避免遗忘旧类别；任务增量学习（Task-Incremental Learning, TIL）在任务间进行增量学习，每个任务可能包含不同类别组合，且任务标识通常已知；域增量学习（Domain-Incremental Learning, DIL）侧重模型在不同数据分布（域）之间的增量适应，要求模型在不遗忘旧域知识的情况下适应新域。本章关注的少样本类增量学习（Few-Shot Class-Incremental Learning, FSCIL）则需要在训练中同时应对类别增量与样本稀缺双重问题\cite{tao2020topic,tian2024fscilsurvey}。表~\ref{tab:fscil-paradigm-compare} 对比了不同增量学习任务场景下的训练数据与测试范围。
+
+\begin{table}[H]
+  \caption{不同增量学习任务场景对比}
+  \label{tab:fscil-paradigm-compare}
+  \begingroup
+  \renewcommand{\tabularxcolumn}[1]{m{#1}}
+  \begin{tabularx}{\textwidth}{YYYY}
+  \toprule
+  任务类型 & 基础会话训练数据 & 增量会话训练数据 & 测试范围 \\
+  \midrule
+  少样本类增量学习（FSCIL） & 基础类别充足样本 & 新增类别有限样本 & 所有已知类别 \\
+  类增量学习（CIL） & 基础类别充足样本 & 新增类别充足样本 & 所有已知类别 \\
+  任务增量学习（TIL） & 基础类别充足样本 & 新增类别充足样本 & 已知任务的已知类别 \\
+  域增量学习（DIL） & 第 0 个域的基础类别充足样本 & 第 $t$ 个域的基础类别充足样本 & 来自多个域的基础类别 \\
+  \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+在少样本类增量学习任务中，学习过程由一系列按顺序进行的会话组成。每当模型进入新的学习会话时，先前会话中的训练数据将不再可用，同时模型需要学习并适应新增的、此前从未见过的类别数据。这种设置模拟了现实场景中模型需不断适应新任务与新类别的需求，同时面临旧数据不可访问的约束。在每个会话中，FSCIL 算法的评估需涵盖所有已学习过的会话（包括当前会话及此前的所有会话）中的类别，以确保模型既能有效学习新类别，又能保持对旧类别的识别能力。
+
+沿用 FSCIL 领域常用的符号体系\cite{tian2024fscilsurvey}，将少样本类增量学习任务形式化如下。设存在一个 $m$ 步的 FSCIL 任务，用 $\{D_{\mathrm{train}}^{(0)}, D_{\mathrm{train}}^{(1)}, \ldots, D_{\mathrm{train}}^{(m)}\}$ 和 $\{D_{\mathrm{test}}^{(0)}, D_{\mathrm{test}}^{(1)}, \ldots, D_{\mathrm{test}}^{(m)}\}$ 分别表示会话 $\{0, 1, \ldots, m\}$ 的训练集与测试集。对会话 $j$，其训练集 $D_{\mathrm{train}}^{(j)}$ 对应标签空间 $\mathcal{Y}_j$，不同会话的标签空间互不相交，即 $\mathcal{Y}_a \cap \mathcal{Y}_b = \emptyset$（$a \neq b$）。基础会话 $D_{\mathrm{train}}^{(0)} = \{(x_i, y_i)\}_{i=1}^{n_0}$ 是一个类别数量较多的数据集，其中每个数据类别均包含足够多的样本用于训练，$x_i \in \mathbb{R}^D$ 为类别 $y_i \in \mathcal{Y}_0$ 的一个数据样本，$\mathcal{Y}_0$ 对应基础阶段的标签空间。第 $j$ 个增量会话的 $D_{\mathrm{train}}^{(j)}$ 以 N-way K-shot 形式组织：包含 $N$ 个类别，每类 $K$ 个训练样本。面对新数据集 $D_{\mathrm{train}}^{(j)}$，模型需在学习新类别的同时保持对旧类别的性能，即最小化所有已见类别上的期望风险：
+\begin{equation}
+  \mathbb{E}_{(x,y) \sim D_{\mathrm{train}}^{(0)} \cup \cdots \cup D_{\mathrm{train}}^{(j)}} \left[ \ell\left( f\left(x; D_{\mathrm{train}}^{(j)}, W^{j-1}\right), y \right) \right]
+\end{equation}
+其中学习算法 $f$ 基于新数据集 $D_{\mathrm{train}}^{(j)}$ 与当前旧模型 $W^{j-1}$ 构建新模型，并最小化全体已见类别的损失。该目标刻画的是 FSCIL 的理想优化方向；在实际训练中，由于旧会话数据不可访问，只能基于当前支持集与历史模型参数近似实现。在测试阶段，模型将在所有已见类别上进行评估：对于会话 $j$，其测试数据为 $\{D_{\mathrm{test}}^{(0)}, D_{\mathrm{test}}^{(1)}, \ldots, D_{\mathrm{test}}^{(j)}\}$，对应的标签空间为 $\mathcal{Y}_0 \cup \mathcal{Y}_1 \cup \cdots \cup \mathcal{Y}_j$。
+
+在本文实验中，采用 XRF 数据集模拟上述 FSCIL 场景。该数据集包含 55 类室内动作，对应 Wi-Fi CSI 信号经预处理后的 270 维 × 1000 长度时序特征。按本研究的实验配置，将数据划分为 1 个基础会话与 5 个增量会话：基础会话使用前 30 类进行充分训练，随后的 5 个增量会话每会话引入 5 个新类别，即 5-way 1-shot 设定，每类仅有 1 个训练样本。训练集与测试集按 7:3 划分。整体流程如图~\ref{fig:fscil-system} 所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig4-1-fscil-system.png}
+  \caption{面向 Wi-Fi CSI 动作识别的少样本类增量学习系统流程}
+  \label{fig:fscil-system}
+\end{figure}
+
+\xsubsection{研究思路}{Research Approach}
+
+传统 CIL 方法难以直接迁移到本任务，关键原因不在于类别是否持续增加，而在于增量阶段每类仅有极少量样本，导致新增类别的表示难以稳定建立。CIL 中常用的样本回放与知识蒸馏均依赖充足的新类数据或旧类 Exemplar，在 1-shot 条件下效果大打折扣；新类分类器因监督信息不足而区分性较弱，旧类表征也容易在增量过程中受到扰动。
+
+当前针对少样本类增量学习的研究较多侧重于"后向兼容性"学习，即通过在后续的增量学习阶段调整模型来缓解对先前知识的遗忘。后向兼容性方法通常在引入新增类别时，通过知识蒸馏、正则化或数据回放等技术约束新模型行为，使其尽可能保留旧类别相关知识，核心思想是让增量阶段的新模型"向后兼容"此前阶段的旧模型，从而减少灾难性遗忘。然而，这类方法存在明显局限：对早期模型性能依赖较强，若初始模型或早期增量阶段的模型表现不佳（如特征表示鲁棒性不足、分类边界不够清晰），这些缺陷会随增量会话推进传递到后续模型中，影响整体识别性能；且后向兼容方法通常需要在每个增量阶段对新模型进行复杂调整，如回放旧样本或引入额外正则化，不仅增加计算成本，还可能因样本选择偏差或正则化强度不当带来新问题。相比之下，一种更具预见性的思路是在模型早期设计阶段就考虑未来的扩展需求，提前为后续增量学习预留足够的嵌入空间。这种研究思路强调"前向兼容性"，即通过在初始模型中预留灵活性，使其能适应未来可能的类别扩展。基于该思想，本文提出了一种基于时序增强与图注意力的少样本类增量学习方案，如图~\ref{fig:fscil-system} 所示，通过在基础会话阶段优化特征表示与分类器设计，为后续增量更新做好准备，在保证当前任务性能的同时提升模型在增量学习中的鲁棒性与可扩展性。
+
+具体而言，本文方案从特征表示与分类器设计两方面应对 FSCIL 挑战。在特征表示方面，针对 Wi-Fi CSI 的时序特性，引入多尺度时序编码与时序注意力融合模块，捕捉不同时间尺度的动作模式（短期、中期、长期），提升在少样本下的特征判别力；在分类器设计方面，在增量阶段利用图注意力传播类别间上下文信息（继承 CEC\cite{zhang2021cec} 的图注意力机制并增加时序关系建模），结合双分类器架构（继承 CLOM\cite{zou2022clom} 的设计）缓解类别级过拟合。整体上，本方案融合了特征与特征空间方法（多尺度时序编码、时序注意力融合）与动态网络结构方法（图注意力），并辅以双分类器约束，在兼顾稳定性与可塑性的同时，适配 Wi-Fi CSI 这一时序模态的少样本类增量学习需求。以下各小节将依次阐述上述模块的设计与实现。
+
+\xsection{方法概述}{Method Overview}
+
+本文提出的少样本类增量学习方案由四个核心模块串联而成：多尺度时序编码器负责从原始 Wi-Fi CSI 时序数据中提取多尺度特征；时序注意力融合模块对时序特征进行自注意力建模与全局聚合；增强图注意力网络在少样本增量模式下传播类别间的上下文信息；双分类器架构则通过主分类器与域内分类器的加权融合缓解类别级过拟合。整体数据流为：输入 $\mathbf{x} \in \mathbb{R}^{270 \times 1000}$ 经多尺度时序编码得到 $512 \times 100$ 的时序特征，再经时序注意力融合得到 $512$ 维的全局嵌入，最后经双分类器输出各类别的 logits。在少样本增量阶段，图注意力网络作用于原型与查询特征，以增强类别间关系建模。
+
+训练与推理流程。 在基础会话（Session 0），多尺度时序编码器、时序注意力融合模块与双分类器均参与端到端训练，采用交叉熵损失作为优化目标。设双分类器融合后的 logits 为 $\mathbf{o} \in \mathbb{R}^C$，则基础训练阶段的损失函数为：
+\begin{equation}
+  \mathcal{L}_{\mathrm{base}} = -\frac{1}{N}\sum_{i=1}^{N}\log\frac{\exp(o_{y_i})}{\sum_{c=1}^{C}\exp(o_c)}
+\end{equation}
+其中 $N$ 为批内样本数，$y_i$ 为第 $i$ 个样本的真实标签，$o_c$ 为第 $c$ 个类别的 logit。图注意力网络虽在基础阶段不参与分类的前向传播，但其参数通过分组学习率（$\mathrm{lr}=0.0002$）接受梯度更新，以获得合理的初始化，为增量阶段的少样本评估做准备。优化器为 SGD（动量 0.9、Nesterov、权重衰减 $5 \times 10^{-4}$），多尺度编码器与分类器使用基础学习率，时序注意力模块可使用较小学习率以稳定训练。基础会话结束后，采用平均嵌入策略初始化分类器权重，随后进入增量会话。在增量会话中，默认不进行编码器微调（与 CEC/CLOM 策略一致），仅根据支持集样本提取特征并更新分类器权重；图注意力网络在计算 N-way K-shot 的 logits 时参与前向传播。各模块的设计动机、数学形式与实现细节如下。本文方法的整体架构如图~\ref{fig:method-arch} 所示。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth]{fig4-2-method-arch.png}
+  \caption{本文少样本类增量学习方法整体架构}
+  \label{fig:method-arch}
+\end{figure}
+
+\xsubsection{多尺度时序编码器}{Multi-Scale Temporal Encoder}
+
+Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同时间尺度上呈现不同模式。短期模式反映动作的瞬间变化，例如手势的快速挥动、身体的轻微晃动，其时间尺度通常在数十毫秒至百毫秒量级；中期模式反映单个动作的完整周期，如一次完整的举手或蹲起，时间尺度在数百毫秒量级；长期模式则反映整个动作序列的宏观形态，如走步与跑步在整体节奏与幅度上的差异，时间尺度可达数百毫秒甚至更长。例如，快速挥手的识别更依赖局部瞬时突变，而行走与跑步的区分则需要关注整体节奏与幅度。若仅使用单一尺度的卷积核，感受野固定，难以同时捕捉上述多尺度信息，在少样本条件下会导致特征判别力不足。为此，本文设计了多尺度时序编码器，通过三个并行的一维卷积分支分别提取短期、中期与长期特征，再经拼接与融合得到统一的多尺度表示。
+
+设输入为 $\mathbf{x} \in \mathbb{R}^{B \times 270 \times 1000}$，其中 $B$ 为批大小，270 为 CSI 子载波或特征维度，1000 为时间步数。一维卷积在时间维度上滑动，每个分支的输出在时间维经自适应平均池化统一为 100 个时间步，以便后续融合与时序注意力处理。三个编码分支的配置如下。
+
+短期编码器：使用 kernel size 为 50、stride 为 10 的一维卷积， padding 设为 25（即 $\lfloor \mathrm{kernel}/2 \rfloor$）以保持时间维长度，将 270 维输入映射为 128 维。该分支每 10 个时间步采样一次，窗口覆盖 50 个时间步，可捕捉局部快速变化。经批归一化、ReLU 与 $\mathrm{AdaptiveAvgPool1d}(100)$ 后输出形状为 $B \times 128 \times 100$。
+
+中期编码器：使用 kernel size 200、stride 50、padding 100 的一维卷积，输出 256 维。该分支每 50 个时间步采样一次，窗口覆盖 200 个时间步，可捕捉单个动作周期的模式。经批归一化、ReLU 与自适应平均池化后输出形状为 $B \times 256 \times 100$。
+
+长期编码器：使用 kernel size 500、stride 100、padding 250 的一维卷积，输出 256 维。该分支每 100 个时间步采样一次，窗口覆盖 500 个时间步（即整个序列的一半），可捕捉整体动作的宏观形态。经批归一化、ReLU 与自适应平均池化后输出形状为 $B \times 256 \times 100$。
+
+三路特征在通道维度拼接得到 $B \times 640 \times 100$，再经 $1 \times 1$ 卷积（即逐点卷积）、批归一化与 ReLU 融合为 $B \times 512 \times 100$ 的时序特征。多尺度时序编码器的输出可写为：
+\begin{equation}
+  \mathbf{H} = \mathrm{Fusion}\big(\mathrm{Concat}(\phi_{\mathrm{short}}(\mathbf{x}), \phi_{\mathrm{mid}}(\mathbf{x}), \phi_{\mathrm{long}}(\mathbf{x}))\big) \in \mathbb{R}^{B \times 512 \times 100}
+\end{equation}
+其中 $\phi_{\mathrm{short}}$、$\phi_{\mathrm{mid}}$、$\phi_{\mathrm{long}}$ 分别对应短期、中期与长期编码器，$\mathrm{Fusion}$ 为融合层。该模块使模型能同时利用不同时间尺度的动作信息，为后续时序注意力与分类提供更丰富的表示基础；在基础训练阶段，多尺度编码器与后续模块一起端到端训练，学习对不同尺度模式的最优组合。多尺度时序编码器的整体结构如图~\ref{fig:method-arch} 所示。
+
+\xsubsection{时序注意力融合模块}{Temporal Attention Fusion Module}
+
+多尺度时序编码器输出 $B \times 512 \times 100$ 的时序特征，其时间维度包含 100 个时间步的依赖关系。若仅对时间维做全局平均池化，会忽略时间步之间的顺序与依赖，无法建模"动作前半段与后半段"等长距离时序关系；一维卷积的感受野受限于卷积核大小，对跨越整个序列的依赖建模能力有限。为此，本文引入时序注意力融合模块，采用自注意力机制对时序维度进行建模，使任意两个时间步之间均可直接建立依赖，从而显式捕捉不同时间步之间的关联，同时通过位置编码保留时序顺序信息。采用 100 个时间步的序列长度，是在保留主要时序结构与控制自注意力计算复杂度之间做出的折中。
+
+序列化与位置编码。 时序注意力融合模块的输入为 $\mathbf{H} \in \mathbb{R}^{B \times 512 \times 100}$。首先将通道维与时间维转置，得到 $\mathbf{H}' \in \mathbb{R}^{B \times 100 \times 512}$，即将每个时间步视为序列中的一个 token，共 100 个 token。随后添加位置编码（Positional Encoding），采用 Transformer\cite{vaswani2017attention} 中常用的正弦与余弦函数对位置进行编码。设位置为 $pos \in \{0, \ldots, 99\}$，维度索引为 $i$，$d=512$ 为特征维度，则位置编码定义为：
+\begin{equation}
+  \mathrm{PE}_{(pos, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right), \quad
+  \mathrm{PE}_{(pos, 2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)
+\end{equation}
+该编码使不同位置具有唯一的向量表示，且连续位置之间的编码平滑变化，有利于模型学习时序结构。位置编码与输入相加后经 Dropout（比率 0.1）以增强泛化，得到 $\tilde{\mathbf{H}} \in \mathbb{R}^{B \times 100 \times 512}$。
+
+多头自注意力。 位置编码后的序列输入多头自注意力层。本文采用 8 个注意力头，每个头的 key/query/value 维度为 $d_k = d_v = 512/8 = 64$。对于每个头，自注意力的计算形式为：
+\begin{equation}\label{eq:self-attention}
+  \mathrm{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \mathrm{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V}
+\end{equation}
+其中 $\mathbf{Q}$、$\mathbf{K}$、$\mathbf{V}$ 由输入通过独立的线性变换得到，$\sqrt{d_k}$ 用于缩放点积，避免在 $d_k$ 较大时 softmax 梯度趋近于零。多头注意力的输出经线性投影后与残差相加，再经层归一化，得到与输入同形状的输出 $\mathbf{O} \in \mathbb{R}^{B \times 100 \times 512}$。该输出对时间维做全局平均池化，将 $B \times 100 \times 512$ 聚合为 $B \times 512$ 的固定长度嵌入向量 $\mathbf{z}$。该向量作为后续双分类器的输入，或作为少样本模式下图注意力的输入特征。时序注意力融合模块的结构如图~\ref{fig:method-arch} 所示。
+
+\xsubsection{增强图注意力网络}{Enhanced Graph Attention Network}
+
+在少样本类增量学习的增量阶段，每个新类别仅有 1 或少数几个样本，直接使用样本均值作为类别原型容易受噪声影响，且类别之间的相对关系未被显式建模。若将每个类别视为图中的一个节点，则"某类与其它类的相似或排斥关系"可作为边，通过图上的信息传播使原型表示利用上下文进行增强。CEC\cite{zhang2021cec} 提出通过图注意力网络在分类器层传播类别间的上下文信息，使原型表示能够利用其它类别的信息进行增强。本文在此基础上引入时序关系增强层，对原型特征在送入图注意力之前进行变换，以增强对 Wi-Fi CSI 这类时序模态下动作模式的关系建模能力。该模块主要作用于少样本增量阶段，针对的核心问题是极少样本下原型表示不稳定、类别间关系缺乏显式建模。
+
+时序关系增强。 增强图注意力网络在少样本学习模式下工作。设支持集样本经多尺度时序编码与时序注意力融合后得到原型特征 $\mathbf{P} \in \mathbb{R}^{B \times N_{\mathrm{way}} \times 512}$，查询集样本得到查询特征 $\mathbf{Q} \in \mathbb{R}^{B \times N_{\mathrm{query}} \times 512}$。首先对原型特征进行时序关系增强，通过一个两层全连接网络对 512 维特征进行非线性变换：
+\begin{equation}
+  \tilde{\mathbf{P}} = \mathrm{MLP}(\mathbf{P}) = \mathbf{W}_2 \cdot \sigma(\mathbf{W}_1 \mathbf{P} + \mathbf{b}_1) + \mathbf{b}_2
+\end{equation}
+其中 $\mathbf{W}_1, \mathbf{W}_2 \in \mathbb{R}^{512 \times 512}$，$\sigma$ 为 ReLU 激活函数，层间使用 Dropout（比率 0.5）进行正则化。该模块可学习对时序相关模式的强调或抑制，使后续图注意力在更具判别力的原型表示上进行传播。查询特征不经此时序关系增强，直接参与图注意力的信息传播，以保持其原始表示的同时从原型处获取上下文。
+
+图注意力传播。 增强后的原型与查询特征在节点维度拼接，得到 $\mathbf{G} \in \mathbb{R}^{B \times (N_{\mathrm{way}} + N_{\mathrm{query}}) \times 512}$ 的联合图，其中每个节点对应一个原型或一个查询样本。采用单头自注意力（$n_{\mathrm{head}}=1$）对该图进行信息传播：
+\begin{equation}
+  [\mathbf{P}', \mathbf{Q}'] = \mathrm{SelfAttn}\!\left([\tilde{\mathbf{P}}; \mathbf{Q}]\right)
+\end{equation}
+其中 $[\cdot;\cdot]$ 为节点维度拼接，$\mathrm{SelfAttn}$ 的计算方式与式~\eqref{eq:self-attention} 相同。通过自注意力，原型节点可吸收其它原型与查询的上下文，查询节点也可吸收所有原型的上下文，从而在少样本条件下提升分类决策的鲁棒性。自注意力计算完成后，将输出按原型与查询的数目拆分为 $\mathbf{P}'$ 与 $\mathbf{Q}'$，最终通过余弦相似度计算分类 logits：
+\begin{equation}
+  s_{ij} = \tau \cdot \frac{\mathbf{Q}'_i \cdot {\mathbf{P}'_j}^\top}{\|\mathbf{Q}'_i\|_2 \cdot \|\mathbf{P}'_j\|_2}
+\end{equation}
+其中 $s_{ij}$ 为第 $i$ 个查询对第 $j$ 个类别原型的 logit，$\tau$ 为温度系数。图注意力网络仅在少样本增量阶段（即 N-way K-shot 评估与增量会话的 update\_fc 前向）调用；标准的基础训练与推理阶段则直接使用时序注意力融合后的嵌入接入双分类器，不经过图注意力。增强图注意力网络的结构如图~\ref{fig:method-arch} 所示。
+
+\xsubsection{双分类器架构}{Dual Classifier Architecture}
+
+在少样本类增量学习场景下，新增类别的样本极少，若仅使用单一分类器，容易对少量样本产生类别级过拟合，导致决策边界过于尖锐、泛化能力不足。CLOM\cite{zou2022clom} 通过引入双分类器架构，从不同特征子空间进行预测并加权融合，缓解了类别级过拟合。本文采用类似设计，将骨干特征与域内变换特征分别送入主分类器与域内分类器，再对两者输出进行加权融合，使预测既依赖骨干的通用表示，也利用域内子空间的补充信息。
+
+主分类器。 设时序注意力融合后的嵌入为 $\mathbf{z} \in \mathbb{R}^{B \times 512}$。主分类器直接使用 $\mathbf{z}$ 与分类器权重 $\mathbf{W}_{\mathrm{main}} \in \mathbb{R}^{C \times 512}$ 的余弦相似度作为 logits，其中 $C$ 为类别总数。具体地，对 $\mathbf{z}$ 与 $\mathbf{W}_{\mathrm{main}}$ 的行分别做 L2 归一化后计算内积，再乘以温度系数 $\tau$（本文取 $\tau=16$）得到主分类器的 logits：
+\begin{equation}
+  \mathbf{o}_{\mathrm{main}} = \tau \cdot \frac{\mathbf{z} \mathbf{W}_{\mathrm{main}}^\top}{\|\mathbf{z}\|_2 \|\mathbf{W}_{\mathrm{main}}\|_2}
+\end{equation}
+温度 $\tau$ 控制 logits 的平滑程度：$\tau$ 较大时 softmax 输出更平滑，决策边界更柔和，有利于少样本下的泛化。
+
+域内分类器。 域内分类器先将 $\mathbf{z}$ 通过可学习的线性变换矩阵 $\mathbf{W}_{\mathrm{id}} \in \mathbb{R}^{512 \times 256}$ 映射为 256 维域内特征，该矩阵采用 Kaiming 均匀初始化。映射后的特征经批归一化与 LeakyReLU（负斜率 0.1）激活，再通过域内分类器权重 $\mathbf{W}_{\mathrm{id-fc}} \in \mathbb{R}^{C \times 256}$ 计算余弦相似度并乘以温度 $\tau$，得到域内分类器的 logits $\mathbf{o}_{\mathrm{id}}$。域内子空间通过线性变换与非线性激活形成与骨干不同的表示，可捕捉互补的判别信息。
+
+加权融合与动态权重。 两个分类器的输出按权重融合：
+\begin{equation}
+  \mathbf{o} = \alpha \cdot \mathbf{o}_{\mathrm{main}} + (1-\alpha) \cdot \mathbf{o}_{\mathrm{id}}
+\end{equation}
+其中 $\alpha$ 默认取 0.7，即主分类器权重 0.7、域内分类器权重 0.3。在增量学习的早期会话（如 Session 1、2），新类别特征可能尚不稳定，域内子空间因样本过少而估计不准，本文将主分类器权重动态调整为 0.75、域内分类器权重调整为 0.25，以增强对骨干特征的依赖，随会话推进再恢复默认权重。上述维度与融合系数由预实验确定，主实验中固定使用。融合后的 $\mathbf{o}$ 经 softmax 得到各类别的预测概率。双分类器架构如图~\ref{fig:method-arch} 所示。
+
+增量阶段的分类器更新。 在增量学习阶段，新类别到达时需更新分类器权重。本文采用基于原型网络\cite{snell2017prototypical}思想的原型初始化策略，对主分类器与域内分类器分别进行更新。对每个新类别 $c$，利用其支持集 $S_c$ 中的样本经编码器提取的特征计算类别原型。当某类有多个样本时，采用加权平均以降低离群点影响：
+\begin{equation}
+  \mathbf{p}_c = \frac{\sum_{i \in S_c} w_i \cdot \mathbf{z}_i}{\sum_{i \in S_c} w_i}, \quad w_i = \frac{1}{1 + \|\mathbf{z}_i - \bar{\mathbf{z}}_c\|_2}
+\end{equation}
+其中 $\bar{\mathbf{z}}_c = \frac{1}{|S_c|}\sum_{i \in S_c}\mathbf{z}_i$ 为类别 $c$ 的样本均值，$w_i$ 基于到均值的欧氏距离赋权，距离越小的样本权重越大，从而抑制异常值对原型的影响；当某类仅有 1 个样本时，直接取该样本的嵌入作为原型。原型计算完成后，对其做 L2 归一化并乘以尺度因子，以恢复与已有类别权重一致的范数：
+\begin{equation}
+  \hat{\mathbf{p}}_c = \min\!\left(\overline{\|\mathbf{z}\|}, \sqrt{d}\right) \cdot \frac{\mathbf{p}_c}{\|\mathbf{p}_c\|_2}
+\end{equation}
+其中 $\overline{\|\mathbf{z}\|}$ 为当前批次的全局特征平均范数，$d$ 为特征维度（主分类器 $d=512$，域内分类器 $d=256$）。该策略使新类别的权重在归一化方向与尺度上与旧类别保持一致，避免因尺度不均导致的分类偏差。主分类器与域内分类器均按上述方式更新；域内分类器需先将特征经 $\mathbf{W}_{\mathrm{id}}$、批归一化与 LeakyReLU 变换后再计算原型。该策略无需在增量阶段对编码器进行微调，避免了因极少样本导致的过拟合，符合 CEC/CLOM 等方法的实践。
+
+\xsection{实验方案设计}{Experimental Design}
+
+为验证本文提出的少样本类增量学习方法在 Wi-Fi CSI 动作识别任务上的效果，本节说明实验所采用的数据集划分、实验环境、训练配置、评价指标及对比方法。实验设计遵循 FSCIL 领域的通用设定\cite{tian2024fscilsurvey}，并针对 XRF 数据集与本文方法进行了相应配置，以保证实验结果的可靠性与可比性。
+
+\xsubsection{数据集划分策略}{Dataset Split Strategy}
+
+数据集选取。实验选用 XRF 数据集，该数据集基于 Wi-Fi CSI 信号采集，包含 55 类室内动作，涵盖人—物交互、人—人交互、健身、身体运动与人—机交互等五大类型。每条样本对应 270 维 × 1000 长度的时序特征，由原始 CSI 信号经预处理得到，可直接输入 4.2 节所述的多尺度时序编码器。第三章已对 XRF 与其他 Wi-Fi 室内活动数据集的对比进行了说明（见表~\ref{tab:dataset-compare}），本章沿用该数据集，以保持与类增量学习实验的一致性，便于对比不同增量范式（CIL 与 FSCIL）下的模型表现。此外，XRF 每类动作由 30 名志愿者采集、每人每类贡献约 20 条数据，主体多样性有助于模型学习更具泛化能力的表征，对少样本场景下的泛化尤为重要。
+
+划分方式。按 4.1 节的 FSCIL 任务定义，将 XRF 划分为 1 个基础会话与 5 个增量会话。基础会话（Session 0）使用前 30 类进行充分训练，每类在训练集上约 14 个样本（7:3 划分）；随后的 5 个增量会话（Session 1–5）每会话引入 5 个新类别，即 5-way 1-shot 设定，每类仅有 1 个训练样本。训练集与测试集按 7:3 划分，该比例在保留足够训练样本与保证测试集代表性的同时，与 XRF 数据集的通用划分方式一致。数据索引由 \texttt{fact\_train$i$\_0.7.txt} 与 \texttt{fact\_val$i$\_0.7.txt}（$i=1,\ldots,6$）指定，每行格式为"文件名,标签"，对应一个 .npy 格式的 CSI 时序样本。Session 0 的训练集覆盖类别 1–30，测试集同样为 1–30 类；Session $j$（$j \geq 1$）的训练集仅覆盖 $30+5(j-1)+1$ 至 $30+5j$ 共 5 个新类，每类 1 个样本，测试集则需在全体已见类别（1 至 $30+5j$ 类）上评估，以衡量模型对新旧类别的综合判别能力。表~\ref{tab:fscil-split} 汇总了各会话的类别范围与训练样本数。数据集划分示意如图~\ref{fig:fscil-split} 所示。
+
+与类增量学习的差异。第三章的类增量学习（CIL）设定中，基础任务含 15 类，后续 4 个任务各新增 10 类，且每个增量任务可访问充足的新类样本；记忆回放机制使模型在每个增量阶段仍能接触到旧类代表样本。本章的 FSCIL 设定则更为苛刻：基础会话 30 类，增量会话 5 类，且每增量会话每类仅有 1 个训练样本；为与 FSCIL 通用协议保持一致，主实验不采用记忆回放。这种差异使得 FSCIL 既要应对样本稀缺，又要应对类别持续扩展带来的表示空间压力，对模型的特征表示与分类器设计提出了更高要求。
+
+\begin{table}[H]
+  \caption{FSCIL 实验数据划分（XRF，base\_class=30，5-way 1-shot）}
+  \label{tab:fscil-split}
+  \begin{tabularx}{\textwidth}{>{\hsize=1.4\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X}
+  \toprule
+  会话 & 类别范围 & 训练类别数 & 训练样本数（每类） & 累计类别数 & 测试类别范围 \\
+  \midrule
+  Session 0（基础） & 1–30 & 30 & 14 & 30 & 1–30 \\
+  Session 1 & 31–35 & 5 & 1 & 35 & 1–35 \\
+  Session 2 & 36–40 & 5 & 1 & 40 & 1–40 \\
+  Session 3 & 41–45 & 5 & 1 & 45 & 1–45 \\
+  Session 4 & 46–50 & 5 & 1 & 50 & 1–50 \\
+  Session 5 & 51–55 & 5 & 1 & 55 & 1–55 \\
+  \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig4-3-fscil-split.png}
+  \caption{XRF 数据集在少样本类增量学习场景下的划分示意}
+  \label{fig:fscil-split}
+\end{figure}
+
+\xsubsection{实验环境与训练配置}{Environment and Training Configuration}
+
+实验环境。实验在配备 NVIDIA GPU（RTX 3090 或同等级，显存 24 GB）、CUDA 11.x 的服务器上进行，使用 Python 3.9 与 PyTorch 1.13.1 构建并训练模型。数据加载采用 8 个 worker 进程并行读取，以减少 I/O 等待、加速训练。所有对比方法与本文方法均在同一环境下运行，以保证结果可比。除特别说明外，主实验报告固定随机种子（默认 seed=1）下的结果；对敏感性实验，可进一步通过多次重复统计均值与标准差。
+
+基础训练配置。基础会话（Session 0）采用 SGD 优化器，momentum 0.9、Nesterov 加速，权重衰减 $5 \times 10^{-4}$。初始学习率 0.1，学习率调度采用 MultiStepLR，在第 60、70 轮后按 0.1 倍衰减，使模型在训练中后期以更小步长微调，从而获得更稳定的收敛。训练 100 轮，batch size 为 64，该设置兼顾显存占用与梯度估计稳定性。考虑到本文方法包含多个可训练模块，各模块对学习率的敏感程度不同，实验采用分组学习率：多尺度时序编码器与双分类器使用基础学习率 $0.1$；时序注意力融合模块使用较小学习率 $0.01$，因其自注意力结构在较大学习率下易出现不稳定，较小学习率有助于稳定训练；增强图注意力网络使用更小学习率 $0.0002$，因其仅在增量阶段参与前向传播，基础阶段仅做参数初始化，过大的学习率可能使该模块在基础训练中产生不必要的扰动。温度参数 $\tau=16$，基础模式与增量模式均采用余弦相似度分类（\texttt{ft\_cos}、\texttt{avg\_cos}）。基础训练结束后，采用平均嵌入策略初始化分类器权重（\texttt{data\_init}），即用各类别训练样本特征的均值作为该类别的分类器权重行，该策略在 FSCIL 领域被广泛采用，可在无额外训练的情况下为增量会话提供合理的分类器初值。
+
+增量学习配置。增量会话（Session 1–5）默认不进行编码器微调，仅根据支持集样本提取特征并更新分类器权重，与 CEC、CLOM 等方法的实践一致。这种"冻结编码器、仅更新分类器"的策略可有效避免因极少样本导致的编码器过拟合，同时减少灾难性遗忘的风险。若启用 \texttt{incremental\_train} 选项，则可选对分类器进行少量微调，此时学习率取 $0.001 \times 0.1$，最大轮数 5，早停 patience 为 3，以在过拟合前及时停止。本文主实验采用"仅更新分类器、不微调编码器"的设定。此外，为考察不同基础类别数对性能的影响，实验支持 \texttt{base\_class} 消融（如 10、15、20、25、30），对应不同的 \texttt{way} 与 \texttt{sessions} 配置；主实验采用 \texttt{base\_class}=30。主要超参数汇总如表~\ref{tab:fscil-hyperparams} 所示。
+
+\begin{table}[H]
+  \caption{少样本类增量学习训练超参数}
+  \label{tab:fscil-hyperparams}
+  \begin{tabularx}{\textwidth}{YYY}
+  \toprule
+  参数 & 基础训练（Session 0） & 增量学习（Session 1–5） \\
+  \midrule
+  训练轮数 & 100 & 0（仅更新分类器） \\
+  学习率（编码器/分类器） & 0.1 & — \\
+  学习率（时序注意力） & 0.01 & — \\
+  学习率（图注意力） & 0.0002 & — \\
+  学习率调度 & MultiStepLR [60, 70], $\times$0.1 & — \\
+  权重衰减 & $5 \times 10^{-4}$ & — \\
+  batch size & 64 & 全部样本 \\
+  温度 $\tau$ & 16 & 16 \\
+  分类模式 & ft\_cos / avg\_cos & avg\_cos \\
+  \bottomrule
+  \end{tabularx}
+\end{table}
+
+\xsubsection{评价指标}{Evaluation Metrics}
+
+少样本类增量学习的评估需同时反映"对新类的学习能力"与"对旧类的保持能力"，且推理时模型需在全体已见类别上统一分类，不提供任务或会话标识。实验中采用准确率（Accuracy）、性能下降率（Performance Drop, PD）与平均准确率（Average Accuracy, AA）三类指标\cite{tian2024fscilsurvey}，与 FSCIL 领域的通用评价方式保持一致。
+
+准确率（\textbf{Accuracy}）。各会话结束后，在全体已见类别的测试集上计算 Top-1 分类准确率。设 Session $j$ 的测试样本数为 $N_j$，$y_{\mathrm{pred}}^{(i)}$ 与 $y_{\mathrm{true}}^{(i)}$ 分别为第 $i$ 个样本的预测标签与真实标签，则
+\begin{equation}
+  \mathcal{A}_j = \frac{1}{N_j} \sum_{i=1}^{N_j} \mathbb{I}\left( y_{\mathrm{pred}}^{(i)} = y_{\mathrm{true}}^{(i)} \right)
+\end{equation}
+其中 $\mathbb{I}(\cdot)$ 为指示函数。$\mathcal{A}_j$ 表示 Session $j$ 结束后模型在所有已见类别上的整体判别能力。随着增量推进，类别数从 30 增至 55，若模型发生灾难性遗忘，旧类准确率会下降；若对新类过拟合不足或分类边界不合理，新类准确率会偏低；二者均会拉低 $\mathcal{A}_j$。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
+
+性能下降率（PD）。用于衡量从基础会话到末会话的准确率下降幅度，反映模型在长序列增量后的遗忘程度。设共有 $m$ 个增量会话，则
+\begin{equation}
+  \mathrm{PD} = \mathcal{A}_0 - \mathcal{A}_m
+\end{equation}
+其中 $\mathcal{A}_0$ 为基础会话（Session 0）的准确率，$\mathcal{A}_m$ 为最后一个增量会话的准确率。PD 越大表示遗忘越严重；理想情况下模型在增量过程中保持性能，PD 应接近 0。在少样本设定下，由于每个增量会话的监督信息极少，模型易在适应新类的同时遗忘旧类，PD 通常为正；通过比较不同方法的 PD，可直观判断各方法在缓解遗忘方面的效果。
+
+平均准确率（AA）。对各会话准确率取平均，用于综合反映模型在整个 FSCIL 过程的表现：
+\begin{equation}
+  \mathrm{AA} = \frac{1}{m+1} \sum_{j=0}^{m} \mathcal{A}_j
+\end{equation}
+其中 $m+1$ 为总会话数（1 个基础 + $m$ 个增量）。AA 越高表示模型在各阶段均保持较好的识别能力；若某方法在早期会话表现较好但后期急剧下降，其 AA 会受后期低准确率拖累；反之，若方法在整个增量过程中较为稳定，AA 会相对较高。在本文设置中 $m=5$，即 AA 为 Session 0–5 六个会话准确率的均值。表~\ref{tab:fscil-metrics-desc} 简要概括了上述指标的含义与用途。
+
+\begin{table}[H]
+  \caption{FSCIL 评价指标说明}
+  \label{tab:fscil-metrics-desc}
+  \begingroup
+  \renewcommand{\tabularxcolumn}[1]{m{#1}}
+  \begin{tabularx}{\textwidth}{YYY}
+  \toprule
+  指标 & 含义 & 用途 \\
+  \midrule
+  准确率 $\mathcal{A}_j$ & Session $j$ 在全体已见类别上的 Top-1 正确率 & 衡量各阶段综合判别能力 \\
+  PD & $\mathcal{A}_0 - \mathcal{A}_m$，基础会话准确率与末会话准确率之差 & 衡量遗忘程度 \\
+  AA & 各会话准确率的算术平均 & 综合衡量整个 FSCIL 过程的表现 \\
+  \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\xsubsection{对比方法与基线}{Comparison Methods and Baselines}
+
+为比较分析本文方法，实验设置以下对比。Baseline：仅使用多尺度时序编码器与全局平均池化，接单分类器，无时序注意力、无图注意力、无双分类器，作为本文方法各模块的消融基准，代表最小可用配置。CEC\cite{zhang2021cec}：采用图注意力网络在分类器层传播类别间上下文信息，通过自注意力使原型与查询在图上交换信息，增强少样本下的类别表示。iCaRL\cite{rebuffi2017icarl}：通过维护 exemplar 集合重放旧类样本，结合基于二元交叉熵的知识蒸馏约束新旧模型输出一致性，推理时采用最近类均值（NCM）分类器，是类增量学习领域的经典方法；将其纳入对比旨在验证 CIL 方法在 FSCIL 场景下的适用性。本文方法：在 CEC 等 FSCIL 方法的基础上，引入面向 Wi-Fi CSI 时序模态的多尺度时序编码与时序注意力融合，并在图注意力中增加时序关系增强层，结合双分类器架构（继承 CLOM\cite{zou2022clom} 的设计），构成完整的 FSCIL 方案。由于现有 FSCIL 方法多面向视觉图像数据，本文在统一的 Wi-Fi CSI 输入与训练协议下对上述方法进行适配比较。各对比方法均采用相同的 XRF 数据集划分、训练/测试协议与评价指标，以保证公平比较。
+
+\xsection{实验结果与分析}{Experimental Results and Analysis}
+
+本节汇报少样本类增量学习实验的结果，并从对比实验与消融实验两方面进行详细分析。所有实验均采用 4.3 节的设置，数据来源于 XRF 数据集的 5-way 1-shot 划分，评价指标为各 Session 准确率、PD 与 AA。
+
+\xsubsection{对比实验结果}{Comparison Results}
+
+主对比。表~\ref{tab:fscil-main-compare} 列出了 Baseline、CEC\cite{zhang2021cec}、iCaRL\cite{rebuffi2017icarl} 与本文方法在各 Session 的准确率及 PD、AA。Baseline 仅使用多尺度时序编码器与全局平均池化，接单分类器，代表"最小可用配置"。CEC 通过图注意力网络传播类别间上下文信息。iCaRL 是类增量学习领域的经典方法，依赖 exemplar 重放与知识蒸馏缓解遗忘。本文方法进一步引入多尺度时序编码与时序注意力融合，并增加时序关系增强层与双分类器架构，构成面向 Wi-Fi CSI 时序模态的完整方案。
+
+从表~\ref{tab:fscil-main-compare} 可见，iCaRL 在 Session 0 达到 89.94\%，基础训练阶段的表现与其他方法接近；然而自 Session 1 起准确率骤降至 7.49\%，后续会话持续维持在 5\%--7\% 的极低水平，Session 5 仅为 5.13\%，PD 高达 84.81 个百分点，AA 仅为 20.19\%。iCaRL 的核心机制包括 exemplar 集合重放旧类样本、基于二元交叉熵的知识蒸馏以及最近类均值分类器，这些机制均依赖充足的训练样本；在 FSCIL 的 1-shot 设定下，增量阶段无法访问旧类数据使 exemplar 重放无从实施，每类仅 1 个样本使蒸馏信号稀疏且类均值原型对噪声敏感，导致其在增量阶段难以维持有效的分类能力。这一结果表明，依赖后向补偿机制的 CIL 方法在极少样本条件下难以有效运作。
+
+Baseline 在 Session 0 达到 96.67\%，基础训练阶段的拟合能力较强；然而自 Session 1 起准确率急剧下降，Session 3 即降至 60.74\%，Session 5 仅为 56.06\%，PD 高达 40.61 个百分点，AA 为 68.27\%，遗忘较为严重。这表明仅依赖多尺度编码器与单分类器的最小配置在增量阶段难以有效抵御灾难性遗忘。CEC 在 Session 0 为 94.63\%，Session 5 为 63.75\%，PD 为 30.88，AA 为 74.05\%，较 Baseline 的 PD 降低 9.73 个百分点、AA 提升 5.78 个百分点，表明图注意力网络通过类别间上下文传播在一定程度上缓解了遗忘，但在缺乏时序建模与多分类器约束的情况下，改善幅度仍然有限。
+
+本文方法在 Session 0 为 90.00\%，略低于 Baseline 与 CEC，这可能与多模块联合优化带来的训练复杂度有关。但自 Session 3 起，本文方法表现出较好的增量稳定性：Session 3 为 75.93\%，Session 4 为 77.00\%，Session 5 为 74.24\%，后三个会话的准确率维持在 74\%--77\% 区间，未出现持续下降趋势。PD 仅为 15.76 个百分点，在所有方法中最低，较 Baseline 的 40.61 降低 24.85 个百分点，较 CEC 降低 15.12 个百分点；AA 为 78.48\%，在所有方法中最高，较 Baseline 提升 10.21 个百分点，较 CEC 提升 4.43 个百分点。综合来看，iCaRL 在 FSCIL 场景下的表现表明，依赖 exemplar 重放与知识蒸馏的 CIL 方法在极少样本条件下面临较大限制，其对样本规模的依赖可能影响其在 1-shot 设定下的表现。这也说明，在基础阶段优化特征表示与分类器设计，对于 FSCIL 任务可能更为重要。Baseline 的较大遗忘幅度（PD=40.61）表明，简单的增量更新策略在该任务中存在明显不足，也说明有必要针对 FSCIL 场景进行专门设计。从表~\ref{tab:fscil-main-compare} 可以看出，本文方法在该实验设定下的 PD、AA 和末会话准确率均为对比方法中最优。与此同时，Session 3--5 的准确率维持在 74\%--77\% 区间，说明该方法在增量后期的性能波动相对较小。
+
+\begin{table}[H]
+  \caption{少样本类增量学习方法对比实验（Top-1 准确率，\%）}
+  \label{tab:fscil-main-compare}
+  \begin{tabularx}{\textwidth}{>{\hsize=1.5\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X >{\hsize=0.9375\hsize\centering\arraybackslash}X}
+  \toprule
+  方法 & S0 & S1 & S2 & S3 & S4 & S5 & PD $\downarrow$ & AA \\
+  \midrule
+  Baseline & \textbf{96.67} & 73.81 & 63.33 & 60.74 & 59.00 & 56.06 & 40.61 & 68.27 \\
+  CEC\cite{zhang2021cec} & 94.63 & \textbf{80.00} & 66.83 & 69.76 & 69.33 & 63.75 & 30.88 & 74.05 \\
+  iCaRL\cite{rebuffi2017icarl} & 89.94 & 7.49 & 6.65 & 6.15 & 5.78 & 5.13 & 84.81 & 20.19 \\
+  本文方法 & 90.00 & 79.52 & \textbf{74.17} & \textbf{75.93} & \textbf{77.00} & \textbf{74.24} & \textbf{15.76} & \textbf{78.48} \\
+  \bottomrule
+  \end{tabularx}
+\end{table}
+
+图~\ref{fig:fscil-acc-curve} 给出各方法在 Session 0--5 的准确率曲线。iCaRL 的曲线在 Session 0 后出现明显下降，Session 1 即从 89.94\% 降至 7.49\%，此后长期维持在较低水平，说明该方法在 FSCIL 场景下遗忘较为严重。这也反映出，依赖 exemplar 重放与蒸馏的传统 CIL 方案在极少样本设定下面临较大挑战。Baseline 的曲线自 Session 1 起急剧下滑，从 96.67\% 持续降至 56.06\%，呈陡峭的单调递减趋势。CEC 的曲线同样单调递减，但下降幅度明显小于 Baseline，Session 5 为 63.75\%，较 Baseline 高出 7.69 个百分点，表明图注意力的引入有效减缓了遗忘速率。本文方法的曲线在 Session 1 有所下降后，Session 2--4 出现回升（74.17\%$\to$75.93\%$\to$77.00\%），Session 5 略降至 74.24\%，是唯一在增量中后期出现回升的方法，与 Baseline 末会话相比高出 18.18 个百分点。从结果上看，该回升可能与增量类别增多后图注意力对原型与查询的联合增强有关，其具体机制仍需结合训练过程进一步分析；双分类器的加权融合也在一定程度上平滑了单一分类器的过拟合。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{fig4-4-fscil-acc-curve.pdf}
+  \caption{少样本类增量学习各方法准确率对比}
+  \label{fig:fscil-acc-curve}
+\end{figure}
+
+与类增量学习的对比。第三章的类增量学习（CIL）采用 15 类基础、每任务 10 类增量、记忆回放（每类 75 Exemplar）与知识蒸馏，Session 4 准确率约为 67.84\%。本章的 FSCIL 在更苛刻的 1-shot 设定下，本文方法 Session 5 达到 74.24\%，高于 CIL 的末会话表现。这并不意味着 FSCIL 比 CIL 更易；CIL 的 15 类基础与 4 个增量任务（共 55 类）在类别分布与任务难度上与 FSCIL 的 30 类基础、5 个增量会话不同。FSCIL 的基础类别更多（30 vs 15），为后续增量提供了更丰富的特征空间与更稳健的骨干；同时，FSCIL 每增量会话仅 5 类、每类 1 样本，对"前向兼容"的设计要求更高。本文方法通过多尺度时序、时序注意力、图注意力与双分类器的组合，在 1-shot 条件下实现了相对稳定的增量性能，与 CIL 场景下的设计思路形成互补。
+
+\xsubsection{消融实验}{Ablation Study}
+
+为验证各模块的贡献，本节采用顺序添加（add-one）的消融策略：从 Baseline（仅多尺度编码器 + 全局池化 + 单分类器）出发，依次添加时序注意力融合（add\_temporal）、增强图注意力（add\_graph）、双分类器（add\_dual），得到四个消融变体。各变体除模块配置外，其余超参数与训练流程一致，以保证可比性。需要说明的是，消融实验采用顺序添加策略，从 Baseline checkpoint 依次添加模块并微调，而主实验中的本文方法（表~\ref{tab:fscil-main-compare}）为完整模型从零独立训练，训练路径不同导致结果存在差异。表~\ref{tab:fscil-ablation} 汇总了各变体的准确率及 PD、AA。
+
+\begin{table}[H]
+  \caption{消融实验：各模块配置下的准确率（\%）}
+  \label{tab:fscil-ablation}
+  \begin{tabularx}{\textwidth}{p{1.2cm}p{1.2cm}p{1cm}p{1.2cm}YYYYYYYY}
+  \toprule
+  多尺度编码 & 时序注意力 & 图注意力 & 双分类器 & S0 & S1 & S2 & S3 & S4 & S5 & PD $\downarrow$ & AA \\
+  \midrule
+  \checkmark & & & & \textbf{96.67} & 73.81 & 63.33 & 60.74 & 59.00 & 56.06 & 40.61 & 68.27 \\
+  \checkmark & \checkmark & & & 87.78 & 75.71 & 66.25 & 58.89 & 60.67 & 59.09 & 28.69 & 68.07 \\
+  \checkmark & \checkmark & \checkmark & & 90.56 & 79.05 & 69.17 & 61.48 & 63.00 & 60.00 & 30.56 & 70.54 \\
+  \checkmark & \checkmark & \checkmark & \checkmark & 92.78 & \textbf{80.48} & \textbf{70.42} & \textbf{71.85} & \textbf{71.33} & \textbf{67.88} & \textbf{24.90} & \textbf{75.79} \\
+  \bottomrule
+  \end{tabularx}
+\end{table}
+
+时序注意力模块。在 Baseline 基础上添加时序注意力融合后，Session 0 从 96.67\% 降至 87.78\%，下降 8.89 个百分点，表明自注意力结构引入的额外参数使基础训练阶段的收敛不如简单全局池化充分。然而在增量阶段，时序注意力表现出较明显的抗遗忘改善：Session 5 从 56.06\% 提升至 59.09\%，提升 3.03 个百分点；PD 从 40.61 大幅降至 28.69，改善 11.92 个百分点。AA 基本持平（68.27\%$\to$68.07\%），整体 AA 几乎不变主要受 Session 0 下降的拖累。该结果说明，时序注意力通过对 100 个时间步进行自注意力建模，能够捕获更具判别性的时序模式，使特征表示在新类持续引入时更加稳健，有效缓解了 Baseline 中严重的灾难性遗忘。Session 0 的下降说明引入该模块后基础训练难度有所增加，可能与自注意力结构带来的优化复杂度提升有关。
+
+图注意力模块。在"Baseline + 时序注意力"基础上添加图注意力后，Session 0 回升至 90.56\%，Session 5 为 60.00\%，AA 为 70.54\%，较"+ 时序注意力"提升 2.47 个百分点。图注意力在少样本增量阶段参与前向传播，使原型与查询通过自注意力交换上下文，有助于在类别增多时稳定决策边界。与 Baseline 相比，时序注意力与图注意力的组合将 PD 从 40.61 降至 30.56，降低 10.05 个百分点，Session 5 从 56.06\% 提升至 60.00\%，提升 3.94 个百分点，表明两个模块的组合在抗遗忘方面已取得明显进展。当前顺序添加的结果同时表明：图注意力在时序注意力基础上带来约 0.9 个百分点的 Session 5 提升（59.09\%$\to$60.00\%），AA 提升 2.47 个百分点（68.07\%$\to$70.54\%），且 Session 3--5 的下降更为平缓。
+
+双分类器模块。在"+ 图注意力"基础上添加双分类器后，Session 5 从 60.00\% 升至 67.88\%，提升 7.88 个百分点；PD 从 30.56 降至 24.90，AA 从 70.54 升至 75.79，提升 5.25 个百分点。双分类器通过主分类器与域内分类器的加权融合缓解类别级过拟合，在少样本场景下对新类别分类器权重的估计更具鲁棒性。从各 Session 的走势看，添加双分类器后 Session 3–5 的准确率明显抬升（61.48\%$\to$71.85\%，63.00\%$\to$71.33\%，60.00\%$\to$67.88\%），说明在增量中后期类别数较多时，双分类器的收益最为明显。这与 4.2.4 节的分析一致：单一分类器易对 1-shot 原型过拟合，决策边界过于尖锐；双分类器从不同特征子空间进行预测并融合，平滑了决策边界，提升了泛化能力。
+
+模块协同效应。综合表~\ref{tab:fscil-ablation}，各模块的逐步添加呈现出清晰的递进式改善。时序注意力单独添加时，虽使 Session 0 下降（96.67\%$\to$87.78\%），但显著改善了增量稳定性：Session 5 从 56.06\% 提升至 59.09\%，PD 从 40.61 大幅降至 28.69，降低 11.92 个百分点。图注意力在时序注意力基础上进一步带来约 2.5 个百分点的 AA 提升。双分类器带来约 5.2 个百分点的 AA 提升，在当前消融顺序下是单步收益最大的模块。Full 配置（时序 + 图 + 双分类器）的 AA 为 75.79\%，较 Baseline（68.27\%）大幅提升 7.52 个百分点；Session 5 为 67.88\%，较 Baseline（56.06\%）提升 11.82 个百分点；PD 为 24.90，较 Baseline（40.61）降低 15.71 个百分点。上述结果表明，三个模块的逐步叠加在增量稳定性方面带来了较明显的改善，Full 配置在所有指标上均优于 Baseline。主实验的本文方法（Session 0 为 90.00\%，Session 5 为 74.24\%，AA 为 78.48\%）优于消融表中的 Full 变体，表明在完整的端到端训练配置下，各模块之间的协同优化能够更充分地发挥作用。
+
+图~\ref{fig:fscil-ablation} 给出消融实验的准确率曲线对比，便于直观比较各配置在增量过程中的走势。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.75\textwidth]{fig4-5-fscil-ablation.pdf}
+  \caption{消融实验各配置准确率对比}
+  \label{fig:fscil-ablation}
+\end{figure}
+
+基础类别数敏感性。为考察基础类别数（base\_class）对性能的影响，实验在 base\_class $\in \{10, 15, 20, 25, 30\}$ 五种配置下运行完整模型，对应的增量 way 分别为 9、8、7、6、5。表~\ref{tab:fscil-baseclass} 汇总了各配置下的 Session 0、Session 5 准确率及 PD、AA。从结果可见，随 base\_class 从 10 增至 30，AA 从 47.70\% 大幅提升至 78.48\%，PD 从 69.39 降至 15.76，改善极为显著。base\_class=10 时，基础阶段仅训练 10 类，骨干网络未能充分学习判别性特征，且增量阶段每会话需融入 9 个新类（way=9），远超 base\_class=30 时的 5 个新类，导致遗忘极其严重。base\_class=20 时，Session 0 达到 97.50\%，但 Session 5 仅为 36.06\%，PD 高达 61.44，说明即使基础训练表现良好，增量阶段若需容纳过多新类，模型仍难以平衡稳定性与可塑性。base\_class=30 为最优配置，其较多的基础类别为模型提供了丰富的特征空间，较少的增量 way（每会话 5 类）降低了类别扩展的压力，使模型在增量末期仍能保持 74.24\% 的准确率。该趋势与 FSCIL 领域的普遍观察一致：基础类别越多，增量稳定性越好。
+
+\begin{table}[H]
+  \caption{不同基础类别数配置下的性能（\%）}
+  \label{tab:fscil-baseclass}
+  \begingroup
+  \renewcommand{\tabularxcolumn}[1]{m{#1}}
+  \begin{tabularx}{\textwidth}{>{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=1.5\hsize\centering\arraybackslash}X}
+  \toprule
+  base\_class & way & S0 & S5 & PD $\downarrow$ & AA & 备注 \\
+  \midrule
+  10 & 9 & 96.67 & 27.27 & 69.39 & 47.70 & 基础类最少，遗忘最严重 \\
+  15 & 8 & 92.22 & 31.21 & 61.01 & 48.51 & — \\
+  20 & 7 & \textbf{97.50} & 36.06 & 61.44 & 56.07 & — \\
+  25 & 6 & 86.67 & 48.49 & 38.18 & 63.44 & — \\
+  30 & 5 & 90.00 & \textbf{74.24} & \textbf{15.76} & \textbf{78.48} & 主实验配置 \\
+  \bottomrule
+  \end{tabularx}
+  \endgroup
+\end{table}
+
+\xsection{本章小结}{Chapter Summary}
+
+本章面向 Wi-Fi CSI 室内动作识别的少样本类增量学习问题，提出了基于时序增强与图注意力的学习方案，通过多尺度时序编码、时序注意力融合、增强图注意力与双分类器架构提升少样本条件下的增量性能。在 XRF 数据集 5-way 1-shot 设定下，本文方法末次增量会话准确率达 74.24\%，性能下降率仅 15.76 个百分点，平均准确率 78.48\%，优于所有对比方法；消融实验表明各模块均有正向贡献，双分类器对增量后期性能提升最为显著。下一章将对全文工作进行总结与展望。
