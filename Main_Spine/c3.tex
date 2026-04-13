@@ -404,7 +404,7 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \end{tabularx}
 \end{table}
 
-知识巩固。分类器扩展后，模型已具备对新旧类别的判别能力，但该知识分散在扩展后的教师网络中。为将新旧知识整合到统一的单主干表示中，本文在每轮增量结束后引入知识巩固阶段：以扩展后的网络为教师、以独立初始化的同结构单主干网络为学生，通过双边知识蒸馏将教师知识迁移至学生，再用学生替代教师作为下一阶段的基模型。值得说明的是，教师与学生采用完全相同的骨干架构与分类器维度，参数量均约为 20.76M——该阶段的目的并非缩减参数规模，而是借助蒸馏实现跨阶段的知识整合与巩固。表~\ref{tab:ablation-compress} 对比了有无知识巩固时的表现。
+知识巩固。为验证知识巩固的必要性，在其余模块不变的前提下设置有无巩固对照（见表~\ref{tab:ablation-compress}）。该步骤将分类器扩展阶段分散于教师网络中的判别能力，通过教师—学生双边蒸馏整合至单一主干，再由学生作为下一增量阶段的基模型；师生同构、参数量约 20.76M，重在跨阶段知识整合而非压缩模型规模。
 
 不进行知识巩固时，分类器扩展阶段学到的新旧类知识无法通过软标签传递至独立的学生网络，模型在下一增量阶段直接沿用扩展后的教师参数继续训练。实验结果显示，这种"无巩固"配置导致灾难性的性能坍塌：Session 0 时准确率为 91.30\%，与完整方法的 91.52\% 接近；但自 Session 1 起骤降至 3.87\%，Session 2–4 进一步跌至 2.86\%、2.27\%、1.82\%。Session 4 时模型几乎完全丧失判别能力，55 类上仅 1.82\% 的准确率接近随机猜测水平（$1/55 \approx 1.82\%$），表明无巩固时模型输出的类别分布极度偏斜，仅能识别最近学习的少数类别。
 
@@ -412,14 +412,20 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
 
 图~\ref{fig:accn-compress} 的 ACCN 曲线同样表明，无巩固时 ACCN 自 Session 1 起几乎为零并持续贴近横轴，有巩固时则在各阶段保持稳定增长，二者差距悬殊。综合表~\ref{tab:ablation-compress} 可知，知识巩固是本文框架中不可或缺的核心组件，其本质是通过教师—学生蒸馏实现跨增量阶段的知识整合，确保模型在每轮扩展后仍能保留对全体已见类别的判别能力。
 
-\begin{figure}[H]
+\begingroup
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{0pt}
+\begin{figure}[!htbp]
   \centering
-  \includegraphics[width=0.65\textwidth]{fig3-10-accn-compress.pdf}
+  \includegraphics[width=0.58\textwidth]{fig3-10-accn-compress.pdf}
   \caption{知识巩固消融的 ACCN 曲线}
   \label{fig:accn-compress}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[!htbp]
   \caption{知识巩固消融实验（\%）}
   \label{tab:ablation-compress}
   \begin{tabularx}{\textwidth}{YYYYYYY}
@@ -431,9 +437,8 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \bottomrule
   \end{tabularx}
 \end{table}
-
-
-
+\endgroup
+\FloatBarrier
 
 \xsection{本章小结}{Chapter Summary}
 
