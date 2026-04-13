@@ -1563,7 +1563,7 @@
   本学位论文共接受 #1 位专家评阅，其中常规评阅人 #2 名，名单如下：
   \ifthesis@blind\else
     \renewcommand{\arraystretch}{1.5}
-    \begin{table}[H]
+    \begin{table}[h]
       \centering
     \begin{tabular}{ccc}
       \generalreviewerlist

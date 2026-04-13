@@ -42,25 +42,34 @@ def save_fig(fig, name):
 
 
 # ── 图 3-6: 各方法 ACCN 曲线对比 ──
-fig, ax = plt.subplots(figsize=(8, 5.5))
-
 baseline = [89.67, 38.84, 26.97, 21.83, 16.25]
 icarl    = [90.41, 74.09, 66.90, 63.68, 63.49]
 bic      = [86.11, 64.91, 52.56, 50.10, 44.35]
 ucir     = [88.07, 77.16, 69.24, 61.73, 63.58]
-ours     = [91.52, 80.47, 74.24, 72.72, 73.57]
+simplecil  = [90.85, 60.80, 44.78, 37.27, 30.52]
+il2a       = [90.30, 73.31, 56.43, 48.90, 38.21]
+ours       = [91.52, 80.47, 74.24, 72.72, 73.57]
+
+fig, ax = plt.subplots(figsize=(9.2, 5.8))
 
 ax.plot(sessions, ideal_line(91.52), color='gray', marker='o', ms=7, lw=2, ls='--', label='理想')
 ax.plot(sessions, acc_to_accn(baseline), color=(115/255, 186/255, 214/255), marker='d', ms=7, lw=2, label='基线')
 ax.plot(sessions, acc_to_accn(icarl), color=(13/255, 76/255, 109/255), marker='o', ms=7, lw=2, label='iCaRL')
 ax.plot(sessions, acc_to_accn(bic), color=(255/255, 158/255, 2/255), marker='p', ms=7, lw=2, label='BiC')
 ax.plot(sessions, acc_to_accn(ucir), color='yellowgreen', marker='^', ms=7, lw=2, label='UCIR')
+ax.plot(sessions, acc_to_accn(simplecil), color=(0.45, 0.45, 0.45), marker='<', ms=7, lw=2, label='SimpleCIL')
+ax.plot(sessions, acc_to_accn(il2a), color=(0.85, 0.45, 0.35), marker='>', ms=7, lw=2, label='IL2A')
 ax.plot(sessions, acc_to_accn(ours), color=(219/255, 49/255, 36/255), marker='s', ms=7, lw=2, label='本文方法')
 
 setup_ax(ax)
 ax.set_title('不同类增量学习方法的 ACCN', fontproperties=_FP_TITLE, pad=10)
-ax.legend(fontsize=11, ncol=2, loc='upper left', framealpha=0.9)
-save_fig(fig, 'fig3-6-accn-main.pdf')
+ax.legend(fontsize=9.5, ncol=3, loc='upper left', framealpha=0.92)
+fig.tight_layout()
+for ext in ('.pdf', '.png'):
+    path = os.path.join(OUT_DIR, 'fig3-6-accn-main' + ext)
+    fig.savefig(path, bbox_inches='tight', dpi=300)
+    print(f'Saved {path}')
+plt.close(fig)
 
 
 # ── 图 3-7: 骨干网络 ACCN 曲线对比 ──
