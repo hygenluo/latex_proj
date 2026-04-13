@@ -382,6 +382,7 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \end{tabularx}
 \end{table}
 \endgroup
+\FloatBarrier
 
 分类器扩展组件。3.2.2 节在分类器扩展阶段依次采用了平衡微调与分类器重训练，旨在缓解联合训练集 $\hat{\mathcal{D}}^t$ 中新旧类样本数量不平衡带来的 logits 偏置。为考察两者的贡献，在保留样本重放与知识蒸馏的前提下，分别移除其中一项，结果见表~\ref{tab:ablation-classifier}。
 
