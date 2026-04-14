@@ -55,9 +55,9 @@
 % \advisorassociate{陈尘}{副教授}{Chen Chen}{Asscociate Prof.}
 % \advisorteam{团队中文名}{English Name of the Team}
 
-% 学科名称，请基于 '学科（专业）英文标准翻译.pdf' 填写
-% Name of the subject, also get it from that file
-\subject{软件工程}{Software Engineering}
+% 封面显示为「类别（领域）：…」，取值见 \subject 第一参数（与校方模板一致时可配合下方 \patchcmd）
+% 英文题名页仍输出第二参数，请与院系要求一致
+\subject{工程硕士}{Master of Engineering}
 
 % 答辩委员会委员 显示的顺序和这里的一样 第一个人是主席
 % Committee member of your defence, notice that the order shows in the thesis is same as here, and the first one is the chairperson
@@ -113,6 +113,13 @@
 
 \usepackage{placeins}
 
+% 将中文题名页固定标签「学科名称：」改为「类别（领域）：」（模板定义在 XJTU-thesis.cls 的 \thesistitles 中）
+\makeatletter
+\patchcmd{\thesistitles}{学科名称：}{类别（领域）：}{}{%
+  \PackageWarning{xjtu-thesis-custom}{未能替换题名页「学科名称」标签，请检查 XJTU-thesis.cls 是否与模板一致。}%
+}
+\makeatother
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 注意：根据校方要求，以下所有页面顺序不可调整
@@ -123,9 +130,9 @@
 % [Auto Generate] Chinese English Title Page
 \thesistitles
 
+% --- 以下页面本次暂不输出（需要时取消注释并恢复编译）---
 % [自动生成] 答辩委员会页
-% [Auto Generate] Defense Committee Pages
-\thesiscommittes
+% \thesiscommittes
 
 % 生成摘要页 修改 Main_Miscellaneous/abstract_chs/eng.tex 中的内容
 % Abstract, Rewrite your content in Main_Miscellaneous/abstract_chs/eng.tex
@@ -163,19 +170,16 @@
 %                 Main_Miscellaneous/appendix_b}
 
 % 攻读学位期间取得的研究成果 修改 Main_Miscellaneous/achievement.tex 中的内容 注意盲审时需要手动修改格式
-% Achievement, Rewrite your content in Main_Miscellaneous/achievement.tex
-\thesisachivements
+% \thesisachivements
 
 % 答辩委员会决议 修改 Main_Miscellaneous/decision.tex 中的内容
-% Decision, Rewrite your content in Main_Miscellaneous/decision.tex
-\thesisdecision
+% \thesisdecision
 
 % [自动生成] 常规评阅人名单 需要手动指定两个数字作为'本学位论文共接受 {#1} 位专家评阅，其中常规评阅人 {2}名'内容参数
-% [Auto Generate] Reviewer List, set two number as the content in this page 
-\thesisreviewers{7}{5}
+% \thesisreviewers{7}{5}
 
 % [自动生成] 独创性声明
-% [Auto Generate] Originality Declaration
-\thesisdeclarations
+% \thesisdeclarations
+% --- 以上页面本次暂不输出 ---
 
 \end{document}

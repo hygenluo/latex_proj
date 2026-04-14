@@ -890,7 +890,7 @@
       学位申请人： \zh@theauthor\\
       指导教师： \zh@theadvisor\\
       \zhasscociateinfo
-      学科名称： \zh@thesubject\\
+      类别（领域）： \zh@thesubject\\
       \zh@thesubmitdate\\
     \end{spacing}
   \end{center}
