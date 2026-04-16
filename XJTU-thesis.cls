@@ -872,6 +872,12 @@
     Associate Supervisor: \en@theadvisorassociate\linebreak
   }
 }
+% 盲审中文题名页：保留标签，信息处为等长下划线（与校方手写填空样式一致）
+\newcommand{\thesis@zhblindlabelwidth}{8em}
+\newcommand{\thesis@zhblindrulewidth}{12em}
+\newcommand{\thesis@zhblindfieldline}[1]{%
+  \makebox[\thesis@zhblindlabelwidth][r]{#1}\chinesecolon\underline{\hspace{\thesis@zhblindrulewidth}}\\%
+}
 \renewcommand{\thesistitles}{
   \thispagestyle{empty}
   \ifthesis@english
@@ -887,10 +893,16 @@
     \sanhao {\bfseries \zh@thetitle}\\
     \vfill
     \begin{spacing}{2.5}\sanhao
+      \ifthesis@blind
+      \thesis@zhblindfieldline{学位申请人}
+      \thesis@zhblindfieldline{指导教师}
+      \thesis@zhblindfieldline{类别（领域）}
+      \else
       学位申请人： \zh@theauthor\\
       指导教师： \zh@theadvisor\\
       \zhasscociateinfo
       类别（领域）： \zh@thesubject\\
+      \fi
       \zh@thesubmitdate\\
     \end{spacing}
   \end{center}
@@ -912,6 +924,8 @@
       for the degree of\\
       \englishdegreename~of \en@thedegree\\
     \end{spacing}
+    \ifthesis@blind
+    \else
     \vskip 6cm
     \begin{spacing}{2}\sanhao
       By\\
@@ -921,6 +935,7 @@
       \en@thesubject\\
       \en@thesubmitdate\\
     \end{spacing}
+    \fi
   \end{center}
   \cleardoublepage
 }
