@@ -274,17 +274,19 @@
     \newfontfamily{\songti@letter}{Songti SC}
     \setallmainfonts{Times New Roman}
   \else
-    % Linux: 从 Materials/Fonts/ 加载宋体、黑体、Times New Roman
-    \setCJKmainfont[Path=./Materials/Fonts/, AutoFakeBold=true]{SIMSUN.TTC}
-    \setCJKfamilyfont{zhhei}[Path=./Materials/Fonts/, AutoFakeBold=true]{SIMHEI.TTF}
-    \setCJKfamilyfont{zhsong}[Path=./Materials/Fonts/, AutoFakeBold=true]{SIMSUN.TTC}
+    % Linux：正文宋体/黑体/Times 自 ./Materials/Fonts/ 加载（勿使用 xits-math-master 目录）。
+    % 当前仓库示例文件名为 SIMSUN.TTC、SIMHEI.TTF、TIMES*.TTF；若为 fzsong.ttf / fzhei.ttf /
+    % times.ttf 等价命名，请改成对应文件名或在此处替换。
+    \setCJKmainfont[AutoFakeBold=true,Path=./Materials/Fonts/]{SIMSUN.TTC}
+    \setCJKfamilyfont{zhhei}[Path=./Materials/Fonts/,AutoFakeBold=true]{SIMHEI.TTF}
+    \setCJKfamilyfont{zhsong}[Path=./Materials/Fonts/,AutoFakeBold=true]{SIMSUN.TTC}
     \newfontfamily{\heiti@letter}[Path=./Materials/Fonts/]{SIMHEI.TTF}
     \newfontfamily{\songti@letter}[Path=./Materials/Fonts/]{SIMSUN.TTC}
     \setallmainfonts[
       Path=./Materials/Fonts/,
       BoldFont=TIMESBD.TTF,
       ItalicFont=TIMESI.TTF,
-      BoldItalicFont=TIMESBI.TTF
+      BoldItalicFont=TIMESBI.TTF,
     ]{TIMES.TTF}
   \fi
 \fi
@@ -872,12 +874,6 @@
     Associate Supervisor: \en@theadvisorassociate\linebreak
   }
 }
-% 盲审中文题名页：保留标签，信息处为等长下划线（与校方手写填空样式一致）
-\newcommand{\thesis@zhblindlabelwidth}{8em}
-\newcommand{\thesis@zhblindrulewidth}{12em}
-\newcommand{\thesis@zhblindfieldline}[1]{%
-  \makebox[\thesis@zhblindlabelwidth][r]{#1}\chinesecolon\underline{\hspace{\thesis@zhblindrulewidth}}\\%
-}
 \renewcommand{\thesistitles}{
   \thispagestyle{empty}
   \ifthesis@english
@@ -887,16 +883,15 @@
   \fi
   \parbox[t][1.2cm]{2.5cm}{}
   \begin{center}
-    \includegraphics[width=8cm]{Materials/Icons/XJTU.pdf} \\[1.7cm]
+    \includegraphics[width=8cm]{Materials/Icons/XJTU.pdf}\par\vspace{1.7cm}
     \fontsize{22pt}{22pt}\selectfont \chinesedegreename 学位论文\\
     \vskip 3.5cm
-    \sanhao {\bfseries \zh@thetitle}\\
-    \vfill
+    \sanhao {\bfseries \zh@thetitle}\par\vfill
     \begin{spacing}{2.5}\sanhao
       \ifthesis@blind
-      \thesis@zhblindfieldline{学位申请人}
-      \thesis@zhblindfieldline{指导教师}
-      \thesis@zhblindfieldline{类别（领域）}
+      学位申请人： ***\\
+      指导教师： ***\\
+      类别（领域）： ***\\
       \else
       学位申请人： \zh@theauthor\\
       指导教师： \zh@theadvisor\\
@@ -915,27 +910,34 @@
   \fi
   \begin{center}
     \vskip 1.2cm
-    \sanhao {\bfseries \en@thetitle}\\
-    \vskip 3.5cm
+    \sanhao {\bfseries \en@thetitle}\par\vskip 3.5cm
     \begin{spacing}{2}\sanhao
       \englishthesistype ~submitted to\\
       \en@UNIV\\
       in partial fulfillment of the requirements\\
       for the degree of\\
+      \ifthesis@blind
+      ***\\
+      \else
       \englishdegreename~of \en@thedegree\\
+      \fi
     \end{spacing}
-    \ifthesis@blind
-    \else
     \vskip 6cm
     \begin{spacing}{2}\sanhao
+      \ifthesis@blind
+      By\\
+      ***\\
+      Supervisor: ***\\
+      ***\\
+      \else
       By\\
       \en@theauthor\\
       Supervisor: \en@theadvisor\\
       \enasscociateinfo
       \en@thesubject\\
+      \fi
       \en@thesubmitdate\\
     \end{spacing}
-    \fi
   \end{center}
   \cleardoublepage
 }
@@ -1578,7 +1580,7 @@
   本学位论文共接受 #1 位专家评阅，其中常规评阅人 #2 名，名单如下：
   \ifthesis@blind\else
     \renewcommand{\arraystretch}{1.5}
-    \begin{table}[h]
+    \begin{table}[H]
       \centering
     \begin{tabular}{ccc}
       \generalreviewerlist
