@@ -113,12 +113,35 @@
 %% 如果有使用其他包，请在这里添加
 %% If you need other packages, use them here
 
+\usepackage{xurl}
+% 改善参考文献中 DOI/URL 在 PDF 中的断行位置，降低被误读为截断编号的风险
+\makeatletter
+\g@addto@macro\UrlBreaks{\do\-\do\/\do\.\do\_}
+\makeatother
+
 \usepackage{placeins}
 
 % 将中文题名页固定标签「学科名称：」改为「类别（领域）：」（模板定义在 XJTU-thesis.cls 的 \thesistitles 中）
 \makeatletter
 \patchcmd{\thesistitles}{学科名称：}{类别（领域）：}{}{%
   \PackageWarning{xjtu-thesis-custom}{未能替换题名页「学科名称」标签，请检查 XJTU-thesis.cls 是否与模板一致。}%
+}
+\makeatother
+
+% 参考文献：按 GB/T 7714 顺序编码制盲审要求，仅列出正文引用文献（不使用模板中 \nocite{*} 的全库输出）
+\makeatletter
+\RenewDocumentCommand {\thesisbibliography} {  } {
+  \newcommand{\thesisbibname}{参考文献}
+  \ifthesis@english
+    \renewcommand{\thesisbibname}{References}
+  \fi
+  \pdfbookmark{\thesisbibname}{References}
+  \hypersetup{bookmarksdepth=-2}
+  \addcontentsline{toc}{chapter}{参考文献}
+  \addcontentsline{toe}{chapter}{References}
+  \hypersetup{bookmarksdepth=2}
+  \printbibliography[heading=bibliography,title=\thesisbibname]
+  \pagecheck
 }
 \makeatother
 
