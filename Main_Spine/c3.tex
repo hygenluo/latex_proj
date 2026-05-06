@@ -438,12 +438,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
 
 从不同巩固方式的结果表明，KD 与 BKD 在基础阶段差异较小，但随着增量会话推进，BKD 的优势逐步显现。进入后续阶段后，BKD 始终保持更高准确率，说明在类别不断扩展、样本分布持续变化的条件下，双边蒸馏更有利于同时兼顾新类适应与旧类保持。因此，本文后续实验统一采用 BKD 作为默认知识巩固策略。Session 各阶段的定量对比见表~\ref{tab:kd-compare}，ACCN 曲线见图~\ref{fig:accn-kd}。
 
-\begingroup
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{0pt}
 \begin{table}[!htbp]
   \caption{知识蒸馏方式对比（\%）}
   \label{tab:kd-compare}
@@ -463,7 +457,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \caption{KD 与 BKD 的 ACCN 曲线对比}
   \label{fig:accn-kd}
 \end{figure}
-\endgroup
 
 \xsubsection{消融实验}{Ablation Study}
 
@@ -473,12 +466,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
 
 样本重放的作用主要体现在对旧类信息的持续保留上。实验结果表明，是否使用重放对基础阶段影响很小，但进入增量阶段后差异迅速拉开。无重放设置下，模型性能在首次增量后便明显下降，随后继续快速衰减；而引入记忆样本后，模型在后续各阶段均能维持较高准确率。这说明，旧类代表样本在增量训练中具有基础支撑作用，缺少这部分信息时，模型更新会更容易偏向新类别，进而加剧灾难性遗忘。具体数值对比见表~\ref{tab:ablation-replay} 与图~\ref{fig:accn-replay}。结合表~\ref{tab:main-compare} 中 Baseline（无回放、无蒸馏）与本文方法的对比，样本重放是本文方法取得较好性能的基础条件之一。若进一步增加每类 Exemplar 数量（如 100 或 150），理论上可带来额外收益，但会增大内存占用；本文固定采用每类 75 个 Exemplar，该设置能在不显著增加存储开销的前提下维持可接受的增量性能；其是否为最优记忆规模，仍有待进一步实验比较。
 
-\begingroup
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{0pt}
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.58\textwidth]{fig3-9-accn-replay.pdf}
@@ -498,7 +485,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \bottomrule
   \end{tabularx}
 \end{table}
-\endgroup
 \FloatBarrier
 
 分类器扩展组件。3.2.2 节在分类器扩展阶段依次采用了平衡微调与分类器重训练，旨在缓解联合训练集 $\hat{\mathcal{D}}^t$ 中新旧类样本数量不平衡带来的 logits 偏置。为考察两者的贡献，在保留样本重放与知识蒸馏的前提下，分别移除其中一项，结果见表~\ref{tab:ablation-classifier}。
@@ -527,12 +513,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
 
 图~\ref{fig:accn-compress} 的 ACCN 曲线同样表明，无巩固时 ACCN 自 Session 1 起几乎为零并持续贴近横轴，有巩固时则在各阶段保持稳定增长，二者差距悬殊。综合表~\ref{tab:ablation-compress} 可知，知识巩固是本文框架中不可或缺的核心组件，其本质是通过教师—学生蒸馏实现跨增量阶段的知识整合，确保模型在每轮扩展后仍能保留对全体已见类别的判别能力。
 
-\begingroup
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{8pt plus 2pt minus 2pt}
-\setlength{\intextsep}{8pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{0pt}
 \begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.58\textwidth]{fig3-10-accn-compress.pdf}
@@ -552,7 +532,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \bottomrule
   \end{tabularx}
 \end{table}
-\endgroup
 \FloatBarrier
 
 \xsection{本章小结}{Chapter Summary}
