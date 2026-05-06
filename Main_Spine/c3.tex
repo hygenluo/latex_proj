@@ -23,7 +23,9 @@
 \begin{equation}\label{eq:ch3-cil-risk}
 f^* = \underset{f \in \mathcal{H}}{\arg\min} \mathbb{E}_{(\mathbf{x},y) \sim \mathcal{D}^1 \cup \cdots \cup \mathcal{D}^b} \mathbb{I}(y \neq f(\mathbf{x}))
 \end{equation}
-式~\eqref{eq:ch3-cil-risk} 中，$\mathcal{H}$ 为假设空间，$\mathbb{I}(\cdot)$ 为指示函数。该式将类增量目标表述为在全体已见任务数据上最小化误分类指示期望，是后续各增量步骤中优化目标的抽象形式。该式要求模型在吸收新类别知识的同时保留旧类别知识。
+\noindent 式中：$f^*$——在假设空间上达到最优的分类映射；$\mathcal{H}$——可选函数族（假设空间）；$\mathbb{E}(\cdot)$——关于联合分布 $\mathcal{D}^1 \cup \cdots \cup \mathcal{D}^b$ 抽取样本 $(\mathbf{x},y)$ 的期望；$\mathcal{D}^1 \cup \cdots \cup \mathcal{D}^b$——截至第 $b$ 阶段已见任务的训练数据并集；$\mathbf{x}$——输入 CSI 样本；$y$——真实类别标签；$f(\mathbf{x})$——模型对样本 $\mathbf{x}$ 的预测类别；$\mathbb{I}(\cdot)$——指示函数，谓词为真时取 1，否则取 0。
+
+式~\eqref{eq:ch3-cil-risk} 将类增量目标表述为在全体已见任务数据上最小化误分类指示的期望，是后续各增量步骤中优化目标的抽象形式，要求模型在吸收新类别知识的同时保留旧类别知识。
 
 若直接用新类别数据对原模型进行微调（即 Finetune 基线），模型往往会发生灾难性遗忘：对新类别的拟合会覆盖旧类别的表示，导致对旧类别的识别能力急剧下降。因此，CIL 的核心挑战在于如何在学习新知识的同时保留旧知识，这对应于神经网络中的稳定性—可塑性困境（stability-plasticity dilemma）\cite{grossberg1982studies,zhou2024cil}。
 
@@ -62,16 +64,22 @@ f^* = \underset{f \in \mathcal{H}}{\arg\min} \mathbb{E}_{(\mathbf{x},y) \sim \ma
 \begin{equation}\label{eq:ch3-linear-model}
 f(\mathbf{x}) = \mathbf{W}^\top \phi(\mathbf{x})
 \end{equation}
-式~\eqref{eq:ch3-linear-model} 将 CSI 样本映射为嵌入向量并由线性分类器给出 logits，从而把特征提取与类别判别显式分离，为后续在冻结 $\phi$ 的前提下仅扩展 $\mathbf{W}$ 提供形式化基础；其中 $\phi(\cdot): \mathbb{R}^D \to \mathbb{R}^d$ 为特征提取器，$\mathbf{W} \in \mathbb{R}^{d \times |\mathcal{V}_b|}$ 为分类器权重。
+\noindent 式中：$f(\mathbf{x})$——样本 $\mathbf{x}$ 经线性分类头得到的 logits 或打分向量；$\phi(\cdot)$——特征提取器，$\phi: \mathbb{R}^D \to \mathbb{R}^d$；$\mathbf{x}$——输入 CSI 特征向量；$\mathbf{W}$——线性分类器权重矩阵，$\mathbf{W} \in \mathbb{R}^{d \times |\mathcal{V}_b|}$；$|\mathcal{V}_b|$——第 $b$ 阶段已见类别总数。
+
+式~\eqref{eq:ch3-linear-model} 将 CSI 样本映射为嵌入并由线性分类器给出类别打分，把特征提取与类别判别显式分离，为后续在冻结 $\phi$ 的前提下仅扩展 $\mathbf{W}$ 提供形式化基础。
 
 本文的增量策略受梯度提升（Gradient Boosting）思想启发\cite{friedman2001gbm,wang2022foster}。梯度提升的核心是在函数空间中进行梯度下降：给定当前模型 $\mathrm{F}_m$ 与损失函数 $L$，第 $m+1$ 步沿负梯度方向寻找最优更新，即
 \begin{equation}\label{eq:ch3-gbm-step}
 \mathrm{F}_{m+1}(\mathbf{x}) = \mathrm{F}_m(\mathbf{x}) - \rho_m \nabla_{\mathrm{F}} L(y, \mathrm{F}_m(\mathbf{x}))
 \end{equation}
-式~\eqref{eq:ch3-gbm-step} 给出了第 $m+1$ 步沿损失关于当前模型输出的负梯度方向更新函数近似的一般形式；其中 $\rho_m$ 为步长。以均方误差损失 $L(y, \mathrm{F}) = \frac{1}{2}(y - \mathrm{F})^2$ 为例，负梯度恰好等于残差：
+\noindent 式中：$\mathrm{F}_m(\mathbf{x})$——第 $m$ 步的加性模型输出；$\mathrm{F}_{m+1}(\mathbf{x})$——更新后的模型输出；$\rho_m$——第 $m+1$ 步的步长系数；$L(y,\mathrm{F})$——损失函数，其第一个变元为真值 $y$，第二个变元为模型输出 $\mathrm{F}$；$\nabla_{\mathrm{F}} L$——损失关于模型输出 $\mathrm{F}$ 的梯度；$\mathbf{x}$——输入样本。
+
+式~\eqref{eq:ch3-gbm-step} 给出梯度提升在函数空间沿负梯度方向更新近似的一般形式。以均方误差损失 $L(y, \mathrm{F}) = \frac{1}{2}(y - \mathrm{F})^2$ 为例，负梯度恰好等于残差：
 \begin{equation}\label{eq:ch3-gbm-neggrad}
 -\frac{\partial L(y, \mathrm{F})}{\partial \mathrm{F}} = y - \mathrm{F}_m(\mathbf{x})
 \end{equation}
+\noindent 式中：$L(y,\mathrm{F})$——与式~\eqref{eq:ch3-gbm-step} 相同的损失；$\mathrm{F}$——模型输出变量；$\mathrm{F}_m(\mathbf{x})$——第 $m$ 步模型在样本 $\mathbf{x}$ 上的输出；$y$——回归或分类目标（此处与 $\mathrm{F}_m$ 同型可比）；$\mathbf{x}$——输入样本。
+
 式~\eqref{eq:ch3-gbm-neggrad} 表明，新增的可训练模块 $h_{m+1}$ 拟合的是当前模型输出与目标之间的差：$\mathrm{F}_{m+1}(\mathbf{x}) = \mathrm{F}_m(\mathbf{x}) + h_{m+1}(\mathbf{x})$。将这一思想类比到类增量学习中，旧模型 $\mathrm{F}_m$ 仅能识别已见类别，面对新类别时存在"残差"——即新类目标分布与当前输出之间的差距。通过新增可训练模块拟合该残差，模型可在不破坏旧类表征的前提下获得对新类的判别能力。
 
 本文将增量过程分为两步：先通过可训练模块扩充模型对新旧类别的判别能力，再借助知识蒸馏将扩充后的知识迁移回单一主干，从而在保持结构简洁的前提下完成知识的整合。整体流程如图~\ref{fig:method-flow} 所示。
@@ -91,16 +99,22 @@ f(\mathbf{x}) = \mathbf{W}^\top \phi(\mathbf{x})
 \begin{equation}\label{eq:ch3-prototype}
 \boldsymbol{\mu}_c = \frac{1}{n_c} \sum_{i=1}^{n_c} \phi(\mathbf{x}_i^c)
 \end{equation}
-式~\eqref{eq:ch3-prototype} 定义了第 $c$ 类的类原型（类中心）。在第 $k$ 步（$k=1,\ldots,m$）从剩余样本中选择使当前已选样本均值与 $\boldsymbol{\mu}_c$ 最接近的样本：
+\noindent 式中：$\boldsymbol{\mu}_c$——第 $c$ 类在特征空间中的类均值原型；$n_c$——该类训练样本个数；$\phi(\cdot)$——当前特征提取映射；$\mathbf{x}_i^c$——第 $c$ 类第 $i$ 个训练样本。
+
+式~\eqref{eq:ch3-prototype} 定义第 $c$ 类的类原型（类中心）。在第 $k$ 步（$k=1,\ldots,m$）从剩余样本中选择使当前已选样本均值与 $\boldsymbol{\mu}_c$ 最接近的样本：
 
 \begin{equation}\label{eq:ch3-herd-select}
 \mathbf{i}_k = \arg\min_{i} \left\| \boldsymbol{\mu}_c - \frac{1}{k}\left( \sum_{j=1}^{k-1}\mathbf{v}_{\mathbf{i}_j}^c + \mathbf{v}_i^c \right) \right\|_2
 \end{equation}
-式~\eqref{eq:ch3-herd-select} 给出了类均值最近邻迭代选取规则。选中的样本从候选集中移除，直至选满 $m$ 个。这样得到的 Exemplar 集合 $\mathcal{E}$ 将在后续每个增量阶段与新任务数据 $\mathcal{D}^t$ 合并，作为联合训练集 $\hat{\mathcal{D}}^t = \mathcal{D}^t \cup \mathcal{E}$。在联合数据上的回放损失可写为
+\noindent 式中：$\mathbf{i}_k$——第 $k$ 轮迭代选定的样本索引（对应特征 $\mathbf{v}_{\mathbf{i}_k}^c$）；$k$——Herding 迭代步，$k=1,\ldots,m$；$m$——每类保留的 exemplar 个数；$\boldsymbol{\mu}_c$——由式~\eqref{eq:ch3-prototype} 给出的类均值；$\mathbf{v}_i^c$——第 $c$ 类第 $i$ 个样本的特征向量；$\mathbf{v}_{\mathbf{i}_j}^c$——前 $j$ 步已选样本的特征；求极小对应的 $i$ 取自尚未加入已选集合的候选样本。
+
+式~\eqref{eq:ch3-herd-select} 给出类均值最近邻迭代选取规则。选中的样本从候选集中移除，直至选满 $m$ 个。这样得到的 Exemplar 集合 $\mathcal{E}$ 将在后续每个增量阶段与新任务数据 $\mathcal{D}^t$ 合并，作为联合训练集 $\hat{\mathcal{D}}^t = \mathcal{D}^t \cup \mathcal{E}$。在联合数据上的回放损失可写为
 \begin{equation}\label{eq:ch3-replay-loss}
 \mathcal{L}_{\mathrm{replay}} = \sum_{(\mathbf{x},y) \in \hat{\mathcal{D}}^t} \ell(f(\mathbf{x}), y)
 \end{equation}
-式~\eqref{eq:ch3-replay-loss} 在联合数据 $\hat{\mathcal{D}}^t$ 上累计新类当前数据与旧类 Exemplar 的分类损失，用于在增量训练中同时约束新类拟合与旧类回放；其中 $\ell$ 为分类损失（如交叉熵）。实验中，对 XRF 数据集每类保留 $m=75$ 个样本，特征采用 L2 归一化后参与上述计算。
+\noindent 式中：$\mathcal{L}_{\mathrm{replay}}$——回放辅助下的分类经验损失；$\hat{\mathcal{D}}^t$——当前增量任务数据 $\mathcal{D}^t$ 与 exemplar 集合 $\mathcal{E}$ 的并集；$\mathcal{D}^t$——第 $t$ 步新任务数据；$\mathcal{E}$——记忆库中的旧类代表样本集合；$(\mathbf{x},y)$——联合训练集中的一条样本及其标签；$\ell(\cdot,\cdot)$——分类损失（如交叉熵）；$f(\mathbf{x})$——模型输出。
+
+式~\eqref{eq:ch3-replay-loss} 在联合数据上累计新类与旧类 exemplar 的分类损失，用于在增量训练中同时约束新类拟合与旧类回放。实验中，对 XRF 数据集每类保留 $m=75$ 个样本，特征采用 L2 归一化后参与上述计算。
 
 \xsubsection{冻结骨干下的分类器扩展}{Classifier Expansion under Frozen Backbone}
 
@@ -108,7 +122,9 @@ f(\mathbf{x}) = \mathbf{W}^\top \phi(\mathbf{x})
 \begin{equation}\label{eq:ch3-expansion-model}
 f_t(\mathbf{x}) = \mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x}), \quad \mathbf{W}_t \in \mathbb{R}^{d \times |\mathcal{V}_t|}
 \end{equation}
-式~\eqref{eq:ch3-expansion-model} 给出了冻结骨干 $\Phi_{t-1}$ 时仅通过增广分类器权重矩阵 $\mathbf{W}_t$ 获得新类 logits 的线性决策形式；其中 $\Phi_{t-1}$ 冻结，$\mathbf{W}_t$ 在原有 $|\mathcal{V}_{t-1}|$ 列基础上扩展 $|\mathcal{V}_t \setminus \mathcal{V}_{t-1}|$ 列。旧类 logits 由 $\mathbf{W}_{t-1}^\top \Phi_{t-1}(\mathbf{x})$ 保留，新类由新增列承担。这样，在单主干架构下实现对目标分布“残差”的拟合。
+\noindent 式中：$f_t(\mathbf{x})$——第 $t$ 增量步模型输出的 logits；$\mathbf{W}_t$——第 $t$ 步的分类器权重矩阵；$\Phi_{t-1}(\mathbf{x})$——第 $t-1$ 步结束时的冻结特征提取器输出嵌入；$d$——嵌入维度；$|\mathcal{V}_t|$、$|\mathcal{V}_{t-1}|$——第 $t$ 步与第 $t-1$ 步已见类别数；$\mathcal{V}_t \setminus \mathcal{V}_{t-1}$——第 $t$ 步新增类别集合。
+
+式~\eqref{eq:ch3-expansion-model} 给出冻结骨干 $\Phi_{t-1}$ 时仅通过增广 $\mathbf{W}_t$ 获得新类 logits 的线性形式：$\Phi_{t-1}$ 冻结，$\mathbf{W}_t$ 在原有 $|\mathcal{V}_{t-1}|$ 列基础上扩展 $|\mathcal{V}_t \setminus \mathcal{V}_{t-1}|$ 列。旧类 logits 由旧列保留，新类由新增列承担，从而在单主干架构下拟合新增类别的“残差”。
 
 训练数据为 $\hat{\mathcal{D}}^t = \mathcal{D}^t \cup \mathcal{E}$。由于记忆库每类仅保留有限样本，而新类样本通常远多于旧类 Exemplar 之和，数据分布会出现明显的新类偏置，进而导致分类器权重和 logits 向新类倾斜。为缓解这一问题，在按交叉熵
 
@@ -116,7 +132,9 @@ f_t(\mathbf{x}) = \mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x}), \quad \mathbf{W}_t \
 \mathcal{L}_{\mathrm{CE}} = -\sum_{(\mathbf{x},y) \in \hat{\mathcal{D}}^t} y \log \mathrm{softmax}\left(\mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x})\right)
 \end{equation}
 
-式~\eqref{eq:ch3-ce} 在联合数据 $\hat{\mathcal{D}}^t$ 上定义了标准多类交叉熵目标，用于扩展后分类器的初始对齐。完成该初始训练后，随后依次进行平衡微调与分类器重训练。
+\noindent 式中：$\mathcal{L}_{\mathrm{CE}}$——扩展后分类器的交叉熵损失；$\hat{\mathcal{D}}^t$——当前增量步联合训练集（新任务与 exemplar）；$(\mathbf{x},y)$——样本及其类别标签；$\mathbf{W}_t$——第 $t$ 步分类器权重矩阵；$\Phi_{t-1}(\mathbf{x})$——冻结骨干输出的嵌入；$\mathrm{softmax}(\cdot)$——将 logits 变换为各类别概率向量；$y$——与概率向量同维的独热标签（此处采用与 $\log \mathrm{softmax}(\cdot)$ 的内积形式等价于取真实类别对应分量 $-\log \mathrm{softmax}(\cdot)_y$）。
+
+式~\eqref{eq:ch3-ce} 在联合数据上定义扩展阶段的标准多类交叉熵目标，用于扩展后分类器的初始对齐。完成该初始训练后，随后依次进行平衡微调与分类器重训练。
 
 类别不平衡是类增量学习中的固有问题。在增量阶段 $t$，新类别各有数百个训练样本，而旧类别每类仅保留 $m$ 个 Exemplar（本文取 $m=75$），导致联合训练集中各类样本数差异悬殊。这种不平衡会使标准交叉熵损失偏向样本较多的新类，分类器权重向新类倾斜，旧类的判别边界被压缩。为量化这种不平衡并设计针对性的损失加权策略，本文引入有效样本数（Effective Number of Samples）的概念\cite{cui2019classbalanced}。
 
@@ -124,11 +142,15 @@ f_t(\mathbf{x}) = \mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x}), \quad \mathbf{W}_t \
 \begin{equation}\label{eq:ch3-effective-n}
 E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 \end{equation}
-式~\eqref{eq:ch3-effective-n} 将各类别样本量 $n_c$ 映射为随样本增加边际递减的有效计数，用于构建与稀有类相关的损失权重；其中 $\beta \in [0, 1)$ 为超参数，控制有效样本数对实际样本数的边际递减速度。当 $\beta \to 0$ 时，$E_{n_c} \to 1$，即不做加权；当 $\beta \to 1$ 时，$E_{n_c} \to n_c$，退化为样本数本身。对于样本较少的旧类（$n_c = m$），有效样本数较小，对应较大的损失权重；对于样本充足的新类，有效样本数趋于饱和，权重相对降低。基于此，各类别的损失权重设为有效样本数的倒数：$w_c = 1 / E_{n_c}$，归一化后得到平衡微调阶段的加权交叉熵损失
+\noindent 式中：$E_{n_c}$——样本数为 $n_c$ 时的有效样本数；$n_c$——第 $c$ 类在当前训练集中可用的样本个数；$\beta$——$(0,1)$ 上的超参数，控制随着真实样本数增加，有效样本数的边际递减速度（实验中依据类别均衡损失设定取值）。
+
+式~\eqref{eq:ch3-effective-n} 将各类别样本量映射为边际递减的有效计数，用于构造稀有类的更大损失权重：当 $\beta \to 0$ 时 $E_{n_c} \to 1$（近似不加权）；当 $\beta \to 1$ 时 $E_{n_c} \to n_c$。对于样本较少的旧类（$n_c = m$），有效样本数较小，对应较大的损失权重；对于样本充足的新类，有效样本数趋于饱和，权重相对降低。基于此，各类别的损失权重设为有效样本数的倒数：$w_c = 1 / E_{n_c}$，归一化后得到平衡微调阶段的加权交叉熵损失
 
 \begin{equation}\label{eq:ch3-bft}
 \mathcal{L}_{\mathrm{BFT}} = -\sum_{(\mathbf{x},y) \in \hat{\mathcal{D}}^t} \frac{w_y}{\sum_{c} w_c} \log \mathrm{softmax}\left(\mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x})\right)_y
 \end{equation}
+
+\noindent 式中：$\mathcal{L}_{\mathrm{BFT}}$——平衡微调（Balanced Fine-Tuning）损失；$\hat{\mathcal{D}}^t$——与式~\eqref{eq:ch3-ce} 相同的联合训练集；$w_y$——真实类别 $y$ 对应的类别权重，$w_y = 1/E_{n_y}$；$\sum_{c} w_c$——对所有已见类别 $c$ 的权重求和，用作归一化常数；$\mathrm{softmax}(\mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x}))_y$——softmax 概率向量中第 $y$ 个分量，即模型赋予真实类别的概率；下标 $y$——指示取真实类别对应的分量。
 
 式~\eqref{eq:ch3-bft} 在交叉熵上引入与有效样本数相关的类别权重。平衡微调采用较小的学习率和 batch size（实验中分别为 0.01 和 16），在加权损失的引导下用若干轮微调分类器，使新旧类在梯度层面获得更均衡的更新。微调后再进行分类器重训练：使用标准交叉熵在 $\hat{\mathcal{D}}^t$ 上训练若干轮以进一步巩固判别能力。上述过程均保持骨干冻结，仅更新 $\mathbf{W}_t$。
 
@@ -136,13 +158,14 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 
 分类器扩展后，模型已具备对新旧类别的判别能力，但该知识分散在扩展后的教师网络中，需要整合到统一的表示空间以供后续增量阶段使用。为此，在每轮增量结束后引入知识巩固步骤：以扩展后的网络为教师，以独立初始化的同结构单主干网络为学生，通过蒸馏将教师知识迁移至学生，再用学生替代教师作为下一阶段的基模型。教师与学生采用完全相同的骨干架构与分类器维度，参数量均约 20.76M——该阶段的核心目的并非缩减模型规模，而是借助蒸馏的软标签监督与特征对齐实现跨阶段的知识整合与巩固。消融实验表明，移除该步骤后 Session 4 准确率由 73.57\% 骤降至 1.82\%，几乎完全丧失判别能力，足见其必要性。
 
-教师网络 $\mathrm{F}_t^{\mathrm{(T)}}(\mathbf{x}) = \mathbf{W}_t^{\top} \Phi_{t-1}(\mathbf{x})$ 的参数在蒸馏阶段全部冻结；学生 $\mathrm{F}_t^{\mathrm{(S)}}$ 与教师采用相同骨干（UNet 或 ResNet）和类别数，但参数独立初始化。学生通过最小化
+教师网络 $\mathrm{F}_t^{\mathrm{(T)}}(\mathbf{x}) = \mathbf{W}_t^{\top} \Phi_{t-1}(\mathbf{x})$ 的参数在蒸馏阶段全部冻结；学生 $\mathrm{F}_t^{\mathrm{(S)}}$ 与教师采用相同骨干（UNet 或 ResNet）和类别数，但参数独立初始化。学生通过最小化以下目标进行训练。
 
 \begin{equation}\label{eq:ch3-student-total}
 \mathcal{L} = \mathcal{L}_{\mathrm{CE}} + \lambda_{\mathrm{KD}} \cdot \mathcal{L}_{\mathrm{KD}}
 \end{equation}
+\noindent 式中：$\mathcal{L}$——学生网络在蒸馏阶段的总损失；$\mathcal{L}_{\mathrm{CE}}$——对真实标签的交叉熵（硬监督）；$\mathcal{L}_{\mathrm{KD}}$——师生 logits 间的蒸馏项；$\lambda_{\mathrm{KD}}$——蒸馏项权重系数（文中取 $1.5$）。
 
-进行训练，式~\eqref{eq:ch3-student-total} 将硬标签监督与蒸馏项组合为学生网络在 $\hat{\mathcal{D}}^t$ 上的总优化目标；其中 $\mathcal{L}_{\mathrm{CE}}$ 为交叉熵，$\mathcal{L}_{\mathrm{KD}}$ 为与教师输出的蒸馏损失，$\lambda_{\mathrm{KD}}$ 取 1.5。训练数据仍为 $\hat{\mathcal{D}}^t$。
+式~\eqref{eq:ch3-student-total} 将硬标签监督与蒸馏项组合为学生网络在 $\hat{\mathcal{D}}^t$ 上的总优化目标。训练数据仍为 $\hat{\mathcal{D}}^t$。
 
 蒸馏损失采用带温度的软化 softmax\cite{hinton2015distilling}，以传递教师除硬标签外的类间相对置信关系。设温度 $T=2$，教师与学生 logits 分别为 $\mathbf{z}^{\mathrm{T}}$、$\mathbf{z}^{\mathrm{S}}$，则
 
@@ -150,17 +173,23 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 \mathcal{L}_{\mathrm{KD}} = T^2 \cdot \mathrm{KL}\left( \mathrm{softmax}\left(\frac{\mathbf{z}^{\mathrm{S}}}{T}\right) \Big\| \mathrm{softmax}\left(\frac{\mathbf{z}^{\mathrm{T}}}{T}\right) \right)
 \end{equation}
 
-式~\eqref{eq:ch3-kd-kl} 给出了带温度缩放的 KL 蒸馏项。$T>1$ 使概率分布更平滑，类间相对顺序得以保留，学生可从中学习教师对易混淆类别的区分度。系数 $T^2$ 用于平衡温度对梯度尺度的影响。若骨干支持特征输出，还可采用双边知识蒸馏（Bilateral KD, BKD）：除 logit 级 KL 蒸馏外，在特征空间对学生施加对齐损失，使表示更贴近教师。设 $\phi^{\mathrm{T}}$、$\phi^{\mathrm{S}}$ 分别为教师与学生的特征表示，$\lambda_{\mathrm{feat}}$ 为特征蒸馏权重（取 0.5），则
+\noindent 式中：$\mathcal{L}_{\mathrm{KD}}$——基于 KL 散度的 logit 蒸馏损失；$T$——温度系数（文中取 $2$），用于软化师生 softmax 分布；$\mathrm{KL}(\cdot \| \cdot)$——Kullback--Leibler 散度，第一个变元为学生分布，第二个为教师分布；$\mathbf{z}^{\mathrm{S}}$、$\mathbf{z}^{\mathrm{T}}$——学生与教师的 logits 向量；式左 KL 的两个变元分别为 $\mathrm{softmax}(\mathbf{z}^{\mathrm{S}}/T)$ 与 $\mathrm{softmax}(\mathbf{z}^{\mathrm{T}}/T)$。
+
+式~\eqref{eq:ch3-kd-kl} 给出带温度缩放的 KL 蒸馏项：$T>1$ 使概率分布更平滑，类间相对顺序得以保留；系数 $T^2$ 用于平衡温度对梯度尺度的影响。若骨干支持特征输出，还可采用双边知识蒸馏（Bilateral KD, BKD）：除 logit 级 KL 蒸馏外，在特征空间对学生施加对齐损失，使表示更贴近教师。设 $\phi^{\mathrm{T}}$、$\phi^{\mathrm{S}}$ 分别为教师与学生的特征表示，$\lambda_{\mathrm{feat}}$ 为特征蒸馏权重（取 0.5），则
 \begin{equation}\label{eq:ch3-bkd}
 \mathcal{L}_{\mathrm{BKD}} = \mathcal{L}_{\mathrm{KD}} + \lambda_{\mathrm{feat}} \cdot \left\| \phi^{\mathrm{S}}(\mathbf{x}) - \phi^{\mathrm{T}}(\mathbf{x}) \right\|_2^2
 \end{equation}
-式~\eqref{eq:ch3-bkd} 在式~\eqref{eq:ch3-kd-kl} 的 logit 蒸馏之外增加特征对齐项。实验中在 UNet、ResNet 上均可使用该扩展。
+\noindent 式中：$\mathcal{L}_{\mathrm{BKD}}$——双边知识蒸馏总损失；$\mathcal{L}_{\mathrm{KD}}$——式~\eqref{eq:ch3-kd-kl} 定义的 logit 蒸馏项；$\lambda_{\mathrm{feat}}$——特征对齐项权重；$\phi^{\mathrm{S}}(\mathbf{x})$、$\phi^{\mathrm{T}}(\mathbf{x})$——学生与教师在样本 $\mathbf{x}$ 上的特征向量；$\|\cdot\|_2^2$——向量二范数的平方。
+
+式~\eqref{eq:ch3-bkd} 在 logit 蒸馏之外增加特征对齐项。实验中在 UNet、ResNet 上均可使用该扩展。
 
 此外，与 3.2.2 节中平衡微调的思路一致，蒸馏损失同样面临类别不平衡的影响：在联合训练集 $\hat{\mathcal{D}}^t$ 中，新类样本占比远高于旧类 Exemplar，标准蒸馏损失对各样本一视同仁，可能导致教师在旧类上积累的知识未被学生充分吸收。为此，可对蒸馏损失引入与有效样本数成反比的权重，得到加权蒸馏损失
 \begin{equation}\label{eq:ch3-wbkd}
 \mathcal{L}_{\mathrm{wBKD}} = \frac{1}{|\hat{\mathcal{D}}^t|} \sum_{(\mathbf{x},y) \in \hat{\mathcal{D}}^t} \frac{w_y}{\bar{w}} \cdot \mathcal{L}_{\mathrm{BKD}}(\mathbf{x})
 \end{equation}
-式~\eqref{eq:ch3-wbkd} 中，$w_y = 1 / E_{n_y}$ 为第 $y$ 类的权重，$\bar{w}$ 为所有类别权重的均值，用于归一化以保持梯度尺度不变。该加权策略使旧类样本在蒸馏中获得更大权重，在增量后期旧类数量增多但每类 Exemplar 固定时尤为重要。
+\noindent 式中：$\mathcal{L}_{\mathrm{wBKD}}$——按类别加权后的双边蒸馏损失；$\hat{\mathcal{D}}^t$——联合训练集；$|\hat{\mathcal{D}}^t|$——该集合中样本条数；$(\mathbf{x},y)$——样本及其类别标签；$w_y$——类别 $y$ 的权重，$w_y = 1/E_{n_y}$；$\bar{w}$——各类别权重的均值，用于尺度归一化；$\mathcal{L}_{\mathrm{BKD}}(\mathbf{x})$——样本 $\mathbf{x}$ 上计算的式~\eqref{eq:ch3-bkd} 型双边蒸馏损失（对单条样本聚合）。
+
+式~\eqref{eq:ch3-wbkd} 使旧类样本在蒸馏中获得更大权重，在增量后期旧类数量增多但每类 exemplar 固定时尤为重要。
 
 从认知科学的角度看，上述教师—学生双结构与互补学习系统（Complementary Learning Systems, CLS）理论\cite{mcclelland1995cls,pham2021dualnet}存在内在联系。CLS 理论认为，哺乳动物大脑通过两个互补系统协同学习：海马体负责快速编码新经验，新皮层负责缓慢整合与巩固长期知识，两者通过"经验重放"（如睡眠期间的记忆重放）实现知识迁移。在本文框架中，分类器扩展阶段类似于海马体的快速学习——模型通过新增参数迅速适应新类别；知识蒸馏阶段则对应新皮层的缓慢整合——教师将新旧知识通过软标签传递给学生，实现跨阶段的知识巩固。记忆库中的 Exemplar 重放则直接对应 CLS 中的经验重放机制，确保旧类记忆在整合过程中不被覆盖。这一类比为本文的方法设计提供了理论基础。
 
@@ -270,7 +299,7 @@ CREATE 是 CVPR 2025 提出的类增量学习方法，针对原型类方法类�
 
 \xsubsection{评价指标}{Evaluation Metrics}
 
-类增量学习的评估需兼顾“对新类的学习能力”与“对旧类的保持能力”，且推理时模型需在全体已见类别上统一分类，不提供任务标识。实验中采用准确率（Accuracy）与 ACCN 两类指标，从不同角度刻画上述能力。
+类增量学习的评估需兼顾“对新类的学习能力”与“对旧类的保持能力”，且推理时模型需在全体已见类别上统一分类，不提供任务标识。实验中采用准确率（Accuracy）、ACCN 与平均准确率（AA）等指标，从不同角度刻画上述能力。
 
 准确率（Accuracy）。各增量阶段结束后，在全体已见类别的测试集上计算分类准确率。测试集覆盖 Session 0 至当前 Session 所学的所有类别，每条样本的预测与真实标签在同一标签空间内比较。设测试样本总数为 $N$，$y_{\mathrm{pred}}^{(i)}$ 与 $y_{\mathrm{true}}^{(i)}$ 分别为第 $i$ 个样本的预测标签与真实标签，则
 
@@ -278,33 +307,41 @@ CREATE 是 CVPR 2025 提出的类增量学习方法，针对原型类方法类�
 \text{Accuracy} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{I}\left( y_{\mathrm{pred}}^{(i)} = y_{\mathrm{true}}^{(i)} \right)
 \end{equation}
 
-式~\eqref{eq:ch3-accuracy} 中，$\mathbb{I}(\cdot)$ 为指示函数，预测正确时取 1，否则取 0。该指标直接反映模型对所有已学类别的整体判别能力。在类增量设定下，若模型严重遗忘旧类，即使对新类拟合良好，准确率也会因旧类错误而下降；反之，若过度保护旧类而牺牲新类学习，准确率同样受限。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
+\noindent 式中：$\text{Accuracy}$——当前评估阶段的全类 Top-1 准确率；$N$——参与统计的测试样本总数；$y_{\mathrm{pred}}^{(i)}$——第 $i$ 个样本的模型预测类别；$y_{\mathrm{true}}^{(i)}$——该样本的真实类别；$\mathbb{I}(\cdot)$——指示函数，括号内条件成立时为 1，否则为 0。
+
+式~\eqref{eq:ch3-accuracy} 给出会话级准确率在样本上的估计。该指标直接反映模型对所有已学类别的整体判别能力。在类增量设定下，若模型严重遗忘旧类，即使对新类拟合良好，准确率也会因旧类错误而下降；反之，若过度保护旧类而牺牲新类学习，准确率同样受限。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
 
 ACCN。随着增量推进，类别数从 15 增至 55，仅用准确率难以区分两种情形：一是模型能识别更多类别但准确率有所下降；二是模型仅能识别少量类别但准确率较高。为此引入 ACCN（Accuracy $\times$ Class Number）：设当前已见类别数为 $N_{\mathrm{cls}}$，则 $\text{ACCN} = \text{Accuracy} \times N_{\mathrm{cls}}$。ACCN 将“可识别类别数”与“平均正确率”相乘，若准确率维持不变，ACCN 应随类别数近似线性增长，对应理想增量学习的“扩展而不遗忘”目标。实际中因灾难性遗忘，准确率会随增量阶段下降，ACCN 曲线往往低于理想线，且在中后期出现波动甚至下滑。通过比较不同方法的 ACCN 曲线，可直观判断各方法在增量过程中是否既能扩展类别又保持较高正确率。本文在各对比实验与消融实验中均计算 ACCN，并绘制相应曲线供分析。
+
+此外，为综合衡量模型在整个增量过程中的平均表现，本文计算各阶段准确率的算术平均值，记为平均准确率（Average Accuracy, AA）。AA 越高，说明模型在从基础阶段到末次增量阶段的整体识别能力越稳定。本章类增量主对比（表~\ref{tab:main-compare}）中，AA 取 Session 0--Session 4 五个阶段 Top-1 准确率的算术平均；第四章少样本类增量实验中的 AA 定义与该章会话划分一致。
 
 \xsubsection{对比实验结果}{Comparison Results}
 
 （1）XRF 数据集对比实验结果。
 
-主对比。表~\ref{tab:main-compare} 列出了 XRF 数据集上 Finetune 基线、iCaRL、BiC、UCIR、SimpleCIL、IL2A、CREATE 与本文方法在 5 个增量阶段上的准确率。
+主对比。表~\ref{tab:main-compare} 列出了 XRF 数据集上 Finetune 基线、iCaRL、BiC、UCIR、SimpleCIL、IL2A、CREATE 与本文方法在 5 个增量阶段上的准确率及各方法的平均准确率（AA）。
 
 \begin{table}[H]
   \caption{类增量学习方法对比实验（CNN Top1 准确率，\%）}
   \label{tab:main-compare}
-  \begin{tabularx}{\textwidth}{YYYYYY}
+  \begingroup
+  \small
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.45cm}YYYYYY@{}}
   \toprule
-  方法 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 \\
+  方法 & S0 & S1 & S2 & S3 & S4 & AA \\
   \midrule
-  Baseline & 89.67 & 38.84 & 26.97 & 21.83 & 16.25 \\
-  iCaRL~\cite{rebuffi2017icarl} & 90.41 & 74.09 & 66.90 & 63.68 & 63.49 \\
-  BiC~\cite{wu2019bic} & 86.11 & 64.91 & 52.56 & 50.10 & 44.35 \\
-  UCIR~\cite{hou2019ucir} & 88.07 & 77.16 & 69.24 & 61.73 & 63.58 \\
-  SimpleCIL~\cite{zhou2025revisiting} & 90.85 & 60.80 & 44.78 & 37.27 & 30.52 \\
-  IL2A~\cite{zhu2021il2a} & 90.30 & 73.31 & 56.43 & 48.90 & 38.21 \\
-  CREATE~\cite{chen2025create} & 87.00 & 70.31 & 64.81 & 62.46 & 59.17 \\
-  本文方法 & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} \\
+  Baseline & 89.67 & 38.84 & 26.97 & 21.83 & 16.25 & 38.71 \\
+  \mbox{iCaRL(2017)\cite{rebuffi2017icarl}} & 90.41 & 74.09 & 66.90 & 63.68 & 63.49 & 71.71 \\
+  \mbox{BiC(2019)\cite{wu2019bic}} & 86.11 & 64.91 & 52.56 & 50.10 & 44.35 & 59.61 \\
+  \mbox{UCIR(2019)\cite{hou2019ucir}} & 88.07 & 77.16 & 69.24 & 61.73 & 63.58 & 71.96 \\
+  \mbox{SimpleCIL(2025)\cite{zhou2025revisiting}} & 90.85 & 60.80 & 44.78 & 37.27 & 30.52 & 52.84 \\
+  \mbox{IL2A(2021)\cite{zhu2021il2a}} & 90.30 & 73.31 & 56.43 & 48.90 & 38.21 & 61.43 \\
+  \mbox{CREATE(2025)\cite{chen2025create}} & 87.00 & 70.31 & 64.81 & 62.46 & 59.17 & 68.75 \\
+  本文方法 & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} & \textbf{78.50} \\
   \bottomrule
   \end{tabularx}
+  \endgroup
 \end{table}
 
 由表~\ref{tab:main-compare} 可见，不同方法在基础阶段差异相对有限，但随着增量轮次增加，性能分化迅速扩大。Baseline 在首次增量后便出现明显退化，之后继续快速下滑，说明单纯顺序微调难以维持旧类判别边界。相比之下，包含回放、蒸馏或结构扩展机制的方法整体更稳定。本文方法在整个增量过程中始终保持较高水平，尤其在最后阶段仍维持 73.57\% 的准确率，表明回放、扩展与巩固三部分能够形成较好的协同作用。各方法在相同数据集与增量划分、相同 CNN Top1 评估与 UNet 骨干下复现；其中 iCaRL、BiC、UCIR 及本文在需要时按各自实现构建 exemplar 记忆（本文每类 75 个，见 3.2.1 节）；SimpleCIL、IL2A 为文献中代表性的轻量与双路增强基线；CREATE 依据文献与公开复现配置完成适配；其余训练细节依各方法配置。以下分方法分析。
@@ -345,14 +382,15 @@ CREATE\cite{chen2025create} 在 XRF 上 Session 0--4 依次为 87.00\%、70.31\%
   \label{tab:wiar-cil-compare}
   \begingroup
   \small
-  \begin{tabularx}{\textwidth}{YYYYYYYY}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.55cm}YYYYYYY@{}}
   \toprule
   方法 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 & Session 5 & AA \\
   \midrule
   Baseline & 96.30 & 22.22 & 25.56 & 16.67 & 19.84 & 8.33 & 31.52 \\
-  BiC & 16.67 & 12.50 & 10.00 & 8.33 & 7.14 & 5.56 & 10.03 \\
-  SimpleCIL & 96.30 & 79.17 & 63.33 & 62.04 & 53.97 & 45.83 & 66.78 \\
-  IL2A & 96.30 & 68.06 & 46.67 & 43.52 & 38.10 & 31.25 & 54.13 \\
+  \mbox{BiC(2019)\cite{wu2019bic}} & 16.67 & 12.50 & 10.00 & 8.33 & 7.14 & 5.56 & 10.03 \\
+  \mbox{SimpleCIL(2025)\cite{zhou2025revisiting}} & 96.30 & 79.17 & 63.33 & 62.04 & 53.97 & 45.83 & 66.78 \\
+  \mbox{IL2A(2021)\cite{zhu2021il2a}} & 96.30 & 68.06 & 46.67 & 43.52 & 38.10 & 31.25 & 54.13 \\
   本文方法 & \textbf{98.83} & \textbf{88.89} & \textbf{73.33} & \textbf{68.52} & \textbf{69.84} & \textbf{64.58} & \textbf{77.33} \\
   \bottomrule
   \end{tabularx}

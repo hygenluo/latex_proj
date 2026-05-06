@@ -278,10 +278,10 @@
            familyi={Z\bibinitperiod},
            given={De-Chuan},
            giveni={D\bibinithyphendelim C\bibinitperiod}}}%
-        {{hash=9220b82936f917b7e0454ee74a5a0bee}{%
+        {{hash=15a5322a1b261fe95ac6e04758acf39c}{%
            family={Liu},
            familyi={L\bibinitperiod},
-           given={Zhanxin},
+           given={Ziwei},
            giveni={Z\bibinitperiod}}}%
       }
       \name{namea}{6}{}{%
@@ -310,27 +310,27 @@
            familyi={Z\bibinitperiod},
            given={De-Chuan},
            giveni={D\bibinithyphendelim C\bibinitperiod}}}%
-        {{hash=9220b82936f917b7e0454ee74a5a0bee}{%
+        {{hash=15a5322a1b261fe95ac6e04758acf39c}{%
            family={Liu},
            familyi={L\bibinitperiod},
-           given={Zhanxin},
+           given={Ziwei},
            giveni={Z\bibinitperiod}}}%
       }
       \list{language}{1}{%
         {english}%
       }
       \strng{namehash}{bd6713db1f28d45cf997e63d54411c94}
-      \strng{fullhash}{1392b811319b3e388781548d656c7472}
-      \strng{fullhashraw}{1392b811319b3e388781548d656c7472}
+      \strng{fullhash}{489b4dd4f5b4edb70caad10d3e5a2c96}
+      \strng{fullhashraw}{489b4dd4f5b4edb70caad10d3e5a2c96}
       \strng{bibnamehash}{53cedfbd0afd62210335672567e527c0}
       \strng{authorbibnamehash}{53cedfbd0afd62210335672567e527c0}
       \strng{authornamehash}{bd6713db1f28d45cf997e63d54411c94}
-      \strng{authorfullhash}{1392b811319b3e388781548d656c7472}
-      \strng{authorfullhashraw}{1392b811319b3e388781548d656c7472}
+      \strng{authorfullhash}{489b4dd4f5b4edb70caad10d3e5a2c96}
+      \strng{authorfullhashraw}{489b4dd4f5b4edb70caad10d3e5a2c96}
       \strng{nameabibnamehash}{53cedfbd0afd62210335672567e527c0}
       \strng{nameanamehash}{bd6713db1f28d45cf997e63d54411c94}
-      \strng{nameafullhash}{1392b811319b3e388781548d656c7472}
-      \strng{nameafullhashraw}{1392b811319b3e388781548d656c7472}
+      \strng{nameafullhash}{489b4dd4f5b4edb70caad10d3e5a2c96}
+      \strng{nameafullhashraw}{489b4dd4f5b4edb70caad10d3e5a2c96}
       \field{extraname}{1}
       \field{sortinit}{5}
       \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
@@ -340,12 +340,19 @@
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
+      \field{number}{12}
       \field{title}{Class-incremental learning: A survey}
       \field{usera}{J}
       \field{userd}{english}
       \field{userf}{english}
+      \field{volume}{46}
       \field{year}{2024}
       \field{dateera}{ce}
+      \field{pages}{9851\bibrangedash 9873}
+      \range{pages}{23}
+      \verb{doi}
+      \verb 10.1109/TPAMI.2024.3429383
+      \endverb
       \keyw{zhou2024cil}
       \warn{\item Datamodel: article entry 'zhou2024cil' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
       \warn{\item Datamodel: article entry 'zhou2024cil' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
@@ -434,7 +441,7 @@
       \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{Neurocomputing}
+      \field{journaltitle}{Neural Networks}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -442,8 +449,14 @@
       \field{usera}{J}
       \field{userd}{english}
       \field{userf}{english}
+      \field{volume}{169}
       \field{year}{2024}
       \field{dateera}{ce}
+      \field{pages}{307\bibrangedash 324}
+      \range{pages}{18}
+      \verb{doi}
+      \verb 10.1016/j.neunet.2023.10.039
+      \endverb
       \keyw{tian2024fscilsurvey}
       \warn{\item Datamodel: article entry 'tian2024fscilsurvey' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
       \warn{\item Datamodel: article entry 'tian2024fscilsurvey' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
@@ -509,7 +522,7 @@
       \warn{\item Datamodel: inproceedings entry 'bahl2000radar' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'bahl2000radar' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
-    \entry{youssef2004horus}{article}{}{}
+    \entry{youssef2004horus}{thesis}{}{}
       \name{author}{1}{}{%
         {{hash=bd638c4533c9cab1a88177eda2d2bf6e}{%
            family={Youssef},
@@ -524,8 +537,14 @@
            given={Moustafa},
            giveni={M\bibinitperiod}}}%
       }
+      \list{institution}{1}{%
+        {University of Maryland}%
+      }
       \list{language}{1}{%
         {english}%
+      }
+      \list{location}{1}{%
+        {College Park}%
       }
       \strng{namehash}{bd638c4533c9cab1a88177eda2d2bf6e}
       \strng{fullhash}{bd638c4533c9cab1a88177eda2d2bf6e}
@@ -543,19 +562,20 @@
       \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{Department of Computer Science, University of Maryland}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
-      \field{title}{HORUS: A WLAN-based indoor location determination system}
-      \field{usera}{J}
+      \field{title}{HORUS: A WLAN-Based Indoor Location Determination System}
+      \field{type}{phdthesis}
+      \field{usera}{D}
       \field{userd}{english}
       \field{userf}{english}
       \field{year}{2004}
       \field{dateera}{ce}
       \keyw{youssef2004horus}
-      \warn{\item Datamodel: article entry 'youssef2004horus' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'youssef2004horus' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
+      \warn{\item Datamodel: thesis entry 'youssef2004horus' (References/reference.bib): Field 'address' invalid in data model - ignoring}
+      \warn{\item Datamodel: thesis entry 'youssef2004horus' (References/reference.bib): Invalid field 'languageid' for entrytype 'thesis'}
+      \warn{\item Datamodel: thesis entry 'youssef2004horus' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'thesis'}
     \endentry
     \entry{bose2007pathloss}{inproceedings}{}{}
       \name{author}{2}{}{%
@@ -675,6 +695,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Maui, HI, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
       \strng{namehash}{f43b43d74482dff1229751f9aa501189}
       \strng{fullhash}{a72dd0e7e1c7d838f96309b8b321e52f}
       \strng{fullhashraw}{a72dd0e7e1c7d838f96309b8b321e52f}
@@ -692,10 +718,11 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{Proceedings of the 20th annual international conference on Mobile computing and networking}
+      \field{booktitle}{Proceedings of the Annual International Conference on Mobile Computing and Networking}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
+      \field{series}{MobiCom '14}
       \field{title}{We can hear you with Wi-Fi!}
       \field{usera}{C}
       \field{userd}{english}
@@ -705,6 +732,7 @@
       \field{pages}{593\bibrangedash 604}
       \range{pages}{12}
       \keyw{wang2014wihear}
+      \warn{\item Datamodel: inproceedings entry 'wang2014wihear' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'wang2014wihear' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'wang2014wihear' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -776,6 +804,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Maui, HI, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
       \strng{namehash}{8b7cb4be4afce18a499a298e53dd4e9b}
       \strng{fullhash}{861fc19b9dc8f235c26358694d1c30bf}
       \strng{fullhashraw}{861fc19b9dc8f235c26358694d1c30bf}
@@ -793,10 +827,11 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{Proceedings of the 20th annual international conference on Mobile computing and networking}
+      \field{booktitle}{Proceedings of the Annual International Conference on Mobile Computing and Networking}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
+      \field{series}{MobiCom '14}
       \field{title}{E-eyes: Device-free location-oriented activity identification using fine-grained Wi-Fi signatures}
       \field{usera}{C}
       \field{userd}{english}
@@ -806,6 +841,7 @@
       \field{pages}{617\bibrangedash 628}
       \range{pages}{12}
       \keyw{wang2014eeyes}
+      \warn{\item Datamodel: inproceedings entry 'wang2014eeyes' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'wang2014eeyes' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'wang2014eeyes' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -940,6 +976,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Paris, France}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
       \strng{namehash}{2e448f2e68ab2f1cd9e54269cab56966}
       \strng{fullhash}{418de108e107b6baea3a93ca4a6516da}
       \strng{fullhashraw}{418de108e107b6baea3a93ca4a6516da}
@@ -957,10 +999,11 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{Proceedings of the 21st annual international conference on mobile computing and networking}
+      \field{booktitle}{Proceedings of the Annual International Conference on Mobile Computing and Networking}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
+      \field{series}{MobiCom '15}
       \field{title}{Understanding and modeling of Wi-Fi signal based human activity recognition}
       \field{usera}{C}
       \field{userd}{english}
@@ -970,6 +1013,7 @@
       \field{pages}{65\bibrangedash 76}
       \range{pages}{12}
       \keyw{wang2015csiactivity}
+      \warn{\item Datamodel: inproceedings entry 'wang2015csiactivity' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'wang2015csiactivity' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'wang2015csiactivity' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -1146,7 +1190,9 @@
       \warn{\item Datamodel: article entry 'cho2018divide' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
     \endentry
     \entry{luyong2019wifiharreview}{article}{}{}
-      \name{author}{4}{}{%
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
         {{hash=dd4d177c9cece64f628f3ef6db6e8344}{%
            family={鲁勇},
            familyi={鲁\bibinitperiod}}}%
@@ -1156,11 +1202,9 @@
         {{hash=00a57f18f4b74fd140b0b48feb5004b2}{%
            family={王晓东},
            familyi={王\bibinitperiod}}}%
-        {{hash=01043d781e246d29f9365fe7088a5874}{%
-           family={周兴铭},
-           familyi={周\bibinitperiod}}}%
       }
-      \name{namea}{4}{}{%
+      \true{morenamea}
+      \name{namea}{3}{}{%
         {{hash=dd4d177c9cece64f628f3ef6db6e8344}{%
            family={鲁勇},
            familyi={鲁\bibinitperiod}}}%
@@ -1170,25 +1214,22 @@
         {{hash=00a57f18f4b74fd140b0b48feb5004b2}{%
            family={王晓东},
            familyi={王\bibinitperiod}}}%
-        {{hash=01043d781e246d29f9365fe7088a5874}{%
-           family={周兴铭},
-           familyi={周\bibinitperiod}}}%
       }
       \list{language}{1}{%
         {chinese}%
       }
       \strng{namehash}{cc02af14e6ab18f6f629f02d8a38c52c}
-      \strng{fullhash}{fcfd714ee146d6fca0f91d588f9745ab}
-      \strng{fullhashraw}{fcfd714ee146d6fca0f91d588f9745ab}
+      \strng{fullhash}{5c286327c081b2a98d80a73652e98052}
+      \strng{fullhashraw}{5c286327c081b2a98d80a73652e98052}
       \strng{bibnamehash}{5c286327c081b2a98d80a73652e98052}
       \strng{authorbibnamehash}{5c286327c081b2a98d80a73652e98052}
       \strng{authornamehash}{cc02af14e6ab18f6f629f02d8a38c52c}
-      \strng{authorfullhash}{fcfd714ee146d6fca0f91d588f9745ab}
-      \strng{authorfullhashraw}{fcfd714ee146d6fca0f91d588f9745ab}
+      \strng{authorfullhash}{5c286327c081b2a98d80a73652e98052}
+      \strng{authorfullhashraw}{5c286327c081b2a98d80a73652e98052}
       \strng{nameabibnamehash}{5c286327c081b2a98d80a73652e98052}
       \strng{nameanamehash}{cc02af14e6ab18f6f629f02d8a38c52c}
-      \strng{nameafullhash}{fcfd714ee146d6fca0f91d588f9745ab}
-      \strng{nameafullhashraw}{fcfd714ee146d6fca0f91d588f9745ab}
+      \strng{nameafullhash}{5c286327c081b2a98d80a73652e98052}
+      \strng{nameafullhashraw}{5c286327c081b2a98d80a73652e98052}
       \field{sortinit}{1}
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
@@ -1896,6 +1937,98 @@
       \warn{\item Datamodel: article entry 'kirkpatrick2017ewc' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
       \warn{\item Datamodel: article entry 'kirkpatrick2017ewc' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
     \endentry
+    \entry{zhou2023memo}{inproceedings}{}{}
+      \name{author}{4}{}{%
+        {{hash=98d023927c42519d327dc27d02162a1d}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Da-Wei},
+           giveni={D\bibinithyphendelim W\bibinitperiod}}}%
+        {{hash=8497df6fbb047e3897f768d1d8cd80cd}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Qi-Wei},
+           giveni={Q\bibinithyphendelim W\bibinitperiod}}}%
+        {{hash=75b36a6355bd9d7168129f4b329a8f03}{%
+           family={Ye},
+           familyi={Y\bibinitperiod},
+           given={Han-Jia},
+           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
+        {{hash=60db67c484d0ccf25794738ef1defd57}{%
+           family={Zhan},
+           familyi={Z\bibinitperiod},
+           given={De-Chuan},
+           giveni={D\bibinithyphendelim C\bibinitperiod}}}%
+      }
+      \name{namea}{4}{}{%
+        {{hash=98d023927c42519d327dc27d02162a1d}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Da-Wei},
+           giveni={D\bibinithyphendelim W\bibinitperiod}}}%
+        {{hash=8497df6fbb047e3897f768d1d8cd80cd}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Qi-Wei},
+           giveni={Q\bibinithyphendelim W\bibinitperiod}}}%
+        {{hash=75b36a6355bd9d7168129f4b329a8f03}{%
+           family={Ye},
+           familyi={Y\bibinitperiod},
+           given={Han-Jia},
+           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
+        {{hash=60db67c484d0ccf25794738ef1defd57}{%
+           family={Zhan},
+           familyi={Z\bibinitperiod},
+           given={De-Chuan},
+           giveni={D\bibinithyphendelim C\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {english}%
+      }
+      \list{location}{1}{%
+        {Kigali, Rwanda}%
+      }
+      \list{publisher}{1}{%
+        {OpenReview.net}%
+      }
+      \strng{namehash}{bd6713db1f28d45cf997e63d54411c94}
+      \strng{fullhash}{9aa933aab4ada8e4b0924b9d87d0aea1}
+      \strng{fullhashraw}{9aa933aab4ada8e4b0924b9d87d0aea1}
+      \strng{bibnamehash}{5687b59c015600bd1844ca77ac549a93}
+      \strng{authorbibnamehash}{5687b59c015600bd1844ca77ac549a93}
+      \strng{authornamehash}{bd6713db1f28d45cf997e63d54411c94}
+      \strng{authorfullhash}{9aa933aab4ada8e4b0924b9d87d0aea1}
+      \strng{authorfullhashraw}{9aa933aab4ada8e4b0924b9d87d0aea1}
+      \strng{nameabibnamehash}{5687b59c015600bd1844ca77ac549a93}
+      \strng{nameanamehash}{bd6713db1f28d45cf997e63d54411c94}
+      \strng{nameafullhash}{9aa933aab4ada8e4b0924b9d87d0aea1}
+      \strng{nameafullhashraw}{9aa933aab4ada8e4b0924b9d87d0aea1}
+      \field{extraname}{2}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{International Conference on Learning Representations (ICLR)}
+      \field{langid}{english}
+      \field{languageid}{english}
+      \field{lansortorder}{4}
+      \field{title}{A Model or 603 Exemplars: Towards Memory-Efficient Class-Incremental Learning}
+      \field{usera}{C}
+      \field{userd}{english}
+      \field{userf}{english}
+      \field{year}{2023}
+      \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://openreview.net/forum?id=S07feAlQHgM
+      \endverb
+      \verb{url}
+      \verb https://openreview.net/forum?id=S07feAlQHgM
+      \endverb
+      \keyw{zhou2023memo}
+      \warn{\item Datamodel: inproceedings entry 'zhou2023memo' (References/reference.bib): Field 'address' invalid in data model - ignoring}
+      \warn{\item Datamodel: inproceedings entry 'zhou2023memo' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
+      \warn{\item Datamodel: inproceedings entry 'zhou2023memo' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
+    \endentry
     \entry{yoon2018den}{inproceedings}{}{}
       \name{author}{4}{}{%
         {{hash=f7df1abd60b22734321261554cc96569}{%
@@ -1944,6 +2077,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Vancouver, BC, Canada}%
+      }
+      \list{publisher}{1}{%
+        {OpenReview.net}%
+      }
       \strng{namehash}{d3f42035a3b79afc6f9e14201a3a5746}
       \strng{fullhash}{1621831ff059acdddedf5f56777a4cb4}
       \strng{fullhashraw}{1621831ff059acdddedf5f56777a4cb4}
@@ -1970,11 +2109,18 @@
       \field{userf}{english}
       \field{year}{2018}
       \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://openreview.net/forum?id=Sk7KsfW0-
+      \endverb
+      \verb{url}
+      \verb https://openreview.net/forum?id=Sk7KsfW0-
+      \endverb
       \keyw{yoon2018den}
+      \warn{\item Datamodel: inproceedings entry 'yoon2018den' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'yoon2018den' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'yoon2018den' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
-    \entry{rusu2016pnn}{article}{}{}
+    \entry{rusu2016pnn}{online}{}{}
       \name{author}{8}{}{%
         {{hash=677dfee41a39b5ac7e138f5ce14467e9}{%
            family={Rusu},
@@ -2078,19 +2224,24 @@
       \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:1606.04671}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
       \field{title}{Progressive neural networks}
-      \field{usera}{J}
+      \field{usera}{EB}
       \field{userd}{english}
       \field{userf}{english}
       \field{year}{2016}
       \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1606.04671
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1606.04671
+      \endverb
       \keyw{rusu2016pnn}
-      \warn{\item Datamodel: article entry 'rusu2016pnn' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'rusu2016pnn' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
+      \warn{\item Datamodel: online entry 'rusu2016pnn' (References/reference.bib): Invalid field 'languageid' for entrytype 'online'}
+      \warn{\item Datamodel: online entry 'rusu2016pnn' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'online'}
     \endentry
     \entry{yan2021der}{inproceedings}{}{}
       \name{author}{3}{}{%
@@ -2130,6 +2281,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Nashville, TN, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{a2cb7dc94319570d090109001a8d64b9}
       \strng{fullhash}{209d55f643c5939870eb9fa3b9894b1b}
       \strng{fullhashraw}{209d55f643c5939870eb9fa3b9894b1b}
@@ -2142,11 +2299,11 @@
       \strng{nameanamehash}{a2cb7dc94319570d090109001a8d64b9}
       \strng{nameafullhash}{209d55f643c5939870eb9fa3b9894b1b}
       \strng{nameafullhashraw}{209d55f643c5939870eb9fa3b9894b1b}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -2159,6 +2316,7 @@
       \field{pages}{3014\bibrangedash 3023}
       \range{pages}{10}
       \keyw{yan2021der}
+      \warn{\item Datamodel: inproceedings entry 'yan2021der' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'yan2021der' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'yan2021der' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -2210,6 +2368,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Tel Aviv, Israel}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
       \strng{namehash}{5c49281b9fc697841fe164fe2d843984}
       \strng{fullhash}{1cf614a8c0bc5708f29b807eff7a5e65}
       \strng{fullhashraw}{1cf614a8c0bc5708f29b807eff7a5e65}
@@ -2240,89 +2404,9 @@
       \field{pages}{398\bibrangedash 414}
       \range{pages}{17}
       \keyw{wang2022foster}
+      \warn{\item Datamodel: inproceedings entry 'wang2022foster' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'wang2022foster' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'wang2022foster' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
-    \endentry
-    \entry{zhou2023memo}{article}{}{}
-      \name{author}{4}{}{%
-        {{hash=98d023927c42519d327dc27d02162a1d}{%
-           family={Zhou},
-           familyi={Z\bibinitperiod},
-           given={Da-Wei},
-           giveni={D\bibinithyphendelim W\bibinitperiod}}}%
-        {{hash=8497df6fbb047e3897f768d1d8cd80cd}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Qi-Wei},
-           giveni={Q\bibinithyphendelim W\bibinitperiod}}}%
-        {{hash=75b36a6355bd9d7168129f4b329a8f03}{%
-           family={Ye},
-           familyi={Y\bibinitperiod},
-           given={Han-Jia},
-           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
-        {{hash=60db67c484d0ccf25794738ef1defd57}{%
-           family={Zhan},
-           familyi={Z\bibinitperiod},
-           given={De-Chuan},
-           giveni={D\bibinithyphendelim C\bibinitperiod}}}%
-      }
-      \name{namea}{4}{}{%
-        {{hash=98d023927c42519d327dc27d02162a1d}{%
-           family={Zhou},
-           familyi={Z\bibinitperiod},
-           given={Da-Wei},
-           giveni={D\bibinithyphendelim W\bibinitperiod}}}%
-        {{hash=8497df6fbb047e3897f768d1d8cd80cd}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Qi-Wei},
-           giveni={Q\bibinithyphendelim W\bibinitperiod}}}%
-        {{hash=75b36a6355bd9d7168129f4b329a8f03}{%
-           family={Ye},
-           familyi={Y\bibinitperiod},
-           given={Han-Jia},
-           giveni={H\bibinithyphendelim J\bibinitperiod}}}%
-        {{hash=60db67c484d0ccf25794738ef1defd57}{%
-           family={Zhan},
-           familyi={Z\bibinitperiod},
-           given={De-Chuan},
-           giveni={D\bibinithyphendelim C\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {english}%
-      }
-      \strng{namehash}{bd6713db1f28d45cf997e63d54411c94}
-      \strng{fullhash}{9aa933aab4ada8e4b0924b9d87d0aea1}
-      \strng{fullhashraw}{9aa933aab4ada8e4b0924b9d87d0aea1}
-      \strng{bibnamehash}{5687b59c015600bd1844ca77ac549a93}
-      \strng{authorbibnamehash}{5687b59c015600bd1844ca77ac549a93}
-      \strng{authornamehash}{bd6713db1f28d45cf997e63d54411c94}
-      \strng{authorfullhash}{9aa933aab4ada8e4b0924b9d87d0aea1}
-      \strng{authorfullhashraw}{9aa933aab4ada8e4b0924b9d87d0aea1}
-      \strng{nameabibnamehash}{5687b59c015600bd1844ca77ac549a93}
-      \strng{nameanamehash}{bd6713db1f28d45cf997e63d54411c94}
-      \strng{nameafullhash}{9aa933aab4ada8e4b0924b9d87d0aea1}
-      \strng{nameafullhashraw}{9aa933aab4ada8e4b0924b9d87d0aea1}
-      \field{extraname}{2}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{International Conference on Learning Representations (ICLR)}
-      \field{langid}{english}
-      \field{languageid}{english}
-      \field{lansortorder}{4}
-      \field{title}{A model or 603 exemplars: Towards memory-efficient class-incremental learning}
-      \field{usera}{J}
-      \field{userd}{english}
-      \field{userf}{english}
-      \field{year}{2023}
-      \field{dateera}{ce}
-      \keyw{zhou2023memo}
-      \warn{\item Datamodel: article entry 'zhou2023memo' (References/reference.bib): Invalid field 'booktitle' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'zhou2023memo' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'zhou2023memo' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'zhou2023memo' (References/reference.bib): Missing mandatory field 'journaltitle'}
     \endentry
     \entry{wang2022l2p}{inproceedings}{}{}
       \name{author}{10}{}{%
@@ -2432,6 +2516,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {New Orleans, LA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{05a520d9d1e33839c109552ce8a2e247}
       \strng{fullhash}{859c92dfcb9280ed76b158cc76ee0736}
       \strng{fullhashraw}{859c92dfcb9280ed76b158cc76ee0736}
@@ -2449,7 +2539,7 @@
       \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -2462,6 +2552,7 @@
       \field{pages}{139\bibrangedash 149}
       \range{pages}{11}
       \keyw{wang2022l2p}
+      \warn{\item Datamodel: inproceedings entry 'wang2022l2p' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'wang2022l2p' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'wang2022l2p' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -2611,7 +2702,7 @@
         {english}%
       }
       \list{location}{1}{%
-        {Cham}%
+        {Tel Aviv, Israel}%
       }
       \list{publisher}{1}{%
         {Springer Nature Switzerland}%
@@ -2638,7 +2729,7 @@
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{abstract}{Continual learning aims to enable a single model to learn a sequence of tasks without catastrophic forgetting. Top-performing methods usually require a rehearsal buffer to store past pristine examples for experience replay, which, however, limits their practical value due to privacy and memory constraints. In this work, we present a simple yet effective framework, DualPrompt, which learns a tiny set of parameters, called prompts, to properly instruct a pre-trained model to learn tasks arriving sequentially without buffering past examples. DualPrompt presents a novel approach to attach complementary prompts to the pre-trained backbone, and then formulates the objective as learning task-invariant and task-specific ``instructions''. With extensive experimental validation, DualPrompt consistently sets state-of-the-art performance under the challenging class-incremental setting. In particular, DualPrompt outperforms recent advanced continual learning methods with relatively large buffer sizes. We also introduce a more challenging benchmark, Split ImageNet-R, to help generalize rehearsal-free continual learning research. Source code is available at https://github.com/google-research/l2p.}
-      \field{booktitle}{Computer Vision -- ECCV 2022}
+      \field{booktitle}{European Conference on Computer Vision (ECCV)}
       \field{isbn}{978-3-031-19809-0}
       \field{langid}{english}
       \field{languageid}{english}
@@ -2705,6 +2796,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {New Orleans, LA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{64ac21e9d74204e8e3db55e721e73ec3}
       \strng{fullhash}{3f448f5834292290507b63ddcea053b1}
       \strng{fullhashraw}{3f448f5834292290507b63ddcea053b1}
@@ -2722,7 +2819,7 @@
       \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -2735,10 +2832,11 @@
       \field{pages}{9285\bibrangedash 9295}
       \range{pages}{11}
       \keyw{douillard2022dytox}
+      \warn{\item Datamodel: inproceedings entry 'douillard2022dytox' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'douillard2022dytox' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'douillard2022dytox' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
-    \entry{hinton2015distilling}{article}{}{}
+    \entry{hinton2015distilling}{online}{}{}
       \name{author}{3}{}{%
         {{hash=9a8750ccdb2a4cf14d2655face1ce016}{%
            family={Hinton},
@@ -2792,19 +2890,24 @@
       \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:1503.02531}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
       \field{title}{Distilling the knowledge in a neural network}
-      \field{usera}{J}
+      \field{usera}{EB}
       \field{userd}{english}
       \field{userf}{english}
       \field{year}{2015}
       \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1503.02531
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1503.02531
+      \endverb
       \keyw{hinton2015distilling}
-      \warn{\item Datamodel: article entry 'hinton2015distilling' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'hinton2015distilling' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
+      \warn{\item Datamodel: online entry 'hinton2015distilling' (References/reference.bib): Invalid field 'languageid' for entrytype 'online'}
+      \warn{\item Datamodel: online entry 'hinton2015distilling' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'online'}
     \endentry
     \entry{li2017lwf}{article}{}{}
       \name{author}{2}{}{%
@@ -2917,6 +3020,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Honolulu, HI, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{00f74cf1eff75485adc8eedab3a596fc}
       \strng{fullhash}{09ad5bfc2756d768b803ebd54f0b901d}
       \strng{fullhashraw}{09ad5bfc2756d768b803ebd54f0b901d}
@@ -2933,7 +3042,7 @@
       \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -2946,6 +3055,7 @@
       \field{pages}{2001\bibrangedash 2010}
       \range{pages}{10}
       \keyw{rebuffi2017icarl}
+      \warn{\item Datamodel: inproceedings entry 'rebuffi2017icarl' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'rebuffi2017icarl' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'rebuffi2017icarl' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -3027,6 +3137,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Long Beach, CA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{77aa4285bb0660bf6222f13bc03c3431}
       \strng{fullhash}{da5c8c5486685b3daafcd06558b7cc74}
       \strng{fullhashraw}{da5c8c5486685b3daafcd06558b7cc74}
@@ -3039,11 +3155,11 @@
       \strng{nameanamehash}{77aa4285bb0660bf6222f13bc03c3431}
       \strng{nameafullhash}{da5c8c5486685b3daafcd06558b7cc74}
       \strng{nameafullhashraw}{da5c8c5486685b3daafcd06558b7cc74}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -3056,6 +3172,7 @@
       \field{pages}{374\bibrangedash 382}
       \range{pages}{9}
       \keyw{wu2019bic}
+      \warn{\item Datamodel: inproceedings entry 'wu2019bic' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'wu2019bic' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'wu2019bic' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -3117,6 +3234,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Long Beach, CA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{7246a4baef2bea31ec561693cd1c84d9}
       \strng{fullhash}{19af8a515e0fd8406506934ede9ecd1e}
       \strng{fullhashraw}{19af8a515e0fd8406506934ede9ecd1e}
@@ -3133,7 +3256,7 @@
       \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -3146,6 +3269,7 @@
       \field{pages}{831\bibrangedash 839}
       \range{pages}{9}
       \keyw{hou2019ucir}
+      \warn{\item Datamodel: inproceedings entry 'hou2019ucir' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'hou2019ucir' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'hou2019ucir' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -3207,6 +3331,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Long Beach, CA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{a06ec58772555b7dd9fdc21f4b54f101}
       \strng{fullhash}{89f621ce826399cec5f29f37f8a8c39e}
       \strng{fullhashraw}{89f621ce826399cec5f29f37f8a8c39e}
@@ -3223,7 +3353,7 @@
       \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -3236,6 +3366,7 @@
       \field{pages}{5138\bibrangedash 5146}
       \range{pages}{9}
       \keyw{dhar2019lwm}
+      \warn{\item Datamodel: inproceedings entry 'dhar2019lwm' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'dhar2019lwm' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'dhar2019lwm' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -3297,6 +3428,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Glasgow, UK}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
       \strng{namehash}{64ac21e9d74204e8e3db55e721e73ec3}
       \strng{fullhash}{88f9fdb5886e1ce23f17bfc8a8926a57}
       \strng{fullhashraw}{88f9fdb5886e1ce23f17bfc8a8926a57}
@@ -3327,8 +3464,106 @@
       \field{pages}{86\bibrangedash 102}
       \range{pages}{17}
       \keyw{douillard2020podnet}
+      \warn{\item Datamodel: inproceedings entry 'douillard2020podnet' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'douillard2020podnet' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'douillard2020podnet' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
+    \endentry
+    \entry{chen2025create}{inproceedings}{}{}
+      \name{author}{5}{}{%
+        {{hash=87f2998cc29ad315007828995da0e69c}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Huitong},
+           giveni={H\bibinitperiod}}}%
+        {{hash=b2eccb185095fccfeb40fdffd8b2105f}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Yu},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=44725654f294caa7c2f987366b4ee745}{%
+           family={Fan},
+           familyi={F\bibinitperiod},
+           given={Yan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ff35cb130f39363561a4584271d9bf1e}{%
+           family={Jiang},
+           familyi={J\bibinitperiod},
+           given={Guosong},
+           giveni={G\bibinitperiod}}}%
+        {{hash=b8a0fb91ee1e348c1963577d64c2b566}{%
+           family={Hu},
+           familyi={H\bibinitperiod},
+           given={Qinghua},
+           giveni={Q\bibinitperiod}}}%
+      }
+      \name{namea}{5}{}{%
+        {{hash=87f2998cc29ad315007828995da0e69c}{%
+           family={Chen},
+           familyi={C\bibinitperiod},
+           given={Huitong},
+           giveni={H\bibinitperiod}}}%
+        {{hash=b2eccb185095fccfeb40fdffd8b2105f}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Yu},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=44725654f294caa7c2f987366b4ee745}{%
+           family={Fan},
+           familyi={F\bibinitperiod},
+           given={Yan},
+           giveni={Y\bibinitperiod}}}%
+        {{hash=ff35cb130f39363561a4584271d9bf1e}{%
+           family={Jiang},
+           familyi={J\bibinitperiod},
+           given={Guosong},
+           giveni={G\bibinitperiod}}}%
+        {{hash=b8a0fb91ee1e348c1963577d64c2b566}{%
+           family={Hu},
+           familyi={H\bibinitperiod},
+           given={Qinghua},
+           giveni={Q\bibinitperiod}}}%
+      }
+      \list{language}{1}{%
+        {english}%
+      }
+      \list{location}{1}{%
+        {Nashville, TN, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
+      \strng{namehash}{8fb7f279a9747710efc3de661b5f9179}
+      \strng{fullhash}{574f3b1c2f62a67c54e11c1d2c8ea57c}
+      \strng{fullhashraw}{574f3b1c2f62a67c54e11c1d2c8ea57c}
+      \strng{bibnamehash}{57e56d5a9b1229e6e0d3e01e628720d1}
+      \strng{authorbibnamehash}{57e56d5a9b1229e6e0d3e01e628720d1}
+      \strng{authornamehash}{8fb7f279a9747710efc3de661b5f9179}
+      \strng{authorfullhash}{574f3b1c2f62a67c54e11c1d2c8ea57c}
+      \strng{authorfullhashraw}{574f3b1c2f62a67c54e11c1d2c8ea57c}
+      \strng{nameabibnamehash}{57e56d5a9b1229e6e0d3e01e628720d1}
+      \strng{nameanamehash}{8fb7f279a9747710efc3de661b5f9179}
+      \strng{nameafullhash}{574f3b1c2f62a67c54e11c1d2c8ea57c}
+      \strng{nameafullhashraw}{574f3b1c2f62a67c54e11c1d2c8ea57c}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{langid}{english}
+      \field{languageid}{english}
+      \field{lansortorder}{4}
+      \field{title}{Reducing Class-wise Confusion for Incremental Learning with Disentangled Manifolds}
+      \field{usera}{C}
+      \field{userd}{english}
+      \field{userf}{english}
+      \field{year}{2025}
+      \field{dateera}{ce}
+      \field{pages}{10121\bibrangedash 10130}
+      \range{pages}{10}
+      \keyw{chen2025create}
+      \warn{\item Datamodel: inproceedings entry 'chen2025create' (References/reference.bib): Field 'address' invalid in data model - ignoring}
+      \warn{\item Datamodel: inproceedings entry 'chen2025create' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
+      \warn{\item Datamodel: inproceedings entry 'chen2025create' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
     \entry{zhaokailin2021fslreview}{article}{}{}
       \name{author}{3}{}{%
@@ -3443,8 +3678,8 @@
       \strng{nameanamehash}{e9f5214c5a6ab621374b9925be6e50b4}
       \strng{nameafullhash}{c2939b4abb7681b07a46b9a9208ffeff}
       \strng{nameafullhashraw}{c2939b4abb7681b07a46b9a9208ffeff}
-      \field{sortinit}{5}
-      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{booktitle}{ICML Deep Learning Workshop}
@@ -3623,7 +3858,7 @@
       \warn{\item Datamodel: inproceedings entry 'finn2017maml' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'finn2017maml' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
-    \entry{nichol2018reptile}{article}{}{}
+    \entry{nichol2018reptile}{online}{}{}
       \name{author}{3}{}{%
         {{hash=fc19c0dc057e2a02419916b39da6895b}{%
            family={Nichol},
@@ -3677,19 +3912,24 @@
       \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:1803.02999}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
       \field{title}{On first-order meta-learning algorithms}
-      \field{usera}{J}
+      \field{usera}{EB}
       \field{userd}{english}
       \field{userf}{english}
       \field{year}{2018}
       \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1803.02999
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1803.02999
+      \endverb
       \keyw{nichol2018reptile}
-      \warn{\item Datamodel: article entry 'nichol2018reptile' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'nichol2018reptile' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
+      \warn{\item Datamodel: online entry 'nichol2018reptile' (References/reference.bib): Invalid field 'languageid' for entrytype 'online'}
+      \warn{\item Datamodel: online entry 'nichol2018reptile' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'online'}
     \endentry
     \entry{tao2020topic}{inproceedings}{}{}
       \name{author}{7}{}{%
@@ -3769,6 +4009,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Seattle, WA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{5a783b9514ba27714cab65c81d7d12d1}
       \strng{fullhash}{2527eac0f844d379ef6854cb953524fd}
       \strng{fullhashraw}{2527eac0f844d379ef6854cb953524fd}
@@ -3785,7 +4031,7 @@
       \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -3798,11 +4044,14 @@
       \field{pages}{12183\bibrangedash 12192}
       \range{pages}{10}
       \keyw{tao2020topic}
+      \warn{\item Datamodel: inproceedings entry 'tao2020topic' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'tao2020topic' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'tao2020topic' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
     \entry{yaoguangle2023fscildist}{article}{}{}
-      \name{author}{6}{}{%
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
         {{hash=1aa608056bf60dd439610c353e986299}{%
            family={姚光乐},
            familyi={姚\bibinitperiod}}}%
@@ -3812,17 +4061,9 @@
         {{hash=8f7f04852abef0917f86bb78f64e05cb}{%
            family={周文龙},
            familyi={周\bibinitperiod}}}%
-        {{hash=8761eb0b696b9e9e014acfd24c738771}{%
-           family={张贵宇},
-           familyi={张\bibinitperiod}}}%
-        {{hash=305be7965375e114a6965c245e1ffc9e}{%
-           family={张伟},
-           familyi={张\bibinitperiod}}}%
-        {{hash=eac79f3003be33b50be754419b01aef0}{%
-           family={张谦},
-           familyi={张\bibinitperiod}}}%
       }
-      \name{namea}{6}{}{%
+      \true{morenamea}
+      \name{namea}{3}{}{%
         {{hash=1aa608056bf60dd439610c353e986299}{%
            family={姚光乐},
            familyi={姚\bibinitperiod}}}%
@@ -3832,31 +4073,22 @@
         {{hash=8f7f04852abef0917f86bb78f64e05cb}{%
            family={周文龙},
            familyi={周\bibinitperiod}}}%
-        {{hash=8761eb0b696b9e9e014acfd24c738771}{%
-           family={张贵宇},
-           familyi={张\bibinitperiod}}}%
-        {{hash=305be7965375e114a6965c245e1ffc9e}{%
-           family={张伟},
-           familyi={张\bibinitperiod}}}%
-        {{hash=eac79f3003be33b50be754419b01aef0}{%
-           family={张谦},
-           familyi={张\bibinitperiod}}}%
       }
       \list{language}{1}{%
         {chinese}%
       }
       \strng{namehash}{7ccba35a602bb01e364dc9fb341533a3}
-      \strng{fullhash}{c552190c33e735ba42f68f2e60af75ab}
-      \strng{fullhashraw}{c552190c33e735ba42f68f2e60af75ab}
+      \strng{fullhash}{bf832cc79d45fa0b679861414699eff6}
+      \strng{fullhashraw}{bf832cc79d45fa0b679861414699eff6}
       \strng{bibnamehash}{bf832cc79d45fa0b679861414699eff6}
       \strng{authorbibnamehash}{bf832cc79d45fa0b679861414699eff6}
       \strng{authornamehash}{7ccba35a602bb01e364dc9fb341533a3}
-      \strng{authorfullhash}{c552190c33e735ba42f68f2e60af75ab}
-      \strng{authorfullhashraw}{c552190c33e735ba42f68f2e60af75ab}
+      \strng{authorfullhash}{bf832cc79d45fa0b679861414699eff6}
+      \strng{authorfullhashraw}{bf832cc79d45fa0b679861414699eff6}
       \strng{nameabibnamehash}{bf832cc79d45fa0b679861414699eff6}
       \strng{nameanamehash}{7ccba35a602bb01e364dc9fb341533a3}
-      \strng{nameafullhash}{c552190c33e735ba42f68f2e60af75ab}
-      \strng{nameafullhashraw}{c552190c33e735ba42f68f2e60af75ab}
+      \strng{nameafullhash}{bf832cc79d45fa0b679861414699eff6}
+      \strng{nameafullhashraw}{bf832cc79d45fa0b679861414699eff6}
       \field{sortinit}{6}
       \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
@@ -4020,6 +4252,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Nashville, TN, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{f536892268348cdfbd6bd4ac693a33bb}
       \strng{fullhash}{a99ca3b43d80f8b3b75b8630ce060493}
       \strng{fullhashraw}{a99ca3b43d80f8b3b75b8630ce060493}
@@ -4037,7 +4275,7 @@
       \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -4050,6 +4288,7 @@
       \field{pages}{12455\bibrangedash 12464}
       \range{pages}{10}
       \keyw{zhang2021cec}
+      \warn{\item Datamodel: inproceedings entry 'zhang2021cec' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'zhang2021cec' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'zhang2021cec' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -4307,6 +4546,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {New Orleans, LA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{bd6713db1f28d45cf997e63d54411c94}
       \strng{fullhash}{bdf40debc67ce0ea0b63c264110b2406}
       \strng{fullhashraw}{bdf40debc67ce0ea0b63c264110b2406}
@@ -4324,7 +4569,7 @@
       \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -4337,6 +4582,7 @@
       \field{pages}{9046\bibrangedash 9056}
       \range{pages}{11}
       \keyw{zhou2022fact}
+      \warn{\item Datamodel: inproceedings entry 'zhou2022fact' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'zhou2022fact' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'zhou2022fact' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -4521,8 +4767,8 @@
       \strng{nameanamehash}{ce884cc144616c39e723a8fe2eb3c879}
       \strng{nameafullhash}{ce884cc144616c39e723a8fe2eb3c879}
       \strng{nameafullhashraw}{ce884cc144616c39e723a8fe2eb3c879}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Annals of Statistics}
@@ -4601,6 +4847,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {Long Beach, CA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{f262ac35f1a3f67ea903a3b480acab47}
       \strng{fullhash}{a4eb02089423af25374823ef9bfd770b}
       \strng{fullhashraw}{a4eb02089423af25374823ef9bfd770b}
@@ -4613,11 +4865,11 @@
       \strng{nameanamehash}{f262ac35f1a3f67ea903a3b480acab47}
       \strng{nameafullhash}{a4eb02089423af25374823ef9bfd770b}
       \strng{nameafullhashraw}{a4eb02089423af25374823ef9bfd770b}
-      \field{sortinit}{8}
-      \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -4630,6 +4882,7 @@
       \field{pages}{9268\bibrangedash 9277}
       \range{pages}{10}
       \keyw{cui2019classbalanced}
+      \warn{\item Datamodel: inproceedings entry 'cui2019classbalanced' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'cui2019classbalanced' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'cui2019classbalanced' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -5277,7 +5530,7 @@
       \warn{\item Datamodel: inproceedings entry 'yang2023mmfi' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'yang2023mmfi' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
-    \entry{yousefi2017wifiharsurvey}{article}{}{}
+    \entry{yousefi2017wifiharsurvey}{online}{}{}
       \name{author}{5}{}{%
         {{hash=8f794f3d036be3a0b6eabcf3ee90e11d}{%
            family={Yousefi},
@@ -5347,23 +5600,28 @@
       \strng{nameanamehash}{74e1b14484c3eb9cbd4ddfd78334cda7}
       \strng{nameafullhash}{7e02e7c2594100ff691d177e93228663}
       \strng{nameafullhashraw}{7e02e7c2594100ff691d177e93228663}
-      \field{sortinit}{9}
-      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{journaltitle}{arXiv preprint arXiv:1708.07129}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
       \field{title}{A Survey of Human Activity Recognition Using {WiFi} {CSI}}
-      \field{usera}{J}
+      \field{usera}{EB}
       \field{userd}{english}
       \field{userf}{english}
       \field{year}{2017}
       \field{dateera}{ce}
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1708.07129
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1708.07129
+      \endverb
       \keyw{yousefi2017wifiharsurvey}
-      \warn{\item Datamodel: article entry 'yousefi2017wifiharsurvey' (References/reference.bib): Invalid field 'languageid' for entrytype 'article'}
-      \warn{\item Datamodel: article entry 'yousefi2017wifiharsurvey' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'article'}
+      \warn{\item Datamodel: online entry 'yousefi2017wifiharsurvey' (References/reference.bib): Invalid field 'languageid' for entrytype 'online'}
+      \warn{\item Datamodel: online entry 'yousefi2017wifiharsurvey' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'online'}
     \endentry
     \entry{zhou2025revisiting}{article}{}{}
       \name{author}{5}{}{%
@@ -5610,6 +5868,12 @@
       \list{language}{1}{%
         {english}%
       }
+      \list{location}{1}{%
+        {New Orleans, LA, USA}%
+      }
+      \list{publisher}{1}{%
+        {IEEE}%
+      }
       \strng{namehash}{de2ac09b2c1be2d8a11e288988af5ce1}
       \strng{fullhash}{58b76be04b579c867358aa0153263bdd}
       \strng{fullhashraw}{58b76be04b579c867358aa0153263bdd}
@@ -5626,7 +5890,7 @@
       \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{booktitle}{IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
+      \field{booktitle}{Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)}
       \field{langid}{english}
       \field{languageid}{english}
       \field{lansortorder}{4}
@@ -5639,6 +5903,7 @@
       \field{pages}{9047\bibrangedash 9056}
       \range{pages}{10}
       \keyw{hersche2022cfscil}
+      \warn{\item Datamodel: inproceedings entry 'hersche2022cfscil' (References/reference.bib): Field 'address' invalid in data model - ignoring}
       \warn{\item Datamodel: inproceedings entry 'hersche2022cfscil' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'hersche2022cfscil' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
@@ -5833,96 +6098,6 @@
       \keyw{snell2017prototypical}
       \warn{\item Datamodel: inproceedings entry 'snell2017prototypical' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
       \warn{\item Datamodel: inproceedings entry 'snell2017prototypical' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
-    \endentry
-    \entry{wang2023memo}{inproceedings}{}{}
-      \name{author}{5}{}{%
-        {{hash=af34d624521caf5c776ab1f2e7632191}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Zichen},
-           giveni={Z\bibinitperiod}}}%
-        {{hash=056c378dde18698b8868b98c08b27181}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Liyuan},
-           giveni={L\bibinitperiod}}}%
-        {{hash=386704fd3e20412d4cf404892e55a1e1}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Yifan},
-           giveni={Y\bibinitperiod}}}%
-        {{hash=8d02780d4e132974a543aeeaade6df49}{%
-           family={Lin},
-           familyi={L\bibinitperiod},
-           given={Hao},
-           giveni={H\bibinitperiod}}}%
-        {{hash=25bbf4047d900f3760c65b01ee899dba}{%
-           family={Zhang},
-           familyi={Z\bibinitperiod},
-           given={Wei},
-           giveni={W\bibinitperiod}}}%
-      }
-      \name{namea}{5}{}{%
-        {{hash=af34d624521caf5c776ab1f2e7632191}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Zichen},
-           giveni={Z\bibinitperiod}}}%
-        {{hash=056c378dde18698b8868b98c08b27181}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Liyuan},
-           giveni={L\bibinitperiod}}}%
-        {{hash=386704fd3e20412d4cf404892e55a1e1}{%
-           family={Wang},
-           familyi={W\bibinitperiod},
-           given={Yifan},
-           giveni={Y\bibinitperiod}}}%
-        {{hash=8d02780d4e132974a543aeeaade6df49}{%
-           family={Lin},
-           familyi={L\bibinitperiod},
-           given={Hao},
-           giveni={H\bibinitperiod}}}%
-        {{hash=25bbf4047d900f3760c65b01ee899dba}{%
-           family={Zhang},
-           familyi={Z\bibinitperiod},
-           given={Wei},
-           giveni={W\bibinitperiod}}}%
-      }
-      \list{language}{1}{%
-        {english}%
-      }
-      \strng{namehash}{47ec0a5e050bf2bc678a879a5819ec8e}
-      \strng{fullhash}{7c18acef1ef0c6c3d9ac51b5474439cb}
-      \strng{fullhashraw}{7c18acef1ef0c6c3d9ac51b5474439cb}
-      \strng{bibnamehash}{49413562c1866748ec673e4a1bcb10ed}
-      \strng{authorbibnamehash}{49413562c1866748ec673e4a1bcb10ed}
-      \strng{authornamehash}{47ec0a5e050bf2bc678a879a5819ec8e}
-      \strng{authorfullhash}{7c18acef1ef0c6c3d9ac51b5474439cb}
-      \strng{authorfullhashraw}{7c18acef1ef0c6c3d9ac51b5474439cb}
-      \strng{nameabibnamehash}{49413562c1866748ec673e4a1bcb10ed}
-      \strng{nameanamehash}{47ec0a5e050bf2bc678a879a5819ec8e}
-      \strng{nameafullhash}{7c18acef1ef0c6c3d9ac51b5474439cb}
-      \strng{nameafullhashraw}{7c18acef1ef0c6c3d9ac51b5474439cb}
-      \field{extraname}{10}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{booktitle}{International Conference on Learning Representations (ICLR)}
-      \field{langid}{english}
-      \field{languageid}{english}
-      \field{lansortorder}{4}
-      \field{title}{{MEMO}: Memory-efficient Expandable Model for Class-Incremental Learning}
-      \field{usera}{C}
-      \field{userd}{english}
-      \field{userf}{english}
-      \field{year}{2023}
-      \field{dateera}{ce}
-      \true{nocite}
-      \keyw{wang2023memo}
-      \warn{\item Datamodel: inproceedings entry 'wang2023memo' (References/reference.bib): Invalid field 'languageid' for entrytype 'inproceedings'}
-      \warn{\item Datamodel: inproceedings entry 'wang2023memo' (References/reference.bib): Invalid field 'lansortorder' for entrytype 'inproceedings'}
     \endentry
   \enddatalist
 \endrefsection

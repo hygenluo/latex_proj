@@ -41,7 +41,9 @@
 \begin{equation}\label{eq:ch4-fscil-risk}
   \mathbb{E}_{(x,y) \sim D_{\mathrm{train}}^{(0)} \cup \cdots \cup D_{\mathrm{train}}^{(j)}} \left[ \ell\left( f\left(x; D_{\mathrm{train}}^{(j)}, W^{j-1}\right), y \right) \right]
 \end{equation}
-式~\eqref{eq:ch4-fscil-risk} 刻画了在可访问全部已见训练数据这一理想条件下、FSCIL 在会话 $j$ 上应追求的风险形式，用于与「旧会话数据不可得、仅能基于当前支持集与历史参数更新」的实际训练目标相对照；其中学习算法 $f$ 基于新数据集 $D_{\mathrm{train}}^{(j)}$ 与当前旧模型 $W^{j-1}$ 构建新模型，并最小化全体已见类别的损失。该式给出理想优化方向；在实际训练中，由于旧会话数据不可访问，只能基于当前支持集与历史模型参数近似实现。在测试阶段，模型将在所有已见类别上进行评估：对于会话 $j$，其测试数据为 $\{D_{\mathrm{test}}^{(0)}, D_{\mathrm{test}}^{(1)}, \ldots, D_{\mathrm{test}}^{(j)}\}$，对应的标签空间为 $\mathcal{Y}_0 \cup \mathcal{Y}_1 \cup \cdots \cup \mathcal{Y}_j$。
+\noindent 式中：$\mathbb{E}[\cdot]$——关于联合分布 $D_{\mathrm{train}}^{(0)} \cup \cdots \cup D_{\mathrm{train}}^{(j)}$ 抽取样本 $(x,y)$ 的期望；$x$、$y$——输入样本及其类别标签；$D_{\mathrm{train}}^{(k)}$——第 $k$ 个会话的训练集；$j$——当前关注的增量会话索引；$f(\cdot; D_{\mathrm{train}}^{(j)}, W^{j-1})$——在会话 $j$ 的数据与上一会话模型参数 $W^{j-1}$ 条件下得到的更新后映射；$W^{j-1}$——会话 $j-1$ 结束时的模型参数；$\ell(\cdot,\cdot)$——监督损失（如交叉熵）。
+
+式~\eqref{eq:ch4-fscil-risk} 刻画在可访问全部已见训练数据这一理想条件下、FSCIL 在会话 $j$ 上应追求的风险形式，用于与「旧会话数据不可得、仅能基于当前支持集与历史参数更新」的实际训练目标相对照。该式给出理想优化方向；在实际训练中，由于旧会话数据不可访问，只能基于当前支持集与历史模型参数近似实现。在测试阶段，模型将在所有已见类别上进行评估：对于会话 $j$，其测试数据为 $\{D_{\mathrm{test}}^{(0)}, D_{\mathrm{test}}^{(1)}, \ldots, D_{\mathrm{test}}^{(j)}\}$，对应的标签空间为 $\mathcal{Y}_0 \cup \mathcal{Y}_1 \cup \cdots \cup \mathcal{Y}_j$。
 
 在本文实验中，以 XRF 数据集构造上述 FSCIL 主实验场景；另在 WiAR 公开数据集上开展 WiAR16 式少样本类增量对比，用于在另一公开 Wi-Fi 动作识别数据集上补充检验所提方法在较小类别规模与不同 CSI 数据分布下的适用性（详见 4.3.1 节）。XRF 数据集包含 55 类室内动作，对应 Wi-Fi CSI 信号经预处理后的 270 维 × 1000 长度时序特征。按本研究的实验配置，将数据划分为 1 个基础会话与 5 个增量会话：基础会话使用前 30 类进行充分训练，随后的 5 个增量会话每会话引入 5 个新类别，即 5-way 1-shot 设定，每类仅有 1 个训练样本。训练集与测试集按 7:3 划分。整体流程如图~\ref{fig:fscil-system} 所示。
 
@@ -82,7 +84,9 @@
 \begin{equation}\label{eq:ch4-Lbase}
   \mathcal{L}_{\mathrm{base}} = -\frac{1}{N}\sum_{i=1}^{N}\log\frac{\exp(o_{y_i})}{\sum_{c=1}^{C}\exp(o_c)}
 \end{equation}
-式~\eqref{eq:ch4-Lbase} 中，$N$ 为批内样本数，$y_i$ 为第 $i$ 个样本的真实标签，$o_c$ 为第 $c$ 个类别的 logit。图注意力网络主要在少样本增量阶段参与原型与查询特征之间的关系传播。基础会话阶段的训练重点放在多尺度时序编码器、时序注意力融合模块与双分类器上；图注意力网络不接入 Session 0 的分类主路径，其参数保持网络默认初始化，在进入增量阶段后于 N-way K-shot 计算中参与前向，以增强少样本条件下的类别关系建模。优化器为 SGD（动量 0.9、Nesterov、权重衰减 $5 \times 10^{-4}$），多尺度编码器与双分类器使用基础学习率，时序注意力融合模块使用较小学习率以稳定训练。基础会话结束后，采用平均嵌入策略初始化分类器权重，随后进入增量会话。在增量会话中，默认不进行编码器微调（与 CEC/CLOM 策略一致），仅根据支持集样本提取特征并更新分类器权重；图注意力网络在计算 N-way K-shot 的 logits 时参与前向传播。各模块的设计动机、数学形式与实现细节如下。本文方法的整体架构如图~\ref{fig:method-arch} 所示。
+\noindent 式中：$\mathcal{L}_{\mathrm{base}}$——基础会话上的平均负对数似然（多类交叉熵）；$N$——一个 mini-batch 中的样本数；$i$——批内样本索引；$y_i$——第 $i$ 个样本的类别标签；$o_c$——融合后 logits 向量 $\mathbf{o}$ 中第 $c$ 类分量；$C$——基础会话的类别总数；$\exp(o_{y_i})/\sum_{c=1}^{C}\exp(o_c)$——softmax 后真实类别 $y_i$ 的预测概率。
+
+式~\eqref{eq:ch4-Lbase} 给出 Session 0 端到端训练所采用的分类目标。图注意力网络主要在少样本增量阶段参与原型与查询特征之间的关系传播。基础会话阶段的训练重点放在多尺度时序编码器、时序注意力融合模块与双分类器上；图注意力网络不接入 Session 0 的分类主路径，其参数保持网络默认初始化，在进入增量阶段后于 N-way K-shot 计算中参与前向，以增强少样本条件下的类别关系建模。优化器为 SGD（动量 0.9、Nesterov、权重衰减 $5 \times 10^{-4}$），多尺度编码器与双分类器使用基础学习率，时序注意力融合模块使用较小学习率以稳定训练。基础会话结束后，采用平均嵌入策略初始化分类器权重，随后进入增量会话。在增量会话中，默认不进行编码器微调（与 CEC/CLOM 策略一致），仅根据支持集样本提取特征并更新分类器权重；图注意力网络在计算 N-way K-shot 的 logits 时参与前向传播。各模块的设计动机、数学形式与实现细节如下。本文方法的整体架构如图~\ref{fig:method-arch} 所示。
 
 \begin{figure}[H]
   \centering
@@ -107,7 +111,9 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-multiscale-H}
   \mathbf{H} = \mathrm{Fusion}\big(\mathrm{Concat}(\phi_{\mathrm{short}}(\mathbf{x}), \phi_{\mathrm{mid}}(\mathbf{x}), \phi_{\mathrm{long}}(\mathbf{x}))\big) \in \mathbb{R}^{B \times 512 \times 100}
 \end{equation}
-式~\eqref{eq:ch4-multiscale-H} 中，$\phi_{\mathrm{short}}$、$\phi_{\mathrm{mid}}$、$\phi_{\mathrm{long}}$ 分别对应短期、中期与长期编码器，$\mathrm{Fusion}$ 为融合层。该模块使模型能同时利用不同时间尺度的动作信息，为后续时序注意力与分类提供更丰富的表示基础；在基础训练阶段，多尺度编码器与后续模块一起端到端训练，学习对不同尺度模式的最优组合。多尺度时序编码器的整体结构如图~\ref{fig:method-arch} 所示。
+\noindent 式中：$\mathbf{H}$——多尺度时序编码器输出张量；$B$——批大小；$\phi_{\mathrm{short}}$、$\phi_{\mathrm{mid}}$、$\phi_{\mathrm{long}}$——短、中、长三个尺度的 1D 卷积分支；$\mathbf{x}$——网络输入的 CSI 时序张量；$\mathrm{Concat}(\cdot)$——在通道维拼接；$\mathrm{Fusion}(\cdot)$——$1 \times 1$ 卷积等融合算子；$\mathbb{R}^{B \times 512 \times 100}$——张量形状（批、通道/特征维、时间步）。
+
+式~\eqref{eq:ch4-multiscale-H} 将三尺度特征融合为统一时序表示。该模块使模型能同时利用不同时间尺度的动作信息，为后续时序注意力与分类提供更丰富的表示基础；在基础训练阶段，多尺度编码器与后续模块一起端到端训练，学习对不同尺度模式的最优组合。多尺度时序编码器的整体结构如图~\ref{fig:method-arch} 所示。
 
 \xsubsection{时序注意力融合模块}{Temporal Attention Fusion Module}
 
@@ -118,13 +124,17 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
   \mathrm{PE}_{(pos, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right), \quad
   \mathrm{PE}_{(pos, 2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)
 \end{equation}
+\noindent 式中：$\mathrm{PE}_{(pos,2i)}$、$\mathrm{PE}_{(pos,2i+1)}$——位置 $pos$、嵌入维度索引 $2i$ 与 $2i+1$ 上的位置编码分量；$pos$——序列位置索引（本文为 $0,\ldots,99$）；$i$——维度配对索引；$d$——模型嵌入维度（本文为 $512$）；三角函数中的分母 $10000^{2i/d}$——Transformer 经典几何级数频率基底。
+
 式~\eqref{eq:ch4-pe} 给出的编码使不同位置具有唯一的向量表示，且连续位置之间的编码平滑变化，有利于模型学习时序结构。位置编码与输入相加后经 Dropout（比率 0.1）以增强泛化，得到 $\tilde{\mathbf{H}} \in \mathbb{R}^{B \times 100 \times 512}$。
 
 多头自注意力。 位置编码后的序列输入多头自注意力层。本文采用 8 个注意力头，每个头的 key/query/value 维度为 $d_k = d_v = 512/8 = 64$。对于每个头，自注意力的计算形式为：
 \begin{equation}\label{eq:self-attention}
   \mathrm{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \mathrm{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V}
 \end{equation}
-式~\eqref{eq:self-attention} 中，$\mathbf{Q}$、$\mathbf{K}$、$\mathbf{V}$ 由输入通过独立的线性变换得到，$\sqrt{d_k}$ 用于缩放点积，避免在 $d_k$ 较大时 softmax 梯度趋近于零。多头注意力的输出经线性投影后与残差相加，再经层归一化，得到与输入同形状的输出 $\mathbf{O} \in \mathbb{R}^{B \times 100 \times 512}$。该输出对时间维做全局平均池化，将 $B \times 100 \times 512$ 聚合为 $B \times 512$ 的固定长度嵌入向量 $\mathbf{z}$。该向量作为后续双分类器的输入，或作为少样本模式下图注意力的输入特征。时序注意力融合模块的结构如图~\ref{fig:method-arch} 所示。
+\noindent 式中：$\mathrm{Attention}(\mathbf{Q},\mathbf{K},\mathbf{V})$——缩放点积注意力输出；$\mathbf{Q}$、$\mathbf{K}$、$\mathbf{V}$——由输入经线性投影得到的查询、键与值矩阵；$d_k$——单个注意力头上查询/键向量维度；$\mathbf{Q}\mathbf{K}^\top$——注意力打分矩阵；$\mathrm{softmax}(\cdot)$——沿键维归一化得到注意力权重；与 $\mathbf{V}$ 相乘后得到上下文加权求和结果。
+
+式~\eqref{eq:self-attention} 为多头自注意力子层中的单头计算形式。多头注意力的输出经线性投影后与残差相加，再经层归一化，得到与输入同形状的输出 $\mathbf{O} \in \mathbb{R}^{B \times 100 \times 512}$。该输出对时间维做全局平均池化，将 $B \times 100 \times 512$ 聚合为 $B \times 512$ 的固定长度嵌入向量 $\mathbf{z}$。该向量作为后续双分类器的输入，或作为少样本模式下图注意力的输入特征。时序注意力融合模块的结构如图~\ref{fig:method-arch} 所示。
 
 \xsubsection{增强图注意力网络}{Enhanced Graph Attention Network}
 
@@ -134,17 +144,23 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-mlp-proto}
   \tilde{\mathbf{P}} = \mathrm{MLP}(\mathbf{P}) = \mathbf{W}_2 \cdot \sigma(\mathbf{W}_1 \mathbf{P} + \mathbf{b}_1) + \mathbf{b}_2
 \end{equation}
-式~\eqref{eq:ch4-mlp-proto} 中，$\mathbf{W}_1, \mathbf{W}_2 \in \mathbb{R}^{512 \times 512}$，$\sigma$ 为 ReLU 激活函数，层间使用 Dropout（比率 0.5）进行正则化。该模块可学习对时序相关模式的强调或抑制，使后续图注意力在更具判别力的原型表示上进行传播。查询特征不经此时序关系增强，直接参与图注意力的信息传播，以保持其原始表示的同时从原型处获取上下文。
+\noindent 式中：$\tilde{\mathbf{P}}$——经时序关系增强后的原型特征；$\mathbf{P}$——支持集经骨干得到的原型张量；$\mathbf{W}_1$、$\mathbf{W}_2$——两层全连接权重；$\mathbf{b}_1$、$\mathbf{b}_2$——偏置；$\sigma$——ReLU 激活；$\mathrm{MLP}(\cdot)$——对最后一维 $512$ 逐位置施加同一 MLP（批维与类维由实现广播）。
+
+式~\eqref{eq:ch4-mlp-proto} 在图传播前对原型做非线性变换。该模块可学习对时序相关模式的强调或抑制，使后续图注意力在更具判别力的原型表示上进行传播。查询特征不经此时序关系增强，直接参与图注意力的信息传播，以保持其原始表示的同时从原型处获取上下文。
 
 图注意力传播。 增强后的原型与查询特征在节点维度拼接，得到 $\mathbf{G} \in \mathbb{R}^{B \times (N_{\mathrm{way}} + N_{\mathrm{query}}) \times 512}$ 的联合图，其中每个节点对应一个原型或一个查询样本。采用单头自注意力（$n_{\mathrm{head}}=1$）对该图进行信息传播：
 \begin{equation}\label{eq:ch4-graph-selfattn}
   [\mathbf{P}', \mathbf{Q}'] = \mathrm{SelfAttn}\!\left([\tilde{\mathbf{P}}; \mathbf{Q}]\right)
 \end{equation}
-式~\eqref{eq:ch4-graph-selfattn} 中，$[\cdot;\cdot]$ 为节点维度拼接，$\mathrm{SelfAttn}$ 的计算方式与式~\eqref{eq:self-attention} 相同。通过自注意力，原型节点可吸收其它原型与查询的上下文，查询节点也可吸收所有原型的上下文，从而在少样本条件下提升分类决策的鲁棒性。自注意力计算完成后，将输出按原型与查询的数目拆分为 $\mathbf{P}'$ 与 $\mathbf{Q}'$，最终通过余弦相似度计算分类 logits：
+\noindent 式中：$[\mathbf{P}', \mathbf{Q}']$——图自注意力更新后的原型与查询特征，在节点维拼接后输出再拆回；$\mathrm{SelfAttn}(\cdot)$——与式~\eqref{eq:self-attention} 同构的自注意力算子；$[\tilde{\mathbf{P}}; \mathbf{Q}]$——在图节点维将增强原型 $\tilde{\mathbf{P}}$ 与查询特征 $\mathbf{Q}$ 沿支持/查询方向拼接。
+
+式~\eqref{eq:ch4-graph-selfattn} 在联合节点集合上执行一次自注意力消息传递。通过自注意力，原型节点可吸收其它原型与查询的上下文，查询节点也可吸收所有原型的上下文，从而在少样本条件下提升分类决策的鲁棒性。自注意力计算完成后，将输出按原型与查询的数目拆分为 $\mathbf{P}'$ 与 $\mathbf{Q}'$，最终通过余弦相似度计算分类 logits：
 \begin{equation}\label{eq:ch4-cosine-logits}
   s_{ij} = \tau \cdot \frac{\mathbf{Q}'_i \cdot {\mathbf{P}'_j}^\top}{\|\mathbf{Q}'_i\|_2 \cdot \|\mathbf{P}'_j\|_2}
 \end{equation}
-式~\eqref{eq:ch4-cosine-logits} 中，$s_{ij}$ 为第 $i$ 个查询对第 $j$ 个类别原型的 logit，$\tau$ 为温度系数。图注意力网络仅在少样本增量阶段（N-way K-shot 评估及增量会话中更新分类器头并前向计算 logits 时）参与前向传播；标准的基础训练与推理阶段则直接使用时序注意力融合后的嵌入接入双分类器，不经过图注意力，因而基础会话的端到端分类损失亦不经由该模块回传。增强图注意力网络的结构如图~\ref{fig:method-arch} 所示。
+\noindent 式中：$s_{ij}$——第 $i$ 个查询样本对第 $j$ 个类原型的余弦相似度 logit；$\mathbf{Q}'_i$——第 $i$ 个查询的图传播后特征向量；$\mathbf{P}'_j$——第 $j$ 个类原型的图传播后特征向量；$\|\cdot\|_2$——L2 范数；$\tau$——温度系数，用于调节相似度分布的锐度。
+
+式~\eqref{eq:ch4-cosine-logits} 在图增强特征上建立查询—原型相似度得分。图注意力网络仅在少样本增量阶段（N-way K-shot 评估及增量会话中更新分类器头并前向计算 logits 时）参与前向传播；标准的基础训练与推理阶段则直接使用时序注意力融合后的嵌入接入双分类器，不经过图注意力，因而基础会话的端到端分类损失亦不经由该模块回传。增强图注意力网络的结构如图~\ref{fig:method-arch} 所示。
 
 \xsubsection{双分类器架构}{Dual Classifier Architecture}
 
@@ -154,7 +170,9 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-omain}
   \mathbf{o}_{\mathrm{main}} = \tau \cdot \frac{\mathbf{z} \mathbf{W}_{\mathrm{main}}^\top}{\|\mathbf{z}\|_2 \|\mathbf{W}_{\mathrm{main}}\|_2}
 \end{equation}
-式~\eqref{eq:ch4-omain} 中，温度 $\tau$ 控制 logits 的平滑程度：$\tau$ 较大时 softmax 输出更平滑，决策边界更柔和，有利于少样本下的泛化。
+\noindent 式中：$\mathbf{o}_{\mathrm{main}}$——主分类器 logits 向量；$\tau$——温度系数（文中取 $16$）；$\mathbf{z}$——时序注意力融合后的样本嵌入；$\mathbf{W}_{\mathrm{main}}$——主分类器权重矩阵；$\mathbf{z}\mathbf{W}_{\mathrm{main}}^\top$——嵌入与各类别权重行的内积（批形式）；分母为嵌入与权重矩阵行向量各自的 L2 范数乘积，对应余弦相似度缩放。
+
+式~\eqref{eq:ch4-omain} 通过归一化内积构造主分类器 logits：$\tau$ 较大时 softmax 输出更平滑，有利于少样本下的泛化。
 
 域内分类器。 域内分类器先将 $\mathbf{z}$ 通过可学习的线性变换矩阵 $\mathbf{W}_{\mathrm{id}} \in \mathbb{R}^{512 \times 256}$ 映射为 256 维域内特征，该矩阵采用 Kaiming 均匀初始化。映射后的特征经批归一化与 LeakyReLU（负斜率 0.1）激活，再通过域内分类器权重 $\mathbf{W}_{\mathrm{id-fc}} \in \mathbb{R}^{C \times 256}$ 计算余弦相似度并乘以温度 $\tau$，得到域内分类器的 logits $\mathbf{o}_{\mathrm{id}}$。域内子空间通过线性变换与非线性激活形成与骨干不同的表示，可捕捉互补的判别信息。
 
@@ -162,17 +180,23 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-dual-fusion}
   \mathbf{o} = \alpha \cdot \mathbf{o}_{\mathrm{main}} + (1-\alpha) \cdot \mathbf{o}_{\mathrm{id}}
 \end{equation}
-式~\eqref{eq:ch4-dual-fusion} 中，$\alpha$ 默认取 0.7，即主分类器权重 0.7、域内分类器权重 0.3。在增量学习的早期会话（如 Session 1、2），新类别特征可能尚不稳定，域内子空间因样本过少而估计不准，本文将主分类器权重动态调整为 0.75、域内分类器权重调整为 0.25，以增强对骨干特征的依赖，随会话推进再恢复默认权重。上述维度与融合系数由预实验确定，主实验中固定使用。融合后的 $\mathbf{o}$ 经 softmax 得到各类别的预测概率。双分类器架构如图~\ref{fig:method-arch} 所示。
+\noindent 式中：$\mathbf{o}$——双分类器融合后的 logits；$\alpha$——主分类器分支的凸组合权重；$\mathbf{o}_{\mathrm{main}}$、$\mathbf{o}_{\mathrm{id}}$——主分类器与域内分类器输出的 logits。
+
+式~\eqref{eq:ch4-dual-fusion} 对两支路输出做线性融合。$\alpha$ 默认取 0.7，即主分类器权重 0.7、域内分类器权重 0.3。在增量学习的早期会话（如 Session 1、2），新类别特征可能尚不稳定，域内子空间因样本过少而估计不准，本文将主分类器权重动态调整为 0.75、域内分类器权重调整为 0.25，以增强对骨干特征的依赖，随会话推进再恢复默认权重。上述维度与融合系数由预实验确定，主实验中固定使用。融合后的 $\mathbf{o}$ 经 softmax 得到各类别的预测概率。双分类器架构如图~\ref{fig:method-arch} 所示。
 
 增量阶段的分类器更新。 在增量学习阶段，新类别到达时需更新分类器权重。本文采用基于原型网络\cite{snell2017prototypical}思想的原型初始化策略，对主分类器与域内分类器分别进行更新。对每个新类别 $c$，利用其支持集 $S_c$ 中的样本经编码器提取的特征计算类别原型。当某类有多个样本时，采用加权平均以降低离群点影响：
 \begin{equation}\label{eq:ch4-prototype-weighted}
   \mathbf{p}_c = \frac{\sum_{i \in S_c} w_i \cdot \mathbf{z}_i}{\sum_{i \in S_c} w_i}, \quad w_i = \frac{1}{1 + \|\mathbf{z}_i - \bar{\mathbf{z}}_c\|_2}
 \end{equation}
-式~\eqref{eq:ch4-prototype-weighted} 中，$\bar{\mathbf{z}}_c = \frac{1}{|S_c|}\sum_{i \in S_c}\mathbf{z}_i$ 为类别 $c$ 的样本均值，$w_i$ 基于到均值的欧氏距离赋权，距离越小的样本权重越大，从而抑制异常值对原型的影响；当某类仅有 1 个样本时，直接取该样本的嵌入作为原型。原型计算完成后，对其做 L2 归一化并乘以尺度因子，以恢复与已有类别权重一致的范数：
+\noindent 式中：$\mathbf{p}_c$——类别 $c$ 的加权原型向量；$S_c$——该类支持集样本索引集合；$\mathbf{z}_i$——样本 $i$ 的嵌入；$\bar{\mathbf{z}}_c$——类内嵌入均值；$w_i$——基于与均值距离的样本权重。
+
+式~\eqref{eq:ch4-prototype-weighted} 对离群点降权以稳定原型估计。当某类仅有 1 个样本时，直接取该样本的嵌入作为原型。原型计算完成后，对其做 L2 归一化并乘以尺度因子，以恢复与已有类别权重一致的范数：
 \begin{equation}\label{eq:ch4-prototype-norm}
   \hat{\mathbf{p}}_c = \min\!\left(\overline{\|\mathbf{z}\|}, \sqrt{d}\right) \cdot \frac{\mathbf{p}_c}{\|\mathbf{p}_c\|_2}
 \end{equation}
-式~\eqref{eq:ch4-prototype-norm} 中，$\overline{\|\mathbf{z}\|}$ 为当前批次的全局特征平均范数，$d$ 为特征维度（主分类器 $d=512$，域内分类器 $d=256$）。该策略使新类别的权重在归一化方向与尺度上与旧类别保持一致，避免因尺度不均导致的分类偏差。主分类器与域内分类器均按上述方式更新；域内分类器需先将特征经 $\mathbf{W}_{\mathrm{id}}$、批归一化与 LeakyReLU 变换后再计算原型。该策略无需在增量阶段对编码器进行微调，避免了因极少样本导致的过拟合，符合 CEC/CLOM 等方法的实践。
+\noindent 式中：$\hat{\mathbf{p}}_c$——尺度复位后的类原型（用作分类器权重行）；$\mathbf{p}_c$——式~\eqref{eq:ch4-prototype-weighted} 得到的未归一化原型；$\|\mathbf{p}_c\|_2$——原型 L2 范数；$\overline{\|\mathbf{z}\|}$——当前批次嵌入范数的平均值；$d$——对应分支的特征维度（主分类器支路 $d=512$，域内支路 $d=256$）；$\min(\cdot,\sqrt{d})$——将尺度上限约束为 $\sqrt{d}$ 与批次平均范数中的较小者。
+
+式~\eqref{eq:ch4-prototype-norm} 使新类权重与旧类在范数尺度上可比，减轻尺度不一致引起的 logits 偏移。主分类器与域内分类器均按上述方式更新；域内分类器需先将特征经 $\mathbf{W}_{\mathrm{id}}$、批归一化与 LeakyReLU 变换后再计算原型。该策略无需在增量阶段对编码器进行微调，避免了因极少样本导致的过拟合，符合 CEC/CLOM 等方法的实践。
 
 \xsection{实验方案设计}{Experimental Design}
 
@@ -254,19 +278,25 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-acc-session}
   \mathcal{A}_j = \frac{1}{N_j} \sum_{i=1}^{N_j} \mathbb{I}\left( y_{\mathrm{pred}}^{(i)} = y_{\mathrm{true}}^{(i)} \right)
 \end{equation}
-式~\eqref{eq:ch4-acc-session} 中，$\mathbb{I}(\cdot)$ 为指示函数。$\mathcal{A}_j$ 表示 Session $j$ 结束后模型在所有已见类别上的整体判别能力。随着增量推进，类别数从 30 增至 55，若模型发生灾难性遗忘，旧类准确率会下降；若对新类过拟合不足或分类边界不合理，新类准确率会偏低；二者均会拉低 $\mathcal{A}_j$。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
+\noindent 式中：$\mathcal{A}_j$——会话 $j$ 结束时在全类测试上的 Top-1 准确率；$N_j$——该评测所用的测试样本总数；$i$——样本索引；$y_{\mathrm{pred}}^{(i)}$、$y_{\mathrm{true}}^{(i)}$——第 $i$ 条样本的预测类别与真实类别；$\mathbb{I}(\cdot)$——指示函数。
+
+式~\eqref{eq:ch4-acc-session} 给出会话级准确率的经验估计。随着增量推进，类别数从 30 增至 55，若模型发生灾难性遗忘，旧类准确率会下降；若对新类过拟合不足或分类边界不合理，新类准确率会偏低；二者均会拉低 $\mathcal{A}_j$。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
 
 性能下降率（PD）。用于衡量从基础会话到末会话的准确率下降幅度，反映模型在长序列增量后的遗忘程度。设共有 $m$ 个增量会话，则
 \begin{equation}\label{eq:ch4-pd}
   \mathrm{PD} = \mathcal{A}_0 - \mathcal{A}_m
 \end{equation}
-式~\eqref{eq:ch4-pd} 中，$\mathcal{A}_0$ 为基础会话（Session 0）的准确率，$\mathcal{A}_m$ 为最后一个增量会话的准确率。PD 越大表示遗忘越严重；理想情况下模型在增量过程中保持性能，PD 应接近 0。在少样本设定下，由于每个增量会话的监督信息极少，模型易在适应新类的同时遗忘旧类，PD 通常为正；通过比较不同方法的 PD，可直观判断各方法在缓解遗忘方面的效果。
+\noindent 式中：$\mathrm{PD}$——性能下降率（Performance Drop）；$\mathcal{A}_0$——基础会话（Session 0）结束时的全类准确率；$\mathcal{A}_m$——含 $m$ 个增量会话时末次会话评测得到的全类准确率；$m$——增量会话个数。
+
+式~\eqref{eq:ch4-pd} 刻画基础阶段相对末次会话的整体准确率落差。PD 越大表示遗忘越严重；理想情况下模型在增量过程中保持性能，PD 应接近 0。在少样本设定下，由于每个增量会话的监督信息极少，模型易在适应新类的同时遗忘旧类，PD 通常为正；通过比较不同方法的 PD，可直观判断各方法在缓解遗忘方面的效果。
 
 平均准确率（AA）。对各会话准确率取平均，用于综合反映模型在整个 FSCIL 过程的表现：
 \begin{equation}\label{eq:ch4-aa}
   \mathrm{AA} = \frac{1}{m+1} \sum_{j=0}^{m} \mathcal{A}_j
 \end{equation}
-式~\eqref{eq:ch4-aa} 中，$m+1$ 为总会话数（1 个基础 + $m$ 个增量）。AA 越高表示模型在各阶段均保持较好的识别能力；若某方法在早期会话表现较好但后期急剧下降，其 AA 会受后期低准确率拖累；反之，若方法在整个增量过程中较为稳定，AA 会相对较高。在本文设置中 $m=5$，即 AA 为 Session 0–5 六个会话准确率的均值。表~\ref{tab:fscil-metrics-desc} 简要概括了上述指标的含义与用途。
+\noindent 式中：$\mathrm{AA}$——平均准确率（Average Accuracy）；$m$——增量会话总数；$m+1$——基础会话与增量会话之和，即参与平均的会话个数；$\mathcal{A}_j$——由式~\eqref{eq:ch4-acc-session} 定义的会话 $j$ 准确率；求和下标 $j$——从 $0$（基础会话）遍历至 $m$。
+
+式~\eqref{eq:ch4-aa} 对各阶段准确率等权平均以度量全过程稳定性。AA 越高表示模型在各阶段均保持较好的识别能力；若某方法在早期会话表现较好但后期急剧下降，其 AA 会受后期低准确率拖累；反之，若方法在整个增量过程中较为稳定，AA 会相对较高。在本文设置中 $m=5$，即 AA 为 Session 0–5 六个会话准确率的均值。表~\ref{tab:fscil-metrics-desc} 简要概括了上述指标的含义与用途。
 
 \begin{table}[h]
   \caption{FSCIL 评价指标说明}
@@ -340,28 +370,29 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \label{tab:fscil-main-compare}
   \begingroup
   \small
-  \begin{tabularx}{\textwidth}{>{\hsize=1.35\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X >{\hsize=0.78\hsize\centering\arraybackslash}X}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{\textwidth}{>{\hsize=1.58\hsize\raggedright\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X}
   \toprule
   方法 & S0 & S1 & S2 & S3 & S4 & S5 & PD $\downarrow$ & AA \\
   \midrule
   Baseline & \textbf{96.67} & 73.81 & 63.33 & 60.74 & 59.00 & 56.06 & 40.61 & 68.27 \\
-  CEC\cite{zhang2021cec} & 94.63 & 80.00 & 66.83 & 69.76 & 69.33 & 63.75 & 30.88 & 74.05 \\
-  iCaRL\cite{rebuffi2017icarl} & 89.94 & 7.49 & 6.65 & 6.15 & 5.78 & 5.13 & 84.81 & 20.19 \\
-  FACT\cite{zhou2022fact} & 90.25 & \textbf{81.67} & 67.17 & 70.67 & 68.33 & 61.08 & 29.17 & 73.19 \\
-  C-FSCIL\cite{hersche2022cfscil} & 51.38 & 39.33 & 18.33 & 11.81 & 8.67 & 13.17 & 38.21 & 23.78 \\
-  DyCR\cite{pan2025dycr} & 89.88 & 80.67 & 74.00 & 76.29 & 67.67 & 54.33 & 35.55 & 73.80 \\
+  \mbox{CEC(2021)\cite{zhang2021cec}} & 94.63 & 80.00 & 66.83 & 69.76 & 69.33 & 63.75 & 30.88 & 74.05 \\
+  \mbox{iCaRL(2017)\cite{rebuffi2017icarl}} & 89.94 & 7.49 & 6.65 & 6.15 & 5.78 & 5.13 & 84.81 & 20.19 \\
+  \mbox{FACT(2022)\cite{zhou2022fact}} & 90.25 & \textbf{81.67} & 67.17 & 70.67 & 68.33 & 61.08 & 29.17 & 73.19 \\
+  \mbox{C-FSCIL(2022)\cite{hersche2022cfscil}} & 51.38 & 39.33 & 18.33 & 11.81 & 8.67 & 13.17 & 38.21 & 23.78 \\
+  \mbox{DyCR(2025)\cite{pan2025dycr}} & 89.88 & 80.67 & 74.00 & 76.29 & 67.67 & 54.33 & 35.55 & 73.80 \\
   本文方法 & 90.00 & 79.52 & \textbf{74.17} & \textbf{75.93} & \textbf{77.00} & \textbf{74.24} & \textbf{15.76} & \textbf{78.48} \\
   \bottomrule
   \end{tabularx}
   \endgroup
 \end{table}
 
-图~\ref{fig:fscil-acc-curve} 给出各方法（含 DyCR）在 Session 0--5 的准确率曲线，与表~\ref{tab:fscil-main-compare} 中的数值一致。相较表中各会话的离散数值，曲线更直观地呈现增量过程中准确率随会话推进的整体走向，便于从斜率上对比遗忘快慢，并观察中后期是否维持平台或出现反弹。iCaRL 的曲线在 Session 0 后出现明显下降，Session 1 即从 89.94\% 降至 7.49\%，此后长期维持在较低水平，说明该方法在 FSCIL 场景下遗忘较为严重。这也反映出，依赖 exemplar 重放与蒸馏的传统 CIL 方案在极少样本设定下面临较大挑战。Baseline 的曲线自 Session 1 起急剧下滑，从 96.67\% 持续降至 56.06\%，呈陡峭的单调递减趋势，与「仅多尺度骨干加单分类头、增量监督极稀」下的快速遗忘相一致。CEC 的曲线同样单调递减，但下降幅度明显小于 Baseline，Session 5 为 63.75\%，较 Baseline 高出 7.69 个百分点，表明图注意力的引入有效减缓了遗忘速率。FACT 的曲线在 Session 1 处于较高位置，但后续总体下行，末会话低于本文方法，与前文在 CSI 任务上「前向兼容与空间预留难以在长序列增量中后期维持与本文相当的稳定性」的归纳相一致。C-FSCIL 的曲线全程处于较低水平，与表~\ref{tab:fscil-main-compare} 一致。DyCR 的曲线在中段会话维持在相对较高区间，但末段下滑较快，与表中其末会话准确率及 AA 低于本文方法的结论一致。本文方法的曲线在 Session 1 有所下降后，Session 2--4 出现回升（74.17\%$\to$75.93\%$\to$77.00\%），Session 5 略降至 74.24\%，是唯一在增量中后期出现明显回升的主流对比配置，与 Baseline 末会话相比高出 18.18 个百分点；其形态与表~\ref{tab:fscil-main-compare} 中本文最低的 PD 与最高的 AA 相互印证。从结果上看，该回升可能与增量类别增多、图注意力在原型与查询联合建模上获得更充分的类间上下文有关，机制细节仍待结合训练过程进一步分析；双分类器从不同子空间融合预测，亦有助于在类别数增多时降低单一路径决策风险，并在一定程度上平滑单一分类器的过拟合。
+图~\ref{fig:fscil-acc-curve} 给出各方法在 Session 0--5 的准确率曲线，与表~\ref{tab:fscil-main-compare} 中的数值一致。相较表中各会话的离散数值，曲线更直观地呈现增量过程中准确率随会话推进的整体走向，便于从斜率上对比遗忘快慢，并观察中后期是否维持平台或出现反弹。iCaRL 的曲线在 Session 0 后出现明显下降，Session 1 即从 89.94\% 降至 7.49\%，此后长期维持在较低水平，说明该方法在 FSCIL 场景下遗忘较为严重。这也反映出，依赖 exemplar 重放与蒸馏的传统 CIL 方案在极少样本设定下面临较大挑战。Baseline 的曲线自 Session 1 起急剧下滑，从 96.67\% 持续降至 56.06\%，呈陡峭的单调递减趋势，与「仅多尺度骨干加单分类头、增量监督极稀」下的快速遗忘相一致。CEC 的曲线同样单调递减，但下降幅度明显小于 Baseline，Session 5 为 63.75\%，较 Baseline 高出 7.69 个百分点，表明图注意力的引入有效减缓了遗忘速率。FACT 的曲线在 Session 1 处于较高位置，但后续总体下行，末会话低于本文方法，与前文在 CSI 任务上「前向兼容与空间预留难以在长序列增量中后期维持与本文相当的稳定性」的归纳相一致。C-FSCIL 的曲线全程处于较低水平，与表~\ref{tab:fscil-main-compare} 一致。DyCR 的曲线在中段会话维持在相对较高区间，但末段下滑较快，与表中其末会话准确率及 AA 低于本文方法的结论一致。本文方法的曲线在 Session 1 有所下降后，Session 2--4 出现回升（74.17\%$\to$75.93\%$\to$77.00\%），Session 5 略降至 74.24\%，是唯一在增量中后期出现明显回升的主流对比配置，与 Baseline 末会话相比高出 18.18 个百分点；其形态与表~\ref{tab:fscil-main-compare} 中本文最低的 PD 与最高的 AA 相互印证。从结果上看，该回升可能与增量类别增多、图注意力在原型与查询联合建模上获得更充分的类间上下文有关，机制细节仍待结合训练过程进一步分析；双分类器从不同子空间融合预测，亦有助于在类别数增多时降低单一路径决策风险，并在一定程度上平滑单一分类器的过拟合。
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.75\textwidth]{fig4-4-fscil-acc-curve.pdf}
-  \caption{XRF 数据集上少样本类增量学习各会话准确率对比（含 DyCR）}
+  \caption{XRF 数据集上少样本类增量学习各会话准确率对比}
   \label{fig:fscil-acc-curve}
 \end{figure}
 
@@ -376,15 +407,16 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \label{tab:fscil-wiar-compare}
   \begingroup
   \small
-  \begin{tabularx}{\textwidth}{>{\hsize=1.2\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X >{\hsize=0.75\hsize\centering\arraybackslash}X}
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{\textwidth}{>{\hsize=1.48\hsize\raggedright\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X}
   \toprule
   方法 & S0 & S1 & S2 & S3 & S4 & S5 & AA \\
   \midrule
   Baseline & \textbf{100.00} & 87.50 & 67.78 & 62.04 & 54.76 & 49.31 & 70.20 \\
-  CEC\cite{zhang2021cec} & 94.44 & 77.78 & 65.56 & 64.82 & 61.11 & 54.17 & 69.80 \\
-  FACT\cite{zhou2022fact} & 98.15 & 77.78 & 65.56 & 81.00 & 49.23 & 42.00 & 69.00 \\
-  C-FSCIL\cite{hersche2022cfscil} & 31.48 & 19.44 & 10.00 & 4.50 & 23.73 & 11.32 & 16.70 \\
-  DyCR\cite{pan2025dycr} & 98.15 & 84.72 & 68.89 & 82.00 & 55.50 & 47.05 & 72.72 \\
+  \mbox{CEC(2021)\cite{zhang2021cec}} & 94.44 & 77.78 & 65.56 & 64.82 & 61.11 & 54.17 & 69.80 \\
+  \mbox{FACT(2022)\cite{zhou2022fact}} & 98.15 & 77.78 & 65.56 & 81.00 & 49.23 & 42.00 & 69.00 \\
+  \mbox{C-FSCIL(2022)\cite{hersche2022cfscil}} & 31.48 & 19.44 & 10.00 & 4.50 & 23.73 & 11.32 & 16.70 \\
+  \mbox{DyCR(2025)\cite{pan2025dycr}} & 98.15 & 84.72 & 68.89 & \textbf{82.00} & 55.50 & 47.05 & 72.72 \\
   本文方法 & 96.30 & \textbf{87.50} & \textbf{72.22} & 69.44 & \textbf{64.29} & \textbf{61.81} & \textbf{75.30} \\
   \bottomrule
   \end{tabularx}
