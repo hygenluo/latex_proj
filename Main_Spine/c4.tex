@@ -2,17 +2,15 @@
 
 \xchapter{面向 Wi-Fi 信号动作识别的少样本类增量学习方法研究}{Research on Few-Shot Class-Incremental Learning Methods for Wi-Fi Signal Based Action Recognition}
 
+第三章在新增类样本相对充足的条件下研究了 Wi-Fi CSI 类增量动作识别方法。然而在实际感知系统中，新动作类别往往只能获得极少标注，且旧类训练数据难以完整保留。为此，本章转向少样本类增量学习场景，结合时序增强、类别关系建模与双分类器融合提升新类适应能力并减缓旧类退化。该设定与第三章形成由充足样本到极少样本的递进关系。
+
 \xsection{问题概述}{Problem Overview}
 
-本节面向基于 Wi-Fi CSI 信号的室内动作识别任务，给出少样本类增量学习的形式化定义，分析其核心挑战与研究的现实意义，并阐明本文的研究思路。在类别扩展之外，少样本类增量学习要求每个增量会话仅能访问极少量的新类别样本，使得模型在应对灾难性遗忘的同时还需应对样本稀缺导致的过拟合，难度高于第三章所探讨的类增量学习（CIL）。
-
-因此，本章并非简单延续第三章的回放—扩展—巩固流程，而是在旧类数据不可完整回放、新类样本极少的条件下重新设计特征表示与分类机制。这种设置更接近实际 Wi-Fi 感知系统中新增动作难以大量采集的场景，也进一步检验模型在低标注成本条件下的持续更新能力。
+本节面向基于 Wi-Fi CSI 信号的室内动作识别任务，给出少样本类增量学习的形式化定义，分析其核心挑战与研究的现实意义，并阐明本文的研究思路。在类别扩展之外，少样本类增量学习要求每个增量会话仅能访问极少量的新类别样本，使得模型在应对灾难性遗忘的同时还需应对样本稀缺导致的过拟合，任务难度较充足样本条件下的类增量学习显著提升。
 
 对于 Wi-Fi CSI 室内动作识别任务，新增类别往往难以在短时间内采集到大量标注样本。例如，康复动作、个性化家庭交互动作或特定场景下的新型行为通常只能获得极少量样本。在第三章所研究的类增量学习（CIL）场景中，每个增量任务仍可访问充足的新类样本，模型能够借助样本重放与知识蒸馏维持性能；而在实际部署中，新类别的标注往往远不充分，CIL 的假设难以满足。少样本类增量学习（FSCIL）正是面向这一更为苛刻的条件：增量阶段每类仅有极少量样本（如 1-shot），模型需在样本稀缺与类别扩展的双重约束下完成学习。在 Wi-Fi CSI 场景下研究 FSCIL，不只是为了降低标注成本，更在于提升模型对动态类别集合的持续适应能力。
 
 本任务的困难主要来自三个方面。第一，增量阶段每个新类别仅含极少量样本，导致类别原型对噪声和个体差异较为敏感，模型难以从有限监督信息中建立稳定的类别表示。第二，模型需在持续引入新类别的同时保持对旧类别的识别能力，然而在缺乏旧类数据访问的条件下，新类学习容易覆盖旧类表征，灾难性遗忘问题在少样本场景下更为突出。第三，Wi-Fi CSI 具有明显的时序特性，不同动作在短时与长时尺度上的差异较大，若表征能力不足，少样本条件下更容易出现新旧类别混淆。上述三方面困难相互交织，使得 FSCIL 的模型设计与优化较 CIL 更为困难。
-
-第三章在「新增类样本相对充足」的类增量设定下，通过记忆回放、冻结骨干下的分类器扩展与知识巩固，给出了面向 Wi-Fi CSI 的一条可行技术路线。然而在实际感知系统中，新动作类别往往只能获得极少标注，若仍沿用第三章的样本条件假设，则难以稳定建立新类判别边界。基于此，本章在继承「类别集合持续扩展」这一核心矛盾的前提下，进一步研究少样本类增量学习：在增量侧每类仅提供极少监督的前提下，引入时序增强、类别关系建模与双分类器融合，以提升新类适应能力并减缓旧类退化。
 
 \xsubsection{任务定义}{Task Definition}
 
@@ -49,7 +47,7 @@
 
 在本文实验中，以 XRF 数据集构造上述 FSCIL 主实验场景；另在 WiAR 公开数据集上开展 16 类少样本类增量对比，用于在另一公开 Wi-Fi 动作识别数据集上补充检验所提方法在较小类别规模与不同 CSI 数据分布下的适用性（详见 4.3.1 节）。XRF 数据集包含 55 类室内动作，对应 Wi-Fi CSI 信号经预处理后的 270 维 × 1000 长度时序特征。按本研究的实验配置，将数据划分为 1 个基础会话与 5 个增量会话：基础会话使用前 30 类进行充分训练，随后的 5 个增量会话每会话引入 5 个新类别，即 5-way 1-shot 设定，每类仅有 1 个训练样本。训练集与测试集按 7:3 划分。整体流程如图~\ref{fig:fscil-system} 所示。
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.85\textwidth]{fig4-1-fscil-system.png}
   \caption{面向 Wi-Fi CSI 动作识别的少样本类增量学习系统流程}
@@ -90,7 +88,7 @@
 
 式~\eqref{eq:ch4-Lbase} 给出 Session 0 端到端训练所采用的分类目标。图注意力网络主要在少样本增量阶段参与原型与查询特征之间的关系传播。基础会话阶段的训练重点放在多尺度时序编码器、时序注意力融合模块与双分类器上；图注意力网络不接入 Session 0 的分类主路径，其参数保持网络默认初始化，在进入增量阶段后于 N-way K-shot 计算中参与前向，以增强少样本条件下的类别关系建模。优化器为 SGD（动量 0.9、Nesterov、权重衰减 $5 \times 10^{-4}$），多尺度编码器与双分类器使用基础学习率，时序注意力融合模块使用较小学习率以稳定训练。基础会话结束后，采用平均嵌入策略初始化分类器权重，随后进入增量会话。在增量会话中，默认不进行编码器微调（与 CEC/CLOM 策略一致），仅根据支持集样本提取特征并更新分类器权重；图注意力网络在计算 N-way K-shot 的 logits 时参与前向传播。各模块的设计动机、数学形式与实现细节如下。本文方法的整体架构如图~\ref{fig:method-arch} 所示。
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.92\textwidth]{fig4-2-method-arch.png}
   \caption{本文少样本类增量学习方法整体架构}
@@ -235,7 +233,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
   \end{tabularx}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.85\textwidth]{fig4-3-fscil-split.png}
   \caption{XRF 数据集在少样本类增量学习场景下的划分示意}
@@ -394,7 +392,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
 
 图~\ref{fig:fscil-acc-curve} 给出各方法在 Session 0--5 的准确率曲线，与表~\ref{tab:fscil-main-compare} 中的数值一致。相较表中各会话的离散数值，曲线更直观地呈现增量过程中准确率随会话推进的整体走向，便于从斜率上对比遗忘快慢，并观察中后期是否维持平台或出现反弹。iCaRL 的曲线在 Session 0 后出现明显下降，Session 1 即从 89.94\% 降至 7.49\%，此后长期维持在较低水平，说明该方法在 FSCIL 场景下遗忘较为严重。这也反映出，依赖 exemplar 重放与蒸馏的传统 CIL 方案在极少样本设定下面临较大挑战。Baseline 的曲线自 Session 1 起急剧下滑，从 96.67\% 持续降至 56.06\%，呈陡峭的单调递减趋势，与「仅多尺度骨干加单分类头、增量监督极稀」下的快速遗忘相一致。CEC 的曲线同样单调递减，但下降幅度明显小于 Baseline，Session 5 为 63.75\%，较 Baseline 高出 7.69 个百分点，表明图注意力的引入有效减缓了遗忘速率。FACT 的曲线在 Session 1 处于较高位置，但后续总体下行，末会话低于本文方法，与前文在 CSI 任务上「前向兼容与空间预留难以在长序列增量中后期维持与本文相当的稳定性」的归纳相一致。C-FSCIL 的曲线全程处于较低水平，与表~\ref{tab:fscil-main-compare} 一致。DyCR 的曲线在中段会话维持在相对较高区间，但末段下滑较快，与表中其末会话准确率及 AA 低于本文方法的结论一致。本文方法的曲线在 Session 1 有所下降后，Session 2--4 出现回升（74.17\%$\to$75.93\%$\to$77.00\%），Session 5 略降至 74.24\%，是唯一在增量中后期出现明显回升的主流对比配置，与 Baseline 末会话相比高出 18.18 个百分点；其形态与表~\ref{tab:fscil-main-compare} 中本文最低的 PD 与最高的 AA 相互印证。从结果上看，该回升可能与增量类别增多、图注意力在原型与查询联合建模上获得更充分的类间上下文有关，机制细节仍待结合训练过程进一步分析；双分类器从不同子空间融合预测，亦有助于在类别数增多时降低单一路径决策风险，并在一定程度上平滑单一分类器的过拟合。
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig4-4-fscil-acc-curve.pdf}
   \caption{XRF 数据集上少样本类增量学习各会话准确率对比}
@@ -408,12 +406,16 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
 表~\ref{tab:fscil-wiar-compare} 给出了 WiAR（16 类）设置下各方法在 Session 0--5 的全类测试准确率及 AA。与 XRF 主实验相比，WiAR 类别总数较少、增量步长更细，故各 Session 绝对数值不宜与表~\ref{tab:fscil-main-compare} 直接横向比较，仅在 WiAR 协议内部考察相对优劣。
 
 \begin{table}[h]
+  \centering
   \caption{WiAR 数据集上少样本类增量学习对比实验（全类测试准确率，\%）}
   \label{tab:fscil-wiar-compare}
   \begingroup
   \small
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabularx}{\textwidth}{>{\hsize=1.48\hsize\raggedright\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X >{\hsize=0.745\hsize\centering\arraybackslash}X}
+  \begin{tblr}{
+    width = \linewidth,
+    colsep = 3pt,
+    colspec = {X[l,1.48] X[c,0.745] X[c,0.745] X[c,0.745] X[c,0.745] X[c,0.745] X[c,0.745] X[c,0.745]},
+  }
   \toprule
   方法 & S0 & S1 & S2 & S3 & S4 & S5 & AA \\
   \midrule
@@ -424,11 +426,11 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \mbox{DyCR(2025)\cite{pan2025dycr}} & 98.15 & 84.72 & 68.89 & \textbf{82.00} & 55.50 & 47.05 & 72.72 \\
   本文方法 & 96.30 & \textbf{87.50} & \textbf{72.22} & 69.44 & \textbf{64.29} & \textbf{61.81} & \textbf{75.30} \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
   \endgroup
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig4-6-wiar-fscil-acc-curve.pdf}
   \caption{WiAR 数据集上少样本类增量学习各会话准确率对比}
@@ -462,7 +464,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
 
 各配置在增量过程中的准确率曲线见图~\ref{fig:fscil-ablation}，以下结合表~\ref{tab:fscil-ablation} 对各模块逐一讨论。
 
-\begin{figure}[!htbp]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig4-5-fscil-ablation.pdf}
   \caption{消融实验各配置准确率对比}
@@ -505,9 +507,9 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
 
 \xsubsection{支持集规模对增量性能的影响}{Effect of Support Set Size}
 
-表~\ref{tab:fscil-split} 所示主实验在增量阶段采用 5-way 1-shot，即每新类仅 1 个训练样本。为观察在保持其余训练与评测协议不变的前提下，适当增加每类支持样本对性能的影响，在温度 $\tau=16$ 下另行构造每类 3 个与 5 个支持样本的数据组织，并与主实验的 1-shot 设置并列比较。表~\ref{tab:fscil-kshot} 给出 Session 0、Session 5、PD 与 AA。
+表~\ref{tab:fscil-split} 所示主实验采用 5-way 1-shot 设置，即每个新类仅 1 个训练样本。为分析支持集规模对增量性能的影响，在保持其余训练与评测协议不变、温度 $\tau=16$ 的条件下，本文另行构造 3-shot 与 5-shot 设置，并与 1-shot 主实验进行比较。表~\ref{tab:fscil-kshot} 汇总了不同设置下的 Session 0、Session 5、PD 与 AA。
 
-支持集规模变化对模型表现具有直接影响。由表~\ref{tab:fscil-kshot} 可见，在本文冻结骨干、分类器侧更新及不同支持集构造方式下，末会话准确率与平均准确率等指标并未随支持样本数增加呈简单单调改善：3-shot 与 5-shot 在 Session 5、PD 与 AA 上与 1-shot 主设定互有高低，说明多样本带来的统计稳定性与优化噪声、episode 采样差异之间仍存在折中。尽管如此，本文方法在 1-shot 主设定下仍取得较优的 Session 5 与 PD、AA，表明其并不完全依赖增大支持集规模来获得增益，在极少样本条件下仍具备较好的稳定性。综合而言，主文仍以 1-shot 作为与 FSCIL 典型设定一致的报告主线；表~\ref{tab:fscil-main-compare} 中的 FACT、C-FSCIL、DyCR 等亦在 1-shot 协议下报告，便于与主行结果直接对照。
+由表~\ref{tab:fscil-kshot} 可见，在冻结骨干、分类器侧更新和不同支持集构造方式下，性能并未随支持样本数增加而单调改善：3-shot 与 5-shot 在 Session 5、PD 和 AA 上与 1-shot 互有高低，说明支持样本增加带来的原型稳定性提升仍会受到采样差异与优化波动影响。总体而言，1-shot 主设定仍取得较优的末会话准确率、PD 与 AA，表明本文方法在极少样本条件下具有较好稳定性。因此，本文仍以 1-shot 作为 FSCIL 典型设定下的报告主线，并与表~\ref{tab:fscil-main-compare} 中 FACT、C-FSCIL、DyCR 等 1-shot 结果保持直接对照。
 
 \begin{table}[h]
   \caption{不同每类支持样本数设定下的性能（本文完整方法，$\tau=16$，\%）}
