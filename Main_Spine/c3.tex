@@ -12,7 +12,7 @@
 
 为便于描述，设增量过程包含按顺序到来的多个训练阶段，第 $b$ 个阶段的训练集记为 $\mathcal{D}^b$，其标签集合记为 $\mathcal{Y}_b$。各阶段的标签空间两两不重叠，即不同阶段对应的是此前未出现过的新类别。随着训练推进，模型在第 $b$ 个阶段结束后需要面向累计类别集合 $\mathcal{V}_b = \mathcal{Y}_1 \cup \cdots \cup \mathcal{Y}_b$ 进行预测。对于基于回放的方法，训练时除当前阶段数据外，还可访问由旧阶段代表样本组成的记忆集合；而对于不依赖回放的设定，则模型只能利用当前阶段数据完成参数更新。无论采用何种训练机制，任务目标都在于：在持续吸收新类别知识的同时，尽可能减缓旧类别性能下降\cite{zhou2024cil}。
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
   \centering
   \includegraphics[width=0.75\textwidth]{fig3-1-cil-paradigm.png}
   \caption{持续学习常见设定示意}
@@ -35,14 +35,12 @@ f^* = \underset{f \in \mathcal{H}}{\arg\min} \mathbb{E}_{(\mathbf{x},y) \sim \ma
 
 同时，逐阶段扩展的类别序列也为后续准确率、ACCN 与平均准确率等指标分析提供了统一评估基础。
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig3-2-xrf-split.png}
   \caption{XRF 数据集在类增量学习场景下的任务划分}
   \label{fig:xrf-split}
 \end{figure}
-% 盲审意见18：压缩图题至下文间距（不改图、编号与图题文字）
-\vspace{-0.3\baselineskip}
 
 \xsubsection{研究思路}{Research Approach}
 
@@ -90,14 +88,12 @@ f(\mathbf{x}) = \mathbf{W}^\top \phi(\mathbf{x})
 
 本文将增量过程分为两步：先通过可训练模块扩充模型对新旧类别的判别能力，再借助知识蒸馏将扩充后的知识迁移回单一主干，从而在保持结构简洁的前提下完成知识的整合。整体流程如图~\ref{fig:method-flow} 所示。
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig3-3-method-flow.png}
   \caption{面向 Wi-Fi CSI 动作识别的增量训练流程}
   \label{fig:method-flow}
 \end{figure}
-% 盲审意见18：压缩图题至下文间距（不改图、编号与图题文字）
-\vspace{-0.3\baselineskip}
 
 \xsubsection{基于类均值选样的记忆回放}{Memory Replay Based on Class-Mean Prototype Selection}
 
@@ -141,7 +137,6 @@ f_t(\mathbf{x}) = \mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x}), \quad \mathbf{W}_t \
 \begin{equation}\label{eq:ch3-ce}
 \mathcal{L}_{\mathrm{CE}} = -\sum_{(\mathbf{x},y) \in \hat{\mathcal{D}}^t} y \log \mathrm{softmax}\left(\mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x})\right)
 \end{equation}
-
 \noindent 式中：$\mathcal{L}_{\mathrm{CE}}$——扩展分类器的交叉熵损失；$\hat{\mathcal{D}}^t$——新任务与 exemplar 的联合训练集。
 
 式~\eqref{eq:ch3-ce} 在联合数据上定义扩展阶段的标准多类交叉熵目标，用于扩展后分类器的初始对齐。完成该初始训练后，随后依次进行平衡微调与分类器重训练。
@@ -159,7 +154,6 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 \begin{equation}\label{eq:ch3-bft}
 \mathcal{L}_{\mathrm{BFT}} = -\sum_{(\mathbf{x},y) \in \hat{\mathcal{D}}^t} \frac{w_y}{\sum_{c} w_c} \log \mathrm{softmax}\left(\mathbf{W}_t^\top \Phi_{t-1}(\mathbf{x})\right)_y
 \end{equation}
-
 \noindent 式中：$\mathcal{L}_{\mathrm{BFT}}$——平衡微调损失；$w_y$——真实类别 $y$ 的类别权重（$w_y=1/E_{n_y}$）。
 
 式~\eqref{eq:ch3-bft} 在交叉熵上引入与有效样本数相关的类别权重。平衡微调采用较小的学习率和 batch size（实验中分别为 0.01 和 16），在加权损失的引导下用若干轮微调分类器，使新旧类在梯度层面获得更均衡的更新。微调后再进行分类器重训练：使用标准交叉熵在 $\hat{\mathcal{D}}^t$ 上训练若干轮以进一步巩固判别能力。上述过程均保持骨干冻结，仅更新 $\mathbf{W}_t$。
@@ -182,7 +176,6 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 \begin{equation}\label{eq:ch3-kd-kl}
 \mathcal{L}_{\mathrm{KD}} = T^2 \cdot \mathrm{KL}\left( \mathrm{softmax}\left(\frac{\mathbf{z}^{\mathrm{S}}}{T}\right) \Big\| \mathrm{softmax}\left(\frac{\mathbf{z}^{\mathrm{T}}}{T}\right) \right)
 \end{equation}
-
 \noindent 式中：$T$——蒸馏温度；$\mathbf{z}^{\mathrm{S}}$、$\mathbf{z}^{\mathrm{T}}$——学生与教师的 logits。
 
 式~\eqref{eq:ch3-kd-kl} 给出带温度缩放的 KL 蒸馏项：$T>1$ 使概率分布更平滑，类间相对顺序得以保留；系数 $T^2$ 用于平衡温度对梯度尺度的影响。若骨干支持特征输出，还可采用双边知识蒸馏（Bilateral KD, BKD）：除 logit 级 KL 蒸馏外，在特征空间对学生施加对齐损失，使表示更贴近教师。设 $\phi^{\mathrm{T}}$、$\phi^{\mathrm{S}}$ 分别为教师与学生的特征表示，$\lambda_{\mathrm{feat}}$ 为特征蒸馏权重（取 0.5），则
@@ -218,11 +211,12 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 对于 WiAR 数据集，本文构造 WiAR-16 类增量实验设置。该设置包含 16 个动作类别，初始阶段使用 6 个基础类别进行训练，随后设置 5 个增量阶段，每个阶段新增 2 个此前未见类别，累计类别数依次为 6、8、10、12、14 和 16。与 XRF 实验一致，每个阶段训练结束后均在当前全部已见类别上进行统一测试，不提供任务标识。该划分方式能够在较小类别规模下模拟类别持续扩展过程，并与第四章 WiAR 少样本类增量设置在类别集合和增量粒度上保持一致，便于分析常规类增量学习与少样本类增量学习在样本条件和训练约束上的差异。
 
 \begin{table}[h]
+  \centering
   \caption{现有开源 Wi-Fi 室内动作识别数据集对比}
   \label{tab:dataset-compare}
-  \begingroup
-  \renewcommand{\multirowsetup}{\centering}
-  \begin{tabularx}{\textwidth}{>{\hsize=0.85\hsize\centering\arraybackslash}X >{\hsize=0.85\hsize\centering\arraybackslash}X >{\hsize=0.85\hsize\centering\arraybackslash}X >{\hsize=0.85\hsize\centering\arraybackslash}X >{\hsize=1.6\hsize\centering\arraybackslash}X}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c]},
+  }
   \toprule
   数据集 & 类别数 & 主体数 & 样本数 & 动作类型 \\
   \midrule
@@ -231,11 +225,10 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
   ARIL & 6 & 1 & 1394 & 人机交互 \\
   MM-Fi & 27 & 40 & 320.76k 帧 & 日常活动、康复运动 \\
   UT-HAR & 6 & 6 & 720 & 身体运动 \\
-  \multirow{2}{*}{XRF} & \multirow{2}{*}{55} & \multirow{2}{*}{30} & \multirow{2}{*}{33000} & 人物交互、人人交互、健身、 \\
-   & & & & 身体运动、人机交互 \\
+  \SetCell[r=2]{m,c} XRF & \SetCell[r=2]{m,c} 55 & \SetCell[r=2]{m,c} 30 & \SetCell[r=2]{m,c} 33000 & 人物交互、人人交互、健身、 \\
+  & & & & 身体运动、人机交互 \\
   \bottomrule
-  \end{tabularx}
-  \endgroup
+  \end{tblr}
 \end{table}
 
 \xsubsection{实验环境与硬件}{Environment and Hardware}
@@ -257,9 +250,12 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 主要超参数汇总见表~\ref{tab:hyperparams}。该表主要对应 XRF 主实验的训练配置；WiAR 实验在骨干与输入形状上按 3.3.1 节说明另行设定，但各阶段训练轮次、学习率调度与蒸馏温度等仍与表~\ref{tab:hyperparams} 保持一致，以保证可比性。骨干网络采用 UNet 或 ResNet-18：在 XRF 上输入为 270 维 CSI 特征序列，UNet 情形下张量形状为 $(B, 270, L)$，经编码—解码与全局池化后由全连接层输出各类 logits；ResNet-18 亦为 1D 时序结构以适配 CSI 输入。骨干选择不改变前述回放、扩展与巩固的三阶段训练流程。骨干对比实验见 3.4 节。
 
 \begin{table}[h]
+  \centering
   \caption{训练超参数}
   \label{tab:hyperparams}
-  \begin{tabularx}{\textwidth}{>{\hsize=1.2\hsize\centering\arraybackslash}X >{\hsize=0.825\hsize\centering\arraybackslash}X >{\hsize=0.825\hsize\centering\arraybackslash}X >{\hsize=1.5\hsize\centering\arraybackslash}X >{\hsize=0.825\hsize\centering\arraybackslash}X >{\hsize=0.825\hsize\centering\arraybackslash}X}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
+  }
   \toprule
   阶段 & 训练轮数 & 学习率 & 学习率衰减 & batch size & 权重衰减 \\
   \midrule
@@ -269,20 +265,21 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
   分类器重训练 & 15 & 0.005 & — & 16 & $1 \times 10^{-4}$ \\
   知识蒸馏 & 150 & 0.01 & [60,100,130], $\times$0.1 & 64 & $2 \times 10^{-4}$ \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
 \end{table}
 
 \xsubsection{对比方法与基线}{Comparison Methods and Baselines}
 
 为全面评估本文方法，实验在 XRF 与 WiAR 上分别设置对比集合。在 XRF 数据集上，对比方法包括 Finetune 基线、iCaRL\cite{rebuffi2017icarl}、BiC\cite{wu2019bic}、UCIR\cite{hou2019ucir}、SimpleCIL\cite{zhou2025revisiting}、IL2A\cite{zhu2021il2a}、CREATE\cite{chen2025create} 与本文方法。其中 Finetune 为每个增量阶段仅用新类别数据微调、无记忆回放与无知识蒸馏的参照；iCaRL、BiC、UCIR 等为经典类增量学习方法；SimpleCIL 与 IL2A 分别代表预训练极简分类器与双路增强类增量设定；CREATE 为近年从类别表征与混淆抑制角度改进 CIL 的方法，通过类别自编码器与潜空间分离损失增强类间可分性。XRF 实验均采用相同划分、15+10$\times$4 协议、UNet 骨干与软硬件环境。
 
-\begin{table}[H]
+\begin{table}[h]
+  \centering
   \caption{类增量对比方法概览}
   \label{tab:cil-method-overview}
-  \begingroup
-  \small
-  \renewcommand{\tabularxcolumn}[1]{>{\centering\arraybackslash}m{#1}}
-  \begin{tabularx}{\textwidth}{XXXXXX}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
+    cells={font=\small},
+  }
   \toprule
   方法 & 年份 & 出处 & 类型 & 使用数据集 & 主要机制 \\
   \midrule
@@ -295,11 +292,8 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
   CREATE & 2025 & CVPR & 混淆抑制型 CIL & XRF & 类别自编码器 + 潜空间分离 \\
   本文方法 & — & 本文 & 回放—扩展—巩固 & XRF、WiAR & 记忆回放 + 分类器扩展 + 双边蒸馏 \\
   \bottomrule
-  \end{tabularx}
-  \endgroup
+  \end{tblr}
 \end{table}
-
-\FloatBarrier
 
 \xsection{实验结果与分析}{Experimental Results and Analysis}
 
@@ -312,7 +306,6 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
 \begin{equation}\label{eq:ch3-accuracy}
 \text{Accuracy} = \frac{1}{N} \sum_{i=1}^{N} \mathbb{I}\left( y_{\mathrm{pred}}^{(i)} = y_{\mathrm{true}}^{(i)} \right)
 \end{equation}
-
 \noindent 式中：$\text{Accuracy}$——全类 Top-1 准确率；$\mathbb{I}(\cdot)$——指示函数。
 
 式~\eqref{eq:ch3-accuracy} 给出会话级准确率在样本上的估计。该指标直接反映模型对所有已学类别的整体判别能力。在类增量设定下，若模型严重遗忘旧类，即使对新类拟合良好，准确率也会因旧类错误而下降；反之，若过度保护旧类而牺牲新类学习，准确率同样受限。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
@@ -327,27 +320,28 @@ ACCN。随着增量推进，类别数从 15 增至 55，仅用准确率难以区
 
 主对比。表~\ref{tab:main-compare} 列出了 XRF 数据集上 Finetune 基线、iCaRL、BiC、UCIR、SimpleCIL、IL2A、CREATE 与本文方法在 5 个增量阶段上的准确率及各方法的平均准确率（AA）。
 
-\begin{table}[H]
+\begin{table}[h]
+  \centering
   \caption{类增量学习方法对比实验（CNN Top1 准确率，\%）}
   \label{tab:main-compare}
-  \begingroup
-  \small
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.45cm}XXXXXX@{}}
+  \begin{tblr}{
+    colspec={X[l] X[c] X[c] X[c] X[c] X[c] X[c]},
+    colsep={3pt},
+    cells={font=\small},
+  }
   \toprule
   方法 & S0 & S1 & S2 & S3 & S4 & AA \\
   \midrule
   Baseline & 89.67 & 38.84 & 26.97 & 21.83 & 16.25 & 38.71 \\
-  \mbox{iCaRL(2017)\cite{rebuffi2017icarl}} & 90.41 & 74.09 & 66.90 & 63.68 & 63.49 & 71.71 \\
-  \mbox{BiC(2019)\cite{wu2019bic}} & 86.11 & 64.91 & 52.56 & 50.10 & 44.35 & 59.61 \\
-  \mbox{UCIR(2019)\cite{hou2019ucir}} & 88.07 & 77.16 & 69.24 & 61.73 & 63.58 & 71.96 \\
-  \mbox{SimpleCIL(2025)\cite{zhou2025revisiting}} & 90.85 & 60.80 & 44.78 & 37.27 & 30.52 & 52.84 \\
-  \mbox{IL2A(2021)\cite{zhu2021il2a}} & 90.30 & 73.31 & 56.43 & 48.90 & 38.21 & 61.43 \\
-  \mbox{CREATE(2025)\cite{chen2025create}} & 87.00 & 70.31 & 64.81 & 62.46 & 59.17 & 68.75 \\
+  iCaRL(2017)\cite{rebuffi2017icarl} & 90.41 & 74.09 & 66.90 & 63.68 & 63.49 & 71.71 \\
+  BiC(2019)\cite{wu2019bic} & 86.11 & 64.91 & 52.56 & 50.10 & 44.35 & 59.61 \\
+  UCIR(2019)\cite{hou2019ucir} & 88.07 & 77.16 & 69.24 & 61.73 & 63.58 & 71.96 \\
+  SimpleCIL(2025)\cite{zhou2025revisiting} & 90.85 & 60.80 & 44.78 & 37.27 & 30.52 & 52.84 \\
+  IL2A(2021)\cite{zhu2021il2a} & 90.30 & 73.31 & 56.43 & 48.90 & 38.21 & 61.43 \\
+  CREATE(2025)\cite{chen2025create} & 87.00 & 70.31 & 64.81 & 62.46 & 59.17 & 68.75 \\
   本文方法 & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} & \textbf{78.50} \\
   \bottomrule
-  \end{tabularx}
-  \endgroup
+  \end{tblr}
 \end{table}
 
 由表~\ref{tab:main-compare} 可见，不同方法在基础阶段差异相对有限，但随着增量轮次增加，性能分化迅速扩大。Baseline 在首次增量后便出现明显退化，之后继续快速下滑，说明单纯顺序微调难以维持旧类判别边界。相比之下，包含回放、蒸馏或结构扩展机制的方法整体更稳定。本文方法在整个增量过程中始终保持较高水平，尤其在最后阶段仍维持 73.57\% 的准确率，表明回放、扩展与巩固三部分能够形成较好的协同作用。各方法在相同数据集与增量划分、相同 CNN Top1 评估与 UNet 骨干下复现；其中 iCaRL、BiC、UCIR 及本文在需要时按各自实现构建 exemplar 记忆（本文每类 75 个，见 3.2.1 节）；SimpleCIL、IL2A 为文献中代表性的轻量与双路增强基线；CREATE 依据文献与公开复现配置完成适配；其余训练细节依各方法配置。以下分方法分析。
@@ -372,7 +366,7 @@ CREATE\cite{chen2025create} 在 XRF 上 Session 0--4 依次为 87.00\%、70.31\%
 
 图~\ref{fig:accn-main} 给出各方法的 ACCN 曲线。
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig3-6-accn-main.pdf}
   \caption{各方法 ACCN 曲线对比（含 CREATE）}
@@ -384,26 +378,27 @@ CREATE\cite{chen2025create} 在 XRF 上 Session 0--4 依次为 87.00\%、70.31\%
 （2）WiAR 数据集对比实验结果。
 
 \begin{table}[h]
+  \centering
   \caption{WiAR-16 数据集上的类增量学习对比实验（CNN Top1 准确率，\%）}
   \label{tab:wiar-cil-compare}
-  \begingroup
-  \small
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.55cm}XXXXXXX@{}}
+  \begin{tblr}{
+    colspec={X[l] X[c] X[c] X[c] X[c] X[c] X[c] X[c]},
+    colsep={3pt},
+    cells={font=\small},
+  }
   \toprule
   方法 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 & Session 5 & AA \\
   \midrule
   Baseline & 96.30 & 22.22 & 25.56 & 16.67 & 19.84 & 8.33 & 31.52 \\
-  \mbox{BiC(2019)\cite{wu2019bic}} & 16.67 & 12.50 & 10.00 & 8.33 & 7.14 & 5.56 & 10.03 \\
-  \mbox{SimpleCIL(2025)\cite{zhou2025revisiting}} & 96.30 & 79.17 & 63.33 & 62.04 & 53.97 & 45.83 & 66.78 \\
-  \mbox{IL2A(2021)\cite{zhu2021il2a}} & 96.30 & 68.06 & 46.67 & 43.52 & 38.10 & 31.25 & 54.13 \\
+  BiC(2019)\cite{wu2019bic} & 16.67 & 12.50 & 10.00 & 8.33 & 7.14 & 5.56 & 10.03 \\
+  SimpleCIL(2025)\cite{zhou2025revisiting} & 96.30 & 79.17 & 63.33 & 62.04 & 53.97 & 45.83 & 66.78 \\
+  IL2A(2021)\cite{zhu2021il2a} & 96.30 & 68.06 & 46.67 & 43.52 & 38.10 & 31.25 & 54.13 \\
   本文方法 & \textbf{98.83} & \textbf{88.89} & \textbf{73.33} & \textbf{68.52} & \textbf{69.84} & \textbf{64.58} & \textbf{77.33} \\
   \bottomrule
-  \end{tabularx}
-  \endgroup
+  \end{tblr}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \centering
   \includegraphics[width=0.75\textwidth]{fig3-11-wiar-cil-sessions.pdf}
   \caption{WiAR-16 类增量各会话 Top-1 准确率对比}
@@ -419,16 +414,19 @@ CREATE\cite{chen2025create} 在 XRF 上 Session 0--4 依次为 87.00\%、70.31\%
 上述差异可从 CSI 信号特性与网络结构的关系理解。Wi-Fi CSI 为时序信号，不同动作对应不同的时变模式，多尺度时序特征（如短时突变与长时趋势）对区分动作均有贡献。UNet 的编码—解码结构通过跳跃连接保留多尺度特征，有利于捕获 CSI 中的粗细粒度模式；ResNet 虽具备深层表示能力，但在 1D 时序上对多尺度信息的显式建模较弱。此外，增量学习中，骨干需为不断扩大的类别空间提供可区分的特征；本文结果表明，UNet 在当前 Wi-Fi CSI 时序建模任务中具有更稳定的增量表现；至于这一优势是否主要来自其多尺度建模能力，还需要结合特征可视化或更细粒度的模块消融进一步分析。从参数量与计算开销看，两种骨干在同一量级，选择 UNet 不会显著增加部署成本，却在 Session 4 带来约 15 个百分点的准确率提升，性价比较高。基于上述结果，后续主对比与消融实验均以 UNet 为骨干。
 
 \begin{table}[h]
+  \centering
   \caption{骨干网络对比实验（\%）}
   \label{tab:backbone-compare}
-  \begin{tabularx}{\textwidth}{XXXXXX}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
+  }
   \toprule
   骨干 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 \\
   \midrule
   ResNet & 89.37 & 71.47 & 62.00 & 61.40 & 58.41 \\
   UNet & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
 \end{table}
 
 \begin{figure}[!htbp]
@@ -444,17 +442,20 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
 
 从不同巩固方式的结果表明，KD 与 BKD 在基础阶段差异较小，但随着增量会话推进，BKD 的优势逐步显现。进入后续阶段后，BKD 始终保持更高准确率，说明在类别不断扩展、样本分布持续变化的条件下，双边蒸馏更有利于同时兼顾新类适应与旧类保持。因此，本文后续实验统一采用 BKD 作为默认知识巩固策略。Session 各阶段的定量对比见表~\ref{tab:kd-compare}，ACCN 曲线见图~\ref{fig:accn-kd}。
 
-\begin{table}[!htbp]
+\begin{table}[h]
+  \centering
   \caption{知识蒸馏方式对比（\%）}
   \label{tab:kd-compare}
-  \begin{tabularx}{\textwidth}{XXXXXX}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
+  }
   \toprule
   巩固方式 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 \\
   \midrule
   KD & 91.19 & 78.13 & 72.78 & 72.42 & 70.20 \\
   BKD & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
 \end{table}
 
 \begin{figure}[!htbp]
@@ -463,8 +464,6 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \caption{KD 与 BKD 的 ACCN 曲线对比}
   \label{fig:accn-kd}
 \end{figure}
-% 盲审意见18：压缩图题至下文间距（不改图、编号与图题文字）
-\vspace{-0.3\baselineskip}
 
 \xsubsection{消融实验}{Ablation Study}
 
@@ -481,28 +480,33 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \label{fig:accn-replay}
 \end{figure}
 
-\begin{table}[!htbp]
+\begin{table}[h]
+  \centering
   \caption{样本重放消融实验（\%）}
   \label{tab:ablation-replay}
-  \begin{tabularx}{\textwidth}{XXXXXX}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
+  }
   \toprule
   是否回放 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 \\
   \midrule
   否 & 91.33 & 42.00 & 34.97 & 29.40 & 23.19 \\
   是 & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
 \end{table}
-\FloatBarrier
 
 分类器扩展组件。3.2.2 节在分类器扩展阶段依次采用了平衡微调与分类器重训练，旨在缓解联合训练集 $\hat{\mathcal{D}}^t$ 中新旧类样本数量不平衡带来的 logits 偏置。为考察两者的贡献，在保留样本重放与知识蒸馏的前提下，分别移除其中一项，结果见表~\ref{tab:ablation-classifier}。
 
 无平衡微调时，Session 4 准确率为 72.36\%，完整方法为 73.57\%，低 1.21 个百分点；无分类器重训练时，Session 4 为 72.14\%，较完整方法低 1.43 个百分点。与去除平衡微调、去除分类器重训练或去除知识巩固的设置相比，完整方法在各阶段整体表现更稳定。这表明本文框架并非依赖单一模块获得提升，而是通过多个环节共同作用来抑制性能衰减：分类器扩展负责接纳新类，平衡微调用于缓解样本不均衡带来的偏置，而知识巩固进一步降低增量更新中的旧类退化（知识巩固的对照见表~\ref{tab:ablation-compress}）。从各 Session 的走势看，无平衡微调在 Session 2 略高于完整方法（75.11\% vs 74.24\%），但 Session 3–4 持续下降；无分类器重训练在 Session 2 略低（72.68\% vs 74.24\%），整体趋势相近。平衡微调与分类器重训练的设计意图仍分别体现在 batch 内梯度均衡与联合数据再巩固上；在当前数据划分与记忆库规模下，二者对 Session 4 的边际影响相对有限，主体收益仍来自"冻结骨干 + 分类器扩展 + 蒸馏巩固"框架。考虑到不同随机种子下结果存在波动，本文不对这两项组件的细微差异作进一步因果归因。
 
 \begin{table}[h]
+  \centering
   \caption{分类器扩展组件消融实验（\%）}
   \label{tab:ablation-classifier}
-  \begin{tabularx}{\textwidth}{>{\hsize=1.4\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X}
+  \begin{tblr}{
+    colspec={X[1.4,c] X[0.92,c] X[0.92,c] X[0.92,c] X[0.92,c] X[0.92,c]},
+  }
   \toprule
   实验配置 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 \\
   \midrule
@@ -510,7 +514,7 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   无分类器重训练 & 91.07 & \textbf{80.58} & 72.68 & 73.07 & 72.14 \\
   完整方法 & \textbf{91.52} & 80.47 & 74.24 & 72.72 & \textbf{73.57} \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
 \end{table}
 
 知识巩固。为验证知识巩固的必要性，在其余模块不变的前提下设置有无巩固对照（见表~\ref{tab:ablation-compress}）。该步骤将分类器扩展阶段分散于教师网络中的判别能力，通过教师—学生双边蒸馏整合至单一主干，再由学生作为下一增量阶段的基模型；师生同构、参数量约 20.76M，重在跨阶段知识整合而非压缩模型规模。
@@ -528,21 +532,23 @@ KD 与 BKD 对比。表~\ref{tab:kd-compare} 对比了标准知识蒸馏（KD）
   \label{fig:accn-compress}
 \end{figure}
 
-\begin{table}[!htbp]
+\begin{table}[h]
+  \centering
   \caption{知识巩固消融实验（\%）}
   \label{tab:ablation-compress}
-  \begin{tabularx}{\textwidth}{XXXXXXX}
+  \begin{tblr}{
+    colspec={X[c] X[c] X[c] X[c] X[c] X[c] X[c]},
+  }
   \toprule
   是否巩固 & 参数量 & Session 0 & Session 1 & Session 2 & Session 3 & Session 4 \\
   \midrule
   否 & 20.76M & 91.30 & 3.87 & 2.86 & 2.27 & 1.82 \\
   是 & 20.76M & \textbf{91.52} & \textbf{80.47} & \textbf{74.24} & \textbf{72.72} & \textbf{73.57} \\
   \bottomrule
-  \end{tabularx}
+  \end{tblr}
 \end{table}
-\FloatBarrier
 
-\xsection{本章小结}{Chapter Summary}
+\xsection{本章小结}{Summary}
 
 本章面向新增类样本相对充足的 Wi-Fi CSI 类增量动作识别场景，提出了回放—扩展—巩固框架。该框架通过类均值选样构建记忆库，在冻结骨干网络的基础上扩展分类器以接入新类别，并利用教师—学生双边知识蒸馏完成新旧类知识巩固。实验结果表明，在 XRF 的 15+10$\times$4 类增量设置下，本文方法末次增量阶段准确率达到 73.57\%；在 WiAR-16 设置下，平均准确率和末次阶段准确率分别达到 77.33\% 和 64.58\%，整体优于主要对比方法。消融实验进一步说明，样本重放、知识巩固、UNet 骨干与双边知识蒸馏均对增量稳定性具有积极作用。总体来看，所提方法能够在类别持续扩展过程中较好兼顾新类学习与旧类保持，为新增类样本充足条件下的 Wi-Fi 感知模型持续更新提供了有效方案。
 
