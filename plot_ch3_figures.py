@@ -171,7 +171,7 @@ ax.legend(fontsize=11, loc="upper left", framealpha=0.9)
 save_fig(fig, "fig3-10-accn-compress.pdf")
 
 
-# ── 图 3-11: WiAR-16 类增量各会话 Top-1 准确率（与 tab:wiar-cil-compare 一致）──
+# ── 图 3-11: WiAR（16 类）类增量各会话 Top-1 准确率（与 tab:wiar-cil-compare 一致）──
 sessions_wiar = ["会话 0", "会话 1", "会话 2", "会话 3", "会话 4", "会话 5"]
 wiar_baseline = [96.30, 22.22, 25.56, 16.67, 19.84, 8.33]
 wiar_bic = [16.67, 12.50, 10.00, 8.33, 7.14, 5.56]
@@ -193,7 +193,7 @@ ax.tick_params(axis="both", labelsize=12)
 ax.grid(color="lightgray", linewidth=0.8, linestyle="--")
 for spine in ax.spines.values():
     spine.set_linewidth(1.2)
-ax.set_title("WiAR-16 类增量各会话准确率", fontproperties=_FP_TITLE, pad=10)
+ax.set_title("WiAR（16 类）类增量各会话准确率", fontproperties=_FP_TITLE, pad=10)
 ax.legend(fontsize=10, ncol=2, loc="upper right", framealpha=0.92)
 fig.tight_layout()
 for ext in (".pdf", ".png"):
