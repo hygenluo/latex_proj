@@ -221,16 +221,16 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
 \begin{table}[h]
   \caption{FSCIL 实验数据划分（XRF，基础 30 类，5-way 1-shot）}
   \label{tab:fscil-split}
-  \begin{tabularx}{\textwidth}{>{\hsize=1.4\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X >{\hsize=0.92\hsize\centering\arraybackslash}X}
+  \begin{tabularx}{\textwidth}{>{\hsize=1.260\hsize\centering\arraybackslash}X >{\hsize=0.768\hsize\centering\arraybackslash}X >{\hsize=0.906\hsize\centering\arraybackslash}X >{\hsize=1.161\hsize\centering\arraybackslash}X >{\hsize=0.905\hsize\centering\arraybackslash}X}
   \toprule
-  会话 & 类别范围 & 训练类别数 & 训练样本数（每类） & 累计类别数 & 测试类别范围 \\
+  会话 & 类别范围 & 训练类别数 & 训练样本数/类 & 测试类别范围 \\
   \midrule
-  Session 0（基础） & 1–30 & 30 & 14 & 30 & 1–30 \\
-  Session 1 & 31–35 & 5 & 1 & 35 & 1–35 \\
-  Session 2 & 36–40 & 5 & 1 & 40 & 1–40 \\
-  Session 3 & 41–45 & 5 & 1 & 45 & 1–45 \\
-  Session 4 & 46–50 & 5 & 1 & 50 & 1–50 \\
-  Session 5 & 51–55 & 5 & 1 & 55 & 1–55 \\
+  Session 0（基础） & 1–30 & 30 & 14 & 1–30 \\
+  Session 1 & 31–35 & 5 & 1 & 1–35 \\
+  Session 2 & 36–40 & 5 & 1 & 1–40 \\
+  Session 3 & 41–45 & 5 & 1 & 1–45 \\
+  Session 4 & 46–50 & 5 & 1 & 1–50 \\
+  Session 5 & 51–55 & 5 & 1 & 1–55 \\
   \bottomrule
   \end{tabularx}
 \end{table}
@@ -309,7 +309,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
   \label{tab:fscil-metrics-desc}
   \begingroup
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{XXX}
+  \begin{tabularx}{\textwidth}{>{\hsize=0.70\hsize\centering\arraybackslash}X >{\hsize=1.65\hsize\raggedright\arraybackslash}X >{\hsize=0.65\hsize\raggedright\arraybackslash}X}
   \toprule
   指标 & 含义 & 用途 \\
   \midrule
@@ -331,9 +331,8 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
   \caption{少样本类增量学习主要对比方法概况}
   \label{tab:fscil-method-meta}
   \begingroup
-  \footnotesize
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{>{\hsize=0.9\hsize}X >{\hsize=0.45\hsize\centering\arraybackslash}X >{\hsize=0.95\hsize}X >{\hsize=1.5\hsize}X >{\hsize=1.2\hsize}X}
+  \begin{tabularx}{\textwidth}{>{\hsize=0.62\hsize\raggedright\arraybackslash}X >{\hsize=0.35\hsize\centering\arraybackslash}X >{\hsize=1.36\hsize\raggedright\arraybackslash}X >{\hsize=1.92\hsize\raggedright\arraybackslash}X >{\hsize=0.75\hsize\raggedright\arraybackslash}X}
   \toprule
   方法 & 年份 & 类型 & 主要机制 & 文献/备注 \\
   \midrule
@@ -377,7 +376,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \begingroup
   \small
   \setlength{\tabcolsep}{3pt}
-  \begin{tabularx}{\textwidth}{>{\hsize=1.58\hsize\raggedright\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X >{\hsize=0.76\hsize\centering\arraybackslash}X}
+  \begin{tabularx}{\textwidth}{>{\hsize=1.85\hsize\raggedright\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X >{\hsize=0.726\hsize\centering\arraybackslash}X}
   \toprule
   方法 & S0 & S1 & S2 & S3 & S4 & S5 & PD $\downarrow$ & AA \\
   \midrule
@@ -489,7 +488,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \label{tab:fscil-baseclass}
   \begingroup
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{>{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=0.916667\hsize\centering\arraybackslash}X >{\hsize=1.5\hsize\centering\arraybackslash}X}
+  \begin{tabularx}{\textwidth}{>{\hsize=0.73\hsize\centering\arraybackslash}X >{\hsize=0.73\hsize\centering\arraybackslash}X >{\hsize=0.73\hsize\centering\arraybackslash}X >{\hsize=0.73\hsize\centering\arraybackslash}X >{\hsize=0.73\hsize\centering\arraybackslash}X >{\hsize=0.73\hsize\centering\arraybackslash}X >{\hsize=2.62\hsize\raggedright\arraybackslash}X}
   \toprule
   基础类别数 $B$ & 每会话新类数 & S0 & S5 & PD $\downarrow$ & AA & 备注 \\
   \midrule
@@ -515,7 +514,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \label{tab:fscil-kshot}
   \begingroup
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{XXXXXX}
+  \begin{tabularx}{\textwidth}{>{\hsize=0.94\hsize\centering\arraybackslash}X >{\hsize=0.715\hsize\centering\arraybackslash}X >{\hsize=0.715\hsize\centering\arraybackslash}X >{\hsize=0.715\hsize\centering\arraybackslash}X >{\hsize=0.715\hsize\centering\arraybackslash}X >{\hsize=2.20\hsize\raggedright\arraybackslash}X}
   \toprule
   每类支持样本数 & S0 & S5 & PD $\downarrow$ & AA & 说明 \\
   \midrule

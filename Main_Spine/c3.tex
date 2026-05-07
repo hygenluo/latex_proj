@@ -215,7 +215,7 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
   \caption{现有开源 Wi-Fi 室内动作识别数据集对比}
   \label{tab:dataset-compare}
   \begin{tblr}{
-    colspec={X[c] X[c] X[c] X[c] X[c]},
+    colspec={X[c,0.82] X[c,0.60] X[c,0.60] X[c,1.02] X[l,2.96]},
   }
   \toprule
   数据集 & 类别数 & 主体数 & 样本数 & 动作类型 \\
@@ -254,7 +254,7 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
   \caption{训练超参数}
   \label{tab:hyperparams}
   \begin{tblr}{
-    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
+    colspec={X[c,1.32] X[c,0.75] X[c,0.75] X[c,1.38] X[c,0.75] X[c,0.75]},
   }
   \toprule
   阶段 & 训练轮数 & 学习率 & 学习率衰减 & batch size & 权重衰减 \\
@@ -277,8 +277,7 @@ E_{n_c} = \frac{1 - \beta^{n_c}}{1 - \beta}
   \caption{类增量对比方法概览}
   \label{tab:cil-method-overview}
   \begin{tblr}{
-    colspec={X[c] X[c] X[c] X[c] X[c] X[c]},
-    cells={font=\small},
+    colspec={X[c,0.98] X[c,0.48] X[c,0.55] X[l,1.48] X[l,1.12] X[l,1.99]},
   }
   \toprule
   方法 & 年份 & 出处 & 类型 & 使用数据集 & 主要机制 \\
@@ -325,7 +324,7 @@ ACCN。随着增量推进，类别数从 15 增至 55，仅用准确率难以区
   \caption{类增量学习方法对比实验（CNN Top1 准确率，\%）}
   \label{tab:main-compare}
   \begin{tblr}{
-    colspec={X[l] X[c] X[c] X[c] X[c] X[c] X[c]},
+    colspec={X[l,2.15] X[c,0.88] X[c,0.88] X[c,0.88] X[c,0.88] X[c,0.88] X[c,0.88]},
     colsep={3pt},
     cells={font=\small},
   }
@@ -382,7 +381,7 @@ CREATE\cite{chen2025create} 在 XRF 上 Session 0--4 依次为 87.00\%、70.31\%
   \caption{WiAR 数据集上的类增量学习对比实验（16 类，CNN Top1 准确率，\%）}
   \label{tab:wiar-cil-compare}
   \begin{tblr}{
-    colspec={X[l] X[c] X[c] X[c] X[c] X[c] X[c] X[c]},
+    colspec={X[l,1.95] X[c,0.78] X[c,0.78] X[c,0.78] X[c,0.78] X[c,0.78] X[c,0.78] X[c,0.78]},
     colsep={3pt},
     cells={font=\small},
   }
