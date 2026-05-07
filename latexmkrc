@@ -3,6 +3,7 @@ $pdf_mode = 1;
 $xelatex = "xelatex -synctex=1 --shell-escape -interaction=nonstopmode %O %S";
 $pdflatex = "xelatex -synctex=1 --shell-escape -interaction=nonstopmode %O %S";
 $biber = "biber --validate-datamodel %O %S";
+$bibtex_use = 2;
 $preview_mode = 1;
 $cleanup_mode = 2;
 
