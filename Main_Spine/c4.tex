@@ -6,6 +6,8 @@
 
 本节面向基于 Wi-Fi CSI 信号的室内动作识别任务，给出少样本类增量学习的形式化定义，分析其核心挑战与研究的现实意义，并阐明本文的研究思路。在类别扩展之外，少样本类增量学习要求每个增量会话仅能访问极少量的新类别样本，使得模型在应对灾难性遗忘的同时还需应对样本稀缺导致的过拟合，难度高于第三章所探讨的类增量学习（CIL）。
 
+因此，本章并非简单延续第三章的回放—扩展—巩固流程，而是在旧类数据不可完整回放、新类样本极少的条件下重新设计特征表示与分类机制。这种设置更接近实际 Wi-Fi 感知系统中新增动作难以大量采集的场景，也进一步检验模型在低标注成本条件下的持续更新能力。
+
 对于 Wi-Fi CSI 室内动作识别任务，新增类别往往难以在短时间内采集到大量标注样本。例如，康复动作、个性化家庭交互动作或特定场景下的新型行为通常只能获得极少量样本。在第三章所研究的类增量学习（CIL）场景中，每个增量任务仍可访问充足的新类样本，模型能够借助样本重放与知识蒸馏维持性能；而在实际部署中，新类别的标注往往远不充分，CIL 的假设难以满足。少样本类增量学习（FSCIL）正是面向这一更为苛刻的条件：增量阶段每类仅有极少量样本（如 1-shot），模型需在样本稀缺与类别扩展的双重约束下完成学习。在 Wi-Fi CSI 场景下研究 FSCIL，不只是为了降低标注成本，更在于提升模型对动态类别集合的持续适应能力。
 
 本任务的困难主要来自三个方面。第一，增量阶段每个新类别仅含极少量样本，导致类别原型对噪声和个体差异较为敏感，模型难以从有限监督信息中建立稳定的类别表示。第二，模型需在持续引入新类别的同时保持对旧类别的识别能力，然而在缺乏旧类数据访问的条件下，新类学习容易覆盖旧类表征，灾难性遗忘问题在少样本场景下更为突出。第三，Wi-Fi CSI 具有明显的时序特性，不同动作在短时与长时尺度上的差异较大，若表征能力不足，少样本条件下更容易出现新旧类别混淆。上述三方面困难相互交织，使得 FSCIL 的模型设计与优化较 CIL 更为困难。
@@ -41,7 +43,7 @@
 \begin{equation}\label{eq:ch4-fscil-risk}
   \mathbb{E}_{(x,y) \sim D_{\mathrm{train}}^{(0)} \cup \cdots \cup D_{\mathrm{train}}^{(j)}} \left[ \ell\left( f\left(x; D_{\mathrm{train}}^{(j)}, W^{j-1}\right), y \right) \right]
 \end{equation}
-\noindent 式中：$\mathbb{E}[\cdot]$——关于联合分布 $D_{\mathrm{train}}^{(0)} \cup \cdots \cup D_{\mathrm{train}}^{(j)}$ 抽取样本 $(x,y)$ 的期望；$x$、$y$——输入样本及其类别标签；$D_{\mathrm{train}}^{(k)}$——第 $k$ 个会话的训练集；$j$——当前关注的增量会话索引；$f(\cdot; D_{\mathrm{train}}^{(j)}, W^{j-1})$——在会话 $j$ 的数据与上一会话模型参数 $W^{j-1}$ 条件下得到的更新后映射；$W^{j-1}$——会话 $j-1$ 结束时的模型参数；$\ell(\cdot,\cdot)$——监督损失（如交叉熵）。
+\noindent 式中：$D_{\mathrm{train}}^{(j)}$——会话 $j$ 的训练数据；$W^{j-1}$——会话 $j-1$ 结束时的模型参数。
 
 式~\eqref{eq:ch4-fscil-risk} 刻画在可访问全部已见训练数据这一理想条件下、FSCIL 在会话 $j$ 上应追求的风险形式，用于与「旧会话数据不可得、仅能基于当前支持集与历史参数更新」的实际训练目标相对照。该式给出理想优化方向；在实际训练中，由于旧会话数据不可访问，只能基于当前支持集与历史模型参数近似实现。在测试阶段，模型将在所有已见类别上进行评估：对于会话 $j$，其测试数据为 $\{D_{\mathrm{test}}^{(0)}, D_{\mathrm{test}}^{(1)}, \ldots, D_{\mathrm{test}}^{(j)}\}$，对应的标签空间为 $\mathcal{Y}_0 \cup \mathcal{Y}_1 \cup \cdots \cup \mathcal{Y}_j$。
 
@@ -84,7 +86,7 @@
 \begin{equation}\label{eq:ch4-Lbase}
   \mathcal{L}_{\mathrm{base}} = -\frac{1}{N}\sum_{i=1}^{N}\log\frac{\exp(o_{y_i})}{\sum_{c=1}^{C}\exp(o_c)}
 \end{equation}
-\noindent 式中：$\mathcal{L}_{\mathrm{base}}$——基础会话上的平均负对数似然（多类交叉熵）；$N$——一个 mini-batch 中的样本数；$i$——批内样本索引；$y_i$——第 $i$ 个样本的类别标签；$o_c$——融合后 logits 向量 $\mathbf{o}$ 中第 $c$ 类分量；$C$——基础会话的类别总数；$\exp(o_{y_i})/\sum_{c=1}^{C}\exp(o_c)$——softmax 后真实类别 $y_i$ 的预测概率。
+\noindent 式中：$\mathcal{L}_{\mathrm{base}}$——基础会话平均交叉熵损失；$o_c$——融合 logits $\mathbf{o}$ 中第 $c$ 类分量。
 
 式~\eqref{eq:ch4-Lbase} 给出 Session 0 端到端训练所采用的分类目标。图注意力网络主要在少样本增量阶段参与原型与查询特征之间的关系传播。基础会话阶段的训练重点放在多尺度时序编码器、时序注意力融合模块与双分类器上；图注意力网络不接入 Session 0 的分类主路径，其参数保持网络默认初始化，在进入增量阶段后于 N-way K-shot 计算中参与前向，以增强少样本条件下的类别关系建模。优化器为 SGD（动量 0.9、Nesterov、权重衰减 $5 \times 10^{-4}$），多尺度编码器与双分类器使用基础学习率，时序注意力融合模块使用较小学习率以稳定训练。基础会话结束后，采用平均嵌入策略初始化分类器权重，随后进入增量会话。在增量会话中，默认不进行编码器微调（与 CEC/CLOM 策略一致），仅根据支持集样本提取特征并更新分类器权重；图注意力网络在计算 N-way K-shot 的 logits 时参与前向传播。各模块的设计动机、数学形式与实现细节如下。本文方法的整体架构如图~\ref{fig:method-arch} 所示。
 
@@ -111,7 +113,7 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-multiscale-H}
   \mathbf{H} = \mathrm{Fusion}\big(\mathrm{Concat}(\phi_{\mathrm{short}}(\mathbf{x}), \phi_{\mathrm{mid}}(\mathbf{x}), \phi_{\mathrm{long}}(\mathbf{x}))\big) \in \mathbb{R}^{B \times 512 \times 100}
 \end{equation}
-\noindent 式中：$\mathbf{H}$——多尺度时序编码器输出张量；$B$——批大小；$\phi_{\mathrm{short}}$、$\phi_{\mathrm{mid}}$、$\phi_{\mathrm{long}}$——短、中、长三个尺度的 1D 卷积分支；$\mathbf{x}$——网络输入的 CSI 时序张量；$\mathrm{Concat}(\cdot)$——在通道维拼接；$\mathrm{Fusion}(\cdot)$——$1 \times 1$ 卷积等融合算子；$\mathbb{R}^{B \times 512 \times 100}$——张量形状（批、通道/特征维、时间步）。
+\noindent 式中：$\mathbf{H}$——多尺度时序编码器输出；$\phi_{\mathrm{short}}$、$\phi_{\mathrm{mid}}$、$\phi_{\mathrm{long}}$——短、中、长尺度卷积分支。
 
 式~\eqref{eq:ch4-multiscale-H} 将三尺度特征融合为统一时序表示。该模块使模型能同时利用不同时间尺度的动作信息，为后续时序注意力与分类提供更丰富的表示基础；在基础训练阶段，多尺度编码器与后续模块一起端到端训练，学习对不同尺度模式的最优组合。多尺度时序编码器的整体结构如图~\ref{fig:method-arch} 所示。
 
@@ -124,7 +126,7 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
   \mathrm{PE}_{(pos, 2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right), \quad
   \mathrm{PE}_{(pos, 2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right)
 \end{equation}
-\noindent 式中：$\mathrm{PE}_{(pos,2i)}$、$\mathrm{PE}_{(pos,2i+1)}$——位置 $pos$、嵌入维度索引 $2i$ 与 $2i+1$ 上的位置编码分量；$pos$——序列位置索引（本文为 $0,\ldots,99$）；$i$——维度配对索引；$d$——模型嵌入维度（本文为 $512$）；三角函数中的分母 $10000^{2i/d}$——Transformer 经典几何级数频率基底。
+\noindent 式中：$pos$——序列位置索引；$d$——嵌入维度。
 
 式~\eqref{eq:ch4-pe} 给出的编码使不同位置具有唯一的向量表示，且连续位置之间的编码平滑变化，有利于模型学习时序结构。位置编码与输入相加后经 Dropout（比率 0.1）以增强泛化，得到 $\tilde{\mathbf{H}} \in \mathbb{R}^{B \times 100 \times 512}$。
 
@@ -132,7 +134,7 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:self-attention}
   \mathrm{Attention}(\mathbf{Q}, \mathbf{K}, \mathbf{V}) = \mathrm{softmax}\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d_k}}\right)\mathbf{V}
 \end{equation}
-\noindent 式中：$\mathrm{Attention}(\mathbf{Q},\mathbf{K},\mathbf{V})$——缩放点积注意力输出；$\mathbf{Q}$、$\mathbf{K}$、$\mathbf{V}$——由输入经线性投影得到的查询、键与值矩阵；$d_k$——单个注意力头上查询/键向量维度；$\mathbf{Q}\mathbf{K}^\top$——注意力打分矩阵；$\mathrm{softmax}(\cdot)$——沿键维归一化得到注意力权重；与 $\mathbf{V}$ 相乘后得到上下文加权求和结果。
+\noindent 式中：$\mathbf{Q}$、$\mathbf{K}$、$\mathbf{V}$——查询、键、值矩阵；$d_k$——单头注意力维度。
 
 式~\eqref{eq:self-attention} 为多头自注意力子层中的单头计算形式。多头注意力的输出经线性投影后与残差相加，再经层归一化，得到与输入同形状的输出 $\mathbf{O} \in \mathbb{R}^{B \times 100 \times 512}$。该输出对时间维做全局平均池化，将 $B \times 100 \times 512$ 聚合为 $B \times 512$ 的固定长度嵌入向量 $\mathbf{z}$。该向量作为后续双分类器的输入，或作为少样本模式下图注意力的输入特征。时序注意力融合模块的结构如图~\ref{fig:method-arch} 所示。
 
@@ -144,7 +146,7 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-mlp-proto}
   \tilde{\mathbf{P}} = \mathrm{MLP}(\mathbf{P}) = \mathbf{W}_2 \cdot \sigma(\mathbf{W}_1 \mathbf{P} + \mathbf{b}_1) + \mathbf{b}_2
 \end{equation}
-\noindent 式中：$\tilde{\mathbf{P}}$——经时序关系增强后的原型特征；$\mathbf{P}$——支持集经骨干得到的原型张量；$\mathbf{W}_1$、$\mathbf{W}_2$——两层全连接权重；$\mathbf{b}_1$、$\mathbf{b}_2$——偏置；$\sigma$——ReLU 激活；$\mathrm{MLP}(\cdot)$——对最后一维 $512$ 逐位置施加同一 MLP（批维与类维由实现广播）。
+\noindent 式中：$\tilde{\mathbf{P}}$——时序关系增强后的原型特征；$\mathbf{P}$——支持集原型张量。
 
 式~\eqref{eq:ch4-mlp-proto} 在图传播前对原型做非线性变换。该模块可学习对时序相关模式的强调或抑制，使后续图注意力在更具判别力的原型表示上进行传播。查询特征不经此时序关系增强，直接参与图注意力的信息传播，以保持其原始表示的同时从原型处获取上下文。
 
@@ -152,13 +154,13 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-graph-selfattn}
   [\mathbf{P}', \mathbf{Q}'] = \mathrm{SelfAttn}\!\left([\tilde{\mathbf{P}}; \mathbf{Q}]\right)
 \end{equation}
-\noindent 式中：$[\mathbf{P}', \mathbf{Q}']$——图自注意力更新后的原型与查询特征，在节点维拼接后输出再拆回；$\mathrm{SelfAttn}(\cdot)$——与式~\eqref{eq:self-attention} 同构的自注意力算子；$[\tilde{\mathbf{P}}; \mathbf{Q}]$——在图节点维将增强原型 $\tilde{\mathbf{P}}$ 与查询特征 $\mathbf{Q}$ 沿支持/查询方向拼接。
+\noindent 式中：$\mathbf{P}'$、$\mathbf{Q}'$——图自注意力更新后的原型与查询特征；$\mathrm{SelfAttn}(\cdot)$——与式~\eqref{eq:self-attention} 同构的自注意力。
 
 式~\eqref{eq:ch4-graph-selfattn} 在联合节点集合上执行一次自注意力消息传递。通过自注意力，原型节点可吸收其它原型与查询的上下文，查询节点也可吸收所有原型的上下文，从而在少样本条件下提升分类决策的鲁棒性。自注意力计算完成后，将输出按原型与查询的数目拆分为 $\mathbf{P}'$ 与 $\mathbf{Q}'$，最终通过余弦相似度计算分类 logits：
 \begin{equation}\label{eq:ch4-cosine-logits}
   s_{ij} = \tau \cdot \frac{\mathbf{Q}'_i \cdot {\mathbf{P}'_j}^\top}{\|\mathbf{Q}'_i\|_2 \cdot \|\mathbf{P}'_j\|_2}
 \end{equation}
-\noindent 式中：$s_{ij}$——第 $i$ 个查询样本对第 $j$ 个类原型的余弦相似度 logit；$\mathbf{Q}'_i$——第 $i$ 个查询的图传播后特征向量；$\mathbf{P}'_j$——第 $j$ 个类原型的图传播后特征向量；$\|\cdot\|_2$——L2 范数；$\tau$——温度系数，用于调节相似度分布的锐度。
+\noindent 式中：$s_{ij}$——查询 $i$ 与原型 $j$ 的余弦相似度 logit；$\tau$——温度系数。
 
 式~\eqref{eq:ch4-cosine-logits} 在图增强特征上建立查询—原型相似度得分。图注意力网络仅在少样本增量阶段（N-way K-shot 评估及增量会话中更新分类器头并前向计算 logits 时）参与前向传播；标准的基础训练与推理阶段则直接使用时序注意力融合后的嵌入接入双分类器，不经过图注意力，因而基础会话的端到端分类损失亦不经由该模块回传。增强图注意力网络的结构如图~\ref{fig:method-arch} 所示。
 
@@ -170,7 +172,7 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-omain}
   \mathbf{o}_{\mathrm{main}} = \tau \cdot \frac{\mathbf{z} \mathbf{W}_{\mathrm{main}}^\top}{\|\mathbf{z}\|_2 \|\mathbf{W}_{\mathrm{main}}\|_2}
 \end{equation}
-\noindent 式中：$\mathbf{o}_{\mathrm{main}}$——主分类器 logits 向量；$\tau$——温度系数（文中取 $16$）；$\mathbf{z}$——时序注意力融合后的样本嵌入；$\mathbf{W}_{\mathrm{main}}$——主分类器权重矩阵；$\mathbf{z}\mathbf{W}_{\mathrm{main}}^\top$——嵌入与各类别权重行的内积（批形式）；分母为嵌入与权重矩阵行向量各自的 L2 范数乘积，对应余弦相似度缩放。
+\noindent 式中：$\mathbf{o}_{\mathrm{main}}$——主分类器 logits；$\mathbf{W}_{\mathrm{main}}$——主分类器权重矩阵。
 
 式~\eqref{eq:ch4-omain} 通过归一化内积构造主分类器 logits：$\tau$ 较大时 softmax 输出更平滑，有利于少样本下的泛化。
 
@@ -180,7 +182,7 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-dual-fusion}
   \mathbf{o} = \alpha \cdot \mathbf{o}_{\mathrm{main}} + (1-\alpha) \cdot \mathbf{o}_{\mathrm{id}}
 \end{equation}
-\noindent 式中：$\mathbf{o}$——双分类器融合后的 logits；$\alpha$——主分类器分支的凸组合权重；$\mathbf{o}_{\mathrm{main}}$、$\mathbf{o}_{\mathrm{id}}$——主分类器与域内分类器输出的 logits。
+\noindent 式中：$\alpha$——主分支融合权重；$\mathbf{o}_{\mathrm{main}}$、$\mathbf{o}_{\mathrm{id}}$——主分类器与域内分类器 logits。
 
 式~\eqref{eq:ch4-dual-fusion} 对两支路输出做线性融合。$\alpha$ 默认取 0.7，即主分类器权重 0.7、域内分类器权重 0.3。在增量学习的早期会话（如 Session 1、2），新类别特征可能尚不稳定，域内子空间因样本过少而估计不准，本文将主分类器权重动态调整为 0.75、域内分类器权重调整为 0.25，以增强对骨干特征的依赖，随会话推进再恢复默认权重。上述维度与融合系数由预实验确定，主实验中固定使用。融合后的 $\mathbf{o}$ 经 softmax 得到各类别的预测概率。双分类器架构如图~\ref{fig:method-arch} 所示。
 
@@ -188,13 +190,13 @@ Wi-Fi CSI 信号为随时间变化的时序数据，不同室内动作在不同�
 \begin{equation}\label{eq:ch4-prototype-weighted}
   \mathbf{p}_c = \frac{\sum_{i \in S_c} w_i \cdot \mathbf{z}_i}{\sum_{i \in S_c} w_i}, \quad w_i = \frac{1}{1 + \|\mathbf{z}_i - \bar{\mathbf{z}}_c\|_2}
 \end{equation}
-\noindent 式中：$\mathbf{p}_c$——类别 $c$ 的加权原型向量；$S_c$——该类支持集样本索引集合；$\mathbf{z}_i$——样本 $i$ 的嵌入；$\bar{\mathbf{z}}_c$——类内嵌入均值；$w_i$——基于与均值距离的样本权重。
+\noindent 式中：$\mathbf{p}_c$——类别 $c$ 加权原型；$w_i$——支持集样本 $i$ 的权重。
 
 式~\eqref{eq:ch4-prototype-weighted} 对离群点降权以稳定原型估计。当某类仅有 1 个样本时，直接取该样本的嵌入作为原型。原型计算完成后，对其做 L2 归一化并乘以尺度因子，以恢复与已有类别权重一致的范数：
 \begin{equation}\label{eq:ch4-prototype-norm}
   \hat{\mathbf{p}}_c = \min\!\left(\overline{\|\mathbf{z}\|}, \sqrt{d}\right) \cdot \frac{\mathbf{p}_c}{\|\mathbf{p}_c\|_2}
 \end{equation}
-\noindent 式中：$\hat{\mathbf{p}}_c$——尺度复位后的类原型（用作分类器权重行）；$\mathbf{p}_c$——式~\eqref{eq:ch4-prototype-weighted} 得到的未归一化原型；$\|\mathbf{p}_c\|_2$——原型 L2 范数；$\overline{\|\mathbf{z}\|}$——当前批次嵌入范数的平均值；$d$——对应分支的特征维度（主分类器支路 $d=512$，域内支路 $d=256$）；$\min(\cdot,\sqrt{d})$——将尺度上限约束为 $\sqrt{d}$ 与批次平均范数中的较小者。
+\noindent 式中：$\hat{\mathbf{p}}_c$——尺度复位后的类原型（用作分类器权重行）；$d$——对应分支特征维度。
 
 式~\eqref{eq:ch4-prototype-norm} 使新类权重与旧类在范数尺度上可比，减轻尺度不一致引起的 logits 偏移。主分类器与域内分类器均按上述方式更新；域内分类器需先将特征经 $\mathbf{W}_{\mathrm{id}}$、批归一化与 LeakyReLU 变换后再计算原型。该策略无需在增量阶段对编码器进行微调，避免了因极少样本导致的过拟合，符合 CEC/CLOM 等方法的实践。
 
@@ -250,7 +252,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
 
 基础训练配置。基础会话（Session 0）采用 SGD 优化器，momentum 0.9、Nesterov 加速，权重衰减 $5 \times 10^{-4}$。初始学习率 0.1，学习率在第 60、70 轮各衰减为原值的 0.1 倍（分段衰减策略），使模型在训练中后期以更小步长微调，从而获得更稳定的收敛。训练 100 轮，batch size 为 64，该设置兼顾显存占用与梯度估计稳定性。考虑到本文方法包含多个可训练模块，各模块对学习率的敏感程度不同，实验采用分组学习率：多尺度时序编码器与双分类器使用基础学习率 $0.1$；时序注意力融合模块使用较小学习率 $0.01$，因其自注意力结构在较大学习率下易出现不稳定，较小学习率有助于稳定训练。图注意力网络仅在增量阶段的 N-way K-shot 前向中参与计算，基础会话不对该子模块单独设定学习率（见表~\ref{tab:fscil-hyperparams}）。温度参数 $\tau=16$，基础模式与增量模式下主分类器与原型分类均对特征与权重做 L2 归一化后采用余弦相似度作为 logits。该取值与 4.2.4 节双分类器中余弦 logits 的温度尺度一致，系依据少样本分类中常见取值与预实验所定的固定超参；本文实验部分不对 $\tau$ 另行扫描，后文仅在基础类别数、支持集规模等设定下讨论敏感性。基础训练结束后，采用各类别训练样本嵌入的均值初始化对应分类器权重行，该策略在 FSCIL 领域被广泛采用，可在无额外训练的情况下为增量会话提供合理的分类器初值。
 
-增量学习配置。增量会话（Session 1–5）默认不进行编码器微调，仅根据支持集样本提取特征并更新分类器权重，与 CEC、CLOM 等方法的实践一致。这种"冻结编码器、仅更新分类器"的策略可有效避免因极少样本导致的编码器过拟合，同时减少灾难性遗忘的风险。若需对分类器在支持集上进行少量轮次微调，可将学习率设为 $0.001 \times 0.1$，最大训练轮数 5，并以验证表现早停（容忍 3 轮无提升），以在过拟合前及时停止；本文主实验未采用该微调路径。此外，为考察不同基础类别数对性能的影响，实验在基础类别数分别取 10、15、20、25、30、35 等设定下重复训练（对应每增量会话新类数目不同）；主实验取基础类别数为 30。主要超参数汇总如表~\ref{tab:fscil-hyperparams} 所示。
+增量学习配置。增量会话（Session 1–5）默认不进行编码器微调，仅根据支持集样本提取特征并更新分类器权重，与 CEC、CLOM 等方法的实践一致。该设置的核心考虑是，1-shot 条件下支持集样本不足以稳定更新深层编码器，若继续反向传播至特征提取部分，模型容易记忆个别样本噪声。因此，增量阶段主要通过原型初始化、图注意力关系传播与分类器更新完成新类接入，以降低少样本过拟合风险。这种"冻结编码器、仅更新分类器"的策略可有效避免因极少样本导致的编码器过拟合，同时减少灾难性遗忘的风险。若需对分类器在支持集上进行少量轮次微调，可将学习率设为 $0.001 \times 0.1$，最大训练轮数 5，并以验证表现早停（容忍 3 轮无提升），以在过拟合前及时停止；本文主实验未采用该微调路径。此外，为考察不同基础类别数对性能的影响，实验在基础类别数分别取 10、15、20、25、30、35 等设定下重复训练（对应每增量会话新类数目不同）；主实验取基础类别数为 30。主要超参数汇总如表~\ref{tab:fscil-hyperparams} 所示。
 
 \begin{table}[h]
   \caption{少样本类增量学习训练超参数}
@@ -282,7 +284,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
 \begin{equation}\label{eq:ch4-acc-session}
   \mathcal{A}_j = \frac{1}{N_j} \sum_{i=1}^{N_j} \mathbb{I}\left( y_{\mathrm{pred}}^{(i)} = y_{\mathrm{true}}^{(i)} \right)
 \end{equation}
-\noindent 式中：$\mathcal{A}_j$——会话 $j$ 结束时在全类测试上的 Top-1 准确率；$N_j$——该评测所用的测试样本总数；$i$——样本索引；$y_{\mathrm{pred}}^{(i)}$、$y_{\mathrm{true}}^{(i)}$——第 $i$ 条样本的预测类别与真实类别；$\mathbb{I}(\cdot)$——指示函数。
+\noindent 式中：$\mathcal{A}_j$——会话 $j$ 的全类 Top-1 准确率；$\mathbb{I}(\cdot)$——指示函数。
 
 式~\eqref{eq:ch4-acc-session} 给出会话级准确率的经验估计。随着增量推进，类别数从 30 增至 55，若模型发生灾难性遗忘，旧类准确率会下降；若对新类过拟合不足或分类边界不合理，新类准确率会偏低；二者均会拉低 $\mathcal{A}_j$。因此，准确率是衡量稳定性与可塑性平衡的综合指标。
 
@@ -290,7 +292,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
 \begin{equation}\label{eq:ch4-pd}
   \mathrm{PD} = \mathcal{A}_0 - \mathcal{A}_m
 \end{equation}
-\noindent 式中：$\mathrm{PD}$——性能下降率（Performance Drop）；$\mathcal{A}_0$——基础会话（Session 0）结束时的全类准确率；$\mathcal{A}_m$——含 $m$ 个增量会话时末次会话评测得到的全类准确率；$m$——增量会话个数。
+\noindent 式中：$\mathrm{PD}$——性能下降率；$\mathcal{A}_0$、$\mathcal{A}_m$——基础会话与末次会话的全类准确率。
 
 式~\eqref{eq:ch4-pd} 刻画基础阶段相对末次会话的整体准确率落差。PD 越大表示遗忘越严重；理想情况下模型在增量过程中保持性能，PD 应接近 0。在少样本设定下，由于每个增量会话的监督信息极少，模型易在适应新类的同时遗忘旧类，PD 通常为正；通过比较不同方法的 PD，可直观判断各方法在缓解遗忘方面的效果。
 
@@ -298,7 +300,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
 \begin{equation}\label{eq:ch4-aa}
   \mathrm{AA} = \frac{1}{m+1} \sum_{j=0}^{m} \mathcal{A}_j
 \end{equation}
-\noindent 式中：$\mathrm{AA}$——平均准确率（Average Accuracy）；$m$——增量会话总数；$m+1$——基础会话与增量会话之和，即参与平均的会话个数；$\mathcal{A}_j$——由式~\eqref{eq:ch4-acc-session} 定义的会话 $j$ 准确率；求和下标 $j$——从 $0$（基础会话）遍历至 $m$。
+\noindent 式中：$\mathrm{AA}$——平均准确率；$\mathcal{A}_j$——式~\eqref{eq:ch4-acc-session} 中的会话准确率。
 
 式~\eqref{eq:ch4-aa} 对各阶段准确率等权平均以度量全过程稳定性。AA 越高表示模型在各阶段均保持较好的识别能力；若某方法在早期会话表现较好但后期急剧下降，其 AA 会受后期低准确率拖累；反之，若方法在整个增量过程中较为稳定，AA 会相对较高。在本文设置中 $m=5$，即 AA 为 Session 0–5 六个会话准确率的均值。表~\ref{tab:fscil-metrics-desc} 简要概括了上述指标的含义与用途。
 

@@ -20,7 +20,7 @@ CSI 是描述无线信道传播特性的核心参量，刻画了信号在发射�
   H(f; t) = \sum_{n=1}^{N} a_n(t) \mathrm{e}^{-\mathrm{j}2\pi f \tau_n(t)}
   \tag{2-1}
 \end{equation}
-\noindent 式中：$H(f;t)$——频率 $f$、时刻 $t$ 处的信道频响；$a_n(t)$——第 $n$ 条传播路径的幅度衰减因子；$\tau_n(t)$——该路径的传播时延；$f$——子载波频率；$N$——模型中所考虑的多径条数；$\mathrm{j}$——虚数单位。
+\noindent 式中：$H(f;t)$——频率 $f$、时刻 $t$ 处的信道频响；$\tau_n(t)$——第 $n$ 条路径传播时延（$a_n(t)$ 为对应幅度衰减）。
 
 式~\eqref{eq:ch2-cfr} 将各路径的时变增益与时延对频域响应的线性叠加关系形式化，用于刻画 CSI 在不同频率与时隙下的复数值；CSI 的幅度 $|H|$ 与相位 $\angle H$ 受发射端、接收端及环境中物体位移与运动影响，从而将环境变化蕴含于信道特性之中。
 
@@ -33,7 +33,7 @@ CSI 是描述无线信道传播特性的核心参量，刻画了信号在发射�
   h(\tau) = \sum_{l=1}^{L} \alpha_l \mathrm{e}^{\mathrm{j}\varphi_l} \delta(\tau - \tau_l)
   \tag{2-2}
 \end{equation}
-\noindent 式中：$h(\tau)$——时延 $\tau$ 处的信道冲激响应；$\alpha_l$——第 $l$ 条多径的幅度；$\varphi_l$——该多径的相位；$\tau_l$——该多径相对于参考时刻的传播时延；$L$——多径抽头总数；$\delta(\cdot)$——狄拉克 $\delta$ 函数。
+\noindent 式中：$h(\tau)$——时延 $\tau$ 处的信道冲激响应；$\delta(\cdot)$——狄拉克 $\delta$ 函数。
 
 式~\eqref{eq:ch2-cir} 将信道冲激响应表示为多径抽头的加权脉冲叠加，便于从时延域理解 CSI 与人体活动对路径时延、衰减的调制作用。
 
@@ -59,7 +59,7 @@ CSI 是描述无线信道传播特性的核心参量，刻画了信号在发射�
   \mathcal{L} = \sum_{(\mathbf{x}, y) \in (\mathcal{D}^b \cup \mathcal{E})} \ell(f(\mathbf{x}), y),
   \tag{2-3}
 \end{equation}
-\noindent 式中：$\mathcal{L}$——当前增量步骤上的经验损失；$\mathcal{D}^b$——第 $b$ 个任务的新类别训练数据；$\mathcal{E}$——跨任务保存的旧类别 exemplar 集合；$\mathbf{x}$——输入样本；$y$——对应类别标签；$f(\cdot)$——分类器输出的预测分布或 logits；$\ell(\cdot,\cdot)$——监督损失（如交叉熵）。
+\noindent 式中：$\mathcal{D}^b$——第 $b$ 个任务的新类训练数据；$\mathcal{E}$——旧类 exemplar 集合（与 $\mathcal{D}^b$ 联合用于经验损失 $\mathcal{L}$）。
 
 式~\eqref{eq:ch2-replay-loss} 给出了当前任务数据与 exemplar 联合训练时的优化目标。相较仅使用 $\mathcal{D}^b$ 的 Finetune，该形式使模型在学习新类时仍能访问旧类样本，从而减弱遗忘。
 
