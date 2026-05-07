@@ -1,5 +1,5 @@
 %
-%  Copyright 2016-2021 Obstery-Y
+%  Copyright 2016-2021 Obster-Y
 %
 %  This work may be distributed and/or modified under the
 %  conditions of the LaTeX Project Public License, either version 1.3
@@ -11,7 +11,7 @@
 %
 %  This work has the LPPL maintenance status `maintained'.
 %
-%  The Current Maintainer of this work is Obstery-Y.
+%  The Current Maintainer of this work is Obster-Y.
 %
 %  This work consists of the files XJTU-thesis.cls.
 %
@@ -55,6 +55,8 @@
 \newif\iftyp@doctor           \typ@doctorfalse
 \newif\ifthesis@blind         \thesis@blindfalse
 \newif\ifthesis@english       \thesis@englishfalse
+\newif\ifthesis@plgck         \thesis@plgckfalse
+\newif\ifthesis@fancyemptypage  \thesis@fancyemptypagefalse
 % \newif\ifthesis@pdflinks      \thesis@pdflinksfalse
 % \newif\ifthesis@colorlinks    \thesis@colorlinksfalse
 
@@ -64,9 +66,11 @@
 \DeclareOption{doctor}      {\typ@doctortrue}
 \DeclareOption{blind}       {\thesis@blindtrue}
 \DeclareOption{english}     {\thesis@englishtrue}
+\DeclareOption{plgck}       {\thesis@plgcktrue}
+\DeclareOption{fancyemptypage}       {\thesis@fancyemptypagetrue}
 
 \DeclareOption*{%
-    \PassOptionsToClass{\CurrentOption}{book}
+  \PassOptionsToClass{\CurrentOption}{book}
 }
 \ProcessOptions\relax
 
@@ -111,10 +115,6 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 \definecolor{dimgray}{rgb}{0.9,0.9,0.9}
 \definecolor{columbiablue}{rgb}{0.61, 0.87, 1.0}
-%%% tikz %%%
-\RequirePackage{tikz}
-\RequirePackage{tikz-3dplot}
-\usetikzlibrary{shapes,arrows,positioning,calc}
 
 
 %%% chinese characters %%%
@@ -159,10 +159,10 @@
 
 %%% AMS %%%
 \RequirePackage[tbtags]{amsmath}
-\RequirePackage{amssymb}
+\RequirePackage[warnings-off={mathtools-colon,mathtools-overbracket}]{unicode-math}
 \RequirePackage{amsthm}
 \RequirePackage{thmtools}
-\RequirePackage[xindy,symbols,order=letter,nogroupskip]{glossaries}
+\RequirePackage[xindy,symbols,order=letter,nogroupskip,nowarn]{glossaries}
 
 
 %%% Symbols %%%
@@ -173,12 +173,10 @@
 \RequirePackage{commath}
 \RequirePackage{siunitx}
 \RequirePackage{mathtools}
-\RequirePackage{mathspec}
+% \RequirePackage{mathspec}
 
-\renewcommand{\Re}{\mathrm{Re}}
-\renewcommand{\Im}{\mathrm{Im}}
 \newcommand*{\diff}{\mathop{}\!\mathrm{d}}
-\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\mbs}[1]{\boldsymbol{#1}}
 \newcommand{\Exp}{\mathrm{E}}
 \newcommand{\seq}[2]{#1_1,#1_2,\cdots,#1_#2}
 \newcommand{\iprod}[2]{\langle #1,#2 \rangle}
@@ -202,6 +200,7 @@
   right=26mm,
   top=2.1cm,
   bottom=2cm,
+  headsep=0.3cm,
   includehead,
   includefoot,
   asymmetric,
@@ -216,7 +215,9 @@
 %%% PAGE %%%
 %%% 页面 %%%
 \RequirePackage{ifoddpage}
-\RequirePackage{emptypage}
+\unless\ifthesis@fancyemptypage
+  \RequirePackage{emptypage}
+\fi
 \RequirePackage{pdfpages}
 
 % 根据图书馆要求，电子版纸质版完全对应。要求标题页，答辩委员会，摘要，目录，主要符号表，第一章，不论如何都应从奇数页开始；之后所有页面不在区分奇偶页。声明页不编号，单独附在最后。
@@ -246,15 +247,14 @@
 \RequirePackage{amsfonts}
 \RequirePackage[12pt]{ctex}
 
-\renewcommand{\baselinestretch}{1.4}
 \renewcommand{\CJKglue}{\hskip 0.56pt plus 0.08\baselineskip}
 
 \setlength{\parindent}{2.1em}
-\setlength{\parskip}{3pt plus1pt minus1pt}
-\setlength{\intextsep}{9pt}
+\setlength{\parskip}{0pt}
+\setlength{\intextsep}{6pt}
 \setlength{\extrarowheight}{2pt}
 
-\linespread{1.33}
+\linespread{1.296}
 
 %%% Default fonts for different fonts %%%
 %%% 为不同平台设置默认字体 %%%
@@ -264,30 +264,35 @@
   \newfontfamily{\heiti@letter}{SimHei}
   \newfontfamily{\kaiti@letter}{KaiTi}
   \newfontfamily{\songti@letter}{SimSun}
-  \setallmainfonts{Times New Roman}
+  \newfontfamily{\kaiti}{STKaiti}
+  \setmainfont{Times New Roman}
+  \setmathfont{XITS Math}
+  \setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
 \else
   \ifmacosx
     \setCJKmainfont[AutoFakeBold=true]{Songti SC}
-    \newCJKfontfamily{\heiti}{STHeiti}
     \newfontfamily{\heiti@letter}{STHeiti}
-    \newCJKfontfamily{\songti}{Songti SC}
     \newfontfamily{\songti@letter}{Songti SC}
-    \setallmainfonts{Times New Roman}
+    \newfontfamily{\kaiti}{STKaiti}
+    \setmainfont{Times New Roman}
+    \setmathfont{XITS Math}
+    \setmathfont[range={\mathcal,\mathbfcal},StylisticSet=1]{XITS Math}
   \else
-    % Linux：正文宋体/黑体/Times 自 ./Materials/Fonts/ 加载（勿使用 xits-math-master 目录）。
-    % 当前仓库示例文件名为 SIMSUN.TTC、SIMHEI.TTF、TIMES*.TTF；若为 fzsong.ttf / fzhei.ttf /
-    % times.ttf 等价命名，请改成对应文件名或在此处替换。
+    % Linux：中文与英文正文字体取自 ./Materials/Fonts/（不使用 xits-math-master 目录）。
+    % 依赖仓库内 SIMSUN.TTC、SIMHEI.TTF、TIMES*.TTF；数学字体使用 TeXLive 自带的 Latin Modern Math。
     \setCJKmainfont[AutoFakeBold=true,Path=./Materials/Fonts/]{SIMSUN.TTC}
     \setCJKfamilyfont{zhhei}[Path=./Materials/Fonts/,AutoFakeBold=true]{SIMHEI.TTF}
     \setCJKfamilyfont{zhsong}[Path=./Materials/Fonts/,AutoFakeBold=true]{SIMSUN.TTC}
     \newfontfamily{\heiti@letter}[Path=./Materials/Fonts/]{SIMHEI.TTF}
     \newfontfamily{\songti@letter}[Path=./Materials/Fonts/]{SIMSUN.TTC}
-    \setallmainfonts[
+    \setmainfont[
       Path=./Materials/Fonts/,
       BoldFont=TIMESBD.TTF,
       ItalicFont=TIMESI.TTF,
       BoldItalicFont=TIMESBI.TTF,
     ]{TIMES.TTF}
+    % 按文件名解析（避免「Latin Modern Math」在部分环境下无法按名称解析）
+    \setmathfont{latinmodern-math.otf}
   \fi
 \fi
 
@@ -329,6 +334,7 @@
 \newcommand{\zh@themajor}{\chinesespace}
 \newcommand{\zh@theadminclass}{\chinesespace}
 \newcommand{\zh@theschool}{\chinesespace}
+\newcommand{\zh@thesubjectdisplay}{\chinesespace}
 
 %% 英文 %%
 \newcommand{\en@thetitle}{\chinesespace}
@@ -343,6 +349,7 @@
 \newcommand{\en@themajor}{\chinesespace}
 \newcommand{\en@theadminclass}{\chinesespace}
 \newcommand{\en@theschool}{\chinesespace}
+\newcommand{\en@thesubjectdisplay}{\chinesespace}
 
 %% 不区分中英文或只有一种 %%
 \newcommand{\zh@thedefensedate}{\chinesespace}
@@ -354,17 +361,26 @@
   \renewcommand{\zh@thetitle}{#1}
   \renewcommand{\en@thetitle}{#2}
 }
-\newcommand{\degree}[2]{
-  \renewcommand{\zh@thedegree}{#1}
-  \renewcommand{\en@thedegree}{#2}
+\newcommand{\degree}[3][A]{ % 默认学术学位
+  \renewcommand{\zh@thedegree}{#2}
+  \renewcommand{\en@thedegree}{#3}
+  \ifthenelse{
+      \equal{#1}{A}
+    }{
+      \renewcommand{\zh@thesubjectdisplay}{学科名称： \zh@thesubject}
+      \renewcommand{\en@thesubjectdisplay}{\en@thesubject}
+    }{
+      \renewcommand{\zh@thesubjectdisplay}{类别（领域）： \zh@thedegree（\zh@thesubject）}
+      \renewcommand{\en@thesubjectdisplay}{\en@thedegree（\en@thesubject）}
+    }
 }
 \renewcommand{\author}[2]{
   \renewcommand{\zh@theauthor}{#1}
   \renewcommand{\en@theauthor}{#2}
 }
 \newcommand{\advisor}[4]{
-  \renewcommand{\zh@theadvisor}{#1 #2}
-  \renewcommand{\en@theadvisor}{#4 #3}
+  \renewcommand{\zh@theadvisor}{#1~#2}
+  \renewcommand{\en@theadvisor}{#4~#3}
 }
 \newcommand{\advisorassociate}[4]{
   \renewcommand{\zh@theadvisorassociate}{#1 #2}
@@ -399,7 +415,10 @@
 \newcommand{\stuid}[1]{
   \renewcommand{\zh@thestuid}{#1}
 }
-\newcommand\monthnametwod[1]{\ifnum #1 < 10 0\fi #1}
+\newcommand\monthnametwod[1]{ %
+  \ifnum \numexpr#1\relax < 10 0\fi % 如果月份小于 10，补 0
+  \number\numexpr#1\relax
+}
 
 \newcommand{\monthname}[1]{
 \ifcase#1 \or January \or February \or March \or April \or May \or June
@@ -463,14 +482,22 @@
 
 %%% figures %%%
 %%% 图片 %%%
+\ifthesis@plgck
+  \PassOptionsToPackage{draft}{graphicx}
+\fi
 \RequirePackage{graphicx}
-\graphicspath{{./Figures/},{./Materials/Icons/}}
+\graphicspath{{./Figures/},{./Materials/VI/}}
 
+%%% tikz %%%
+\RequirePackage{tikz}
+\RequirePackage{tikz-3dplot}
+\usetikzlibrary{shapes,arrows,positioning,calc}
 
 %%% algorithm %%%
 %%% 算法环境 %%%
-\RequirePackage[ruled, algochapter,linesnumbered]{algorithm2e}
-\SetKwRepeat{Do}{do}{while}
+\RequirePackage[chapter]{algorithm}
+\RequirePackage{algpseudocode}
+\floatname{algorithm}{算法}
 
 
 %%% colorbox %%%
@@ -550,8 +577,8 @@
 
 %%% theorem and proof %%%
 %%% 定理与证明环境 %%%
-\theoremstyle{plain}
-\renewcommand{\qedsymbol}{$\blacksquare$}
+% \theoremstyle{plain}
+\renewcommand{\qedsymbol}{$\symbol{"025FC}$}
 \let\proof\undefined
 \let\theorem\undefined
 \declaretheoremstyle[%
@@ -568,29 +595,29 @@
 \ifthesis@english
   \declaretheorem[name={Proof},style=style_proof,unnumbered,preheadhook={\setlength{\parindent}{5.4em}}]{proof}
   \declaretheorem[name={Theorem},style=style_theorem,numberwithin=chapter]{theorem}
-  \declaretheorem[name={Axiom},style=style_theorem,numberlike=theorem]{axiom}
-  \declaretheorem[name={Corollary},style=style_theorem,numberlike=theorem]{corollary}
-  \declaretheorem[name={Lemma},style=style_theorem,numberlike=theorem]{lemma}
-  \declaretheorem[name={Definition},style=style_theorem,numberlike=theorem]{definition}
-  \declaretheorem[name={Example},style=style_theorem,numberlike=theorem]{example}
-  \declaretheorem[name={Proposition},style=style_theorem,numberlike=theorem]{proposition}
-  \declaretheorem[name={Assumption},style=style_theorem,numberlike=theorem]{assumption}
-  \declaretheorem[name={Remark},style=style_theorem,numberlike=theorem]{remark}
-  \declaretheorem[name={Problem},style=style_theorem,numberlike=theorem]{problem}
-  \declaretheorem[name={Conjecture},style=style_theorem,numberlike=theorem]{conjecture}
+  \declaretheorem[name={Axiom},style=style_theorem,numberwithin=chapter]{axiom}
+  \declaretheorem[name={Corollary},style=style_theorem,numberwithin=chapter]{corollary}
+  \declaretheorem[name={Lemma},style=style_theorem,numberwithin=chapter]{lemma}
+  \declaretheorem[name={Definition},style=style_theorem,numberwithin=chapter]{definition}
+  \declaretheorem[name={Example},style=style_theorem,numberwithin=chapter]{example}
+  \declaretheorem[name={Proposition},style=style_theorem,numberwithin=chapter]{proposition}
+  \declaretheorem[name={Assumption},style=style_theorem,numberwithin=chapter]{assumption}
+  \declaretheorem[name={Remark},style=style_theorem,numberwithin=chapter]{remark}
+  \declaretheorem[name={Problem},style=style_theorem,numberwithin=chapter]{problem}
+  \declaretheorem[name={Conjecture},style=style_theorem,numberwithin=chapter]{conjecture}
 \else
   \declaretheorem[name={证明},style=style_proof,unnumbered,preheadhook={\setlength{\parindent}{5.1em}}]{proof}
   \declaretheorem[name={定理},style=style_theorem,numberwithin=chapter]{theorem}
-  \declaretheorem[name={公理},style=style_theorem,numberlike=theorem]{axiom}
-  \declaretheorem[name={推论},style=style_theorem,numberlike=theorem]{corollary}
-  \declaretheorem[name={引理},style=style_theorem,numberlike=theorem]{lemma}
-  \declaretheorem[name={定义},style=style_theorem,numberlike=theorem]{definition}
-  \declaretheorem[name={例子},style=style_theorem,numberlike=theorem]{example}
-  \declaretheorem[name={命题},style=style_theorem,numberlike=theorem]{proposition}
-  \declaretheorem[name={假设},style=style_theorem,numberlike=theorem]{assumption}
-  \declaretheorem[name={注},style=style_theorem,numberlike=theorem]{remark}
-  \declaretheorem[name={问题},style=style_theorem,numberlike=theorem]{problem}
-  \declaretheorem[name={猜想},style=style_theorem,numberlike=theorem]{conjecture}
+  \declaretheorem[name={公理},style=style_theorem,numberwithin=chapter]{axiom}
+  \declaretheorem[name={推论},style=style_theorem,numberwithin=chapter]{corollary}
+  \declaretheorem[name={引理},style=style_theorem,numberwithin=chapter]{lemma}
+  \declaretheorem[name={定义},style=style_theorem,numberwithin=chapter]{definition}
+  \declaretheorem[name={例子},style=style_theorem,numberwithin=chapter]{example}
+  \declaretheorem[name={命题},style=style_theorem,numberwithin=chapter]{proposition}
+  \declaretheorem[name={假设},style=style_theorem,numberwithin=chapter]{assumption}
+  \declaretheorem[name={注},style=style_theorem,numberwithin=chapter]{remark}
+  \declaretheorem[name={问题},style=style_theorem,numberwithin=chapter]{problem}
+  \declaretheorem[name={猜想},style=style_theorem,numberwithin=chapter]{conjecture}
 \fi
 
 
@@ -685,46 +712,56 @@
 \titleformat{\chapter}[block]
   {\centering\fontsize{16pt}{16pt}\selectfont\thispagestyle{fancy}}{\arabic{chapter}}{1em}{}
 \titleformat{\section}[block]
-  {\fontsize{15pt}{15pt}\selectfont}{\arabic{chapter}.\arabic{section}}{7pt}{}
+  {\fontsize{15pt}{15pt}\selectfont}{\arabic{chapter}.\arabic{section}}{3pt}{}
 \titleformat{\subsection}[block]
-  {\fontsize{14pt}{14pt}\selectfont}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}{7pt}{}
+  {\fontsize{14pt}{14pt}\selectfont}{\arabic{chapter}.\arabic{section}.\arabic{subsection}}{3pt}{}
 \titleformat{\subsubsection}[block]
-  {\fontsize{12pt}{12pt}\selectfont}{\arabic{subsubsection}）}{6pt}{}
+  {\fontsize{12pt}{12pt}\selectfont}{\arabic{subsubsection}）}{3pt}{}
 \titleformat{\paragraph}[block]
-  {\fontsize{12pt}{12pt}\selectfont}{（\arabic{paragraph}）}{6pt}{}
+  {\fontsize{12pt}{12pt}\selectfont}{（\arabic{paragraph}）}{3pt}{}
 \titleformat{\subparagraph}[block]
-  {\fontsize{12pt}{12pt}\selectfont}{\alph{subparagraph}）}{6pt}{}
+  {\fontsize{12pt}{12pt}\selectfont}{\alph{subparagraph}）}{3pt}{}
 \titleformat{\subsubparagraph}[block]
-  {\fontsize{12pt}{12pt}\selectfont}{（\alph{subsubparagraph}）}{6pt}{}
+  {\fontsize{12pt}{12pt}\selectfont}{（\alph{subsubparagraph}）}{3pt}{}
 
-\titlespacing{\chapter}{0pt}{0mm}{14pt}
-\titlespacing{\section}{0pt}{18pt}{6pt}
-\titlespacing{\subsection}{2em}{12pt}{6pt}
-\titlespacing{\subsubsection}{2em}{12pt}{6pt}
-\titlespacing{\paragraph}{2em}{12pt}{6pt}
-\titlespacing{\subparagraph}{2em}{12pt}{6pt}
-\titlespacing{\subsubparagraph}{2em}{12pt}{6pt}
+\titlespacing{\chapter}{0pt}{11pt}{14pt}
+\titlespacing{\section}{0pt}{12pt}{6pt}
+\titlespacing{\subsection}{2em}{6pt}{0pt}
+\titlespacing{\subsubsection}{2em}{4pt}{0pt}
+\titlespacing{\paragraph}{2em}{4pt}{0pt}
+\titlespacing{\subparagraph}{2em}{4pt}{0pt}
+\titlespacing{\subsubparagraph}{2em}{4pt}{0pt}
 
 %%% float %%%
 %%% 浮动体 %%%
 \RequirePackage{float}
+\RequirePackage{placeins}
 \RequirePackage{newfloat}
+
+\RequirePackage{multicol}
+% 先加载 tabularx / tabu，再加载 tabularray，避免列说明符 Y 等与 tabularx 冲突
 \RequirePackage{multirow}
 \RequirePackage{longtable}
 \RequirePackage{tabu}
 \RequirePackage{tabularx}
 \RequirePackage{xltabular}
-\RequirePackage{booktabs}
+\tabulinesep=\tabcolsep
+\RequirePackage{tabularray}
+\UseTblrLibrary{booktabs}
+
+\NewTblrTheme{xjtu_std}{
+    \SetTblrStyle{width}{\linewidth}
+    \DefTblrTemplate{conthead-text}{normal}{（续）}
+    \SetTblrTemplate{conthead-text}{normal}
+    \DefTblrTemplate{contfoot-text}{normal}{表格待续}
+    \SetTblrTemplate{contfoot-text}{normal}
+}
+\DeclareTblrTemplate{caption-sep}{default}{ }
 
 % 三线表样式
 \setlength{\heavyrulewidth}{1.5pt}
 \setlength{\lightrulewidth}{1.0pt}
 \setlength{\arrayrulewidth}{0.5pt}
-
-\newcolumntype{Y}{>{\centering\arraybackslash}X}
-\newcolumntype{Z}{>{\raggedleft\arraybackslash}X}
-\tabcolsep=1ex
-\tabulinesep=\tabcolsep
 
 % tikz
 \newlength\tikzboxwidth
@@ -741,17 +778,20 @@
   \end{tikzpicture}%
 }
 
-\def\hlinew#1{%
-  \noalign{\ifnum0=`}\fi\hrule \@height #1 \futurelet
-  \reserved@a\@xhline}
-\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}%
+% \def\hlinew#1{%
+%   \noalign{\ifnum0=`}\fi\hrule \@height #1 \futurelet
+%   \reserved@a\@xhline}
+% \newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}%
 
 \AtBeginEnvironment{figure}{
   \def\@floatboxreset{\centering}
 }
 \AtBeginEnvironment{table}{
   \def\@floatboxreset{\centering}
+  \wuhao                                         % 设置表格字体为五号，与word模板对应
 }
+\AtBeginEnvironment{tblr}{\wuhao}
+\AtBeginEnvironment{longtblr}{\wuhao}
 \AtBeginEnvironment{tabular}{\wuhao}
 \AtBeginEnvironment{tabularx}{\wuhao}
 \AtBeginEnvironment{xltabular}{\wuhao}
@@ -762,14 +802,22 @@
 \RequirePackage{caption}
 \RequirePackage[labelformat=simple]{subcaption}
 
-\captionsetup{figurewithin=chapter}
-\captionsetup{format=hang}
-\captionsetup{width=\textwidth - 42pt}
+\captionsetup{
+  figurewithin   = chapter,
+  justification  = centerlast,
+  width          = \textwidth - 42pt,
+  font           = {stretch=1.2,small},
+  labelsep       = space,
+  aboveskip      = 0pt,
+  belowskip      = 0pt,
+  figureposition = top,
+  tableposition  = bottom,
+}
 
-\captionsetup[figure]{aboveskip=6pt, belowskip=0pt, labelsep=space,font=small}
-\captionsetup[table]{aboveskip=6pt, belowskip=0pt, labelsep=space,font=small}
-\captionsetup[sub]{font=small, belowskip=6pt}
-\captionsetup[lstlisting]{font=small,labelfont=bf,singlelinecheck=off,labelsep=space}
+\captionsetup[figure]{aboveskip=-5pt}
+\captionsetup[table]{aboveskip=2.5pt}
+\captionsetup[sub]{aboveskip=0pt}
+\captionsetup[lstlisting]{labelfont=bf, singlelinecheck=off}
 
 \newcommand{\floatcontinue}[1]{\end{figure}\clearpage\begin{figure}[#1]\ContinuedFloat}
 
@@ -782,7 +830,7 @@
   \renewcommand\thelstlisting{\arabic{chapter}-\arabic{lstlisting}}
 
 }
-\renewcommand{\thealgocf}{\arabic{chapter}-\arabic{algocf}}
+\renewcommand{\thealgorithm}{\arabic{chapter}-\arabic{algorithm}}
 
 \ifthesis@english
   \renewcommand{\figurename}{Figure}
@@ -790,19 +838,15 @@
   \renewcommand{\listfigurename}{List of Figures}
   \renewcommand{\listtablename}{List of Tables}
   \renewcommand{\lstlistingname}{Code}
-  \SetAlgorithmName{Algorithm}{Algorithm}{List of Algorithms}
+  \renewcommand{\listofalgorithms}{List of Algorithms}
 \else
   \renewcommand{\figurename}{图}
   \renewcommand{\tablename}{表}
   \renewcommand{\listfigurename}{图目录}
   \renewcommand{\listtablename}{表目录}
   \renewcommand{\lstlistingname}{源码}
-  \SetAlgorithmName{算法}{算法}{算法列表}
+  \renewcommand{\listofalgorithms}{算法列表}
 \fi
-
-\SetAlgoCaptionSeparator{\null}
-\newcommand{\AlgoCapNameFmt}[1]{\fontsize{10.5pt}{10.5pt}\selectfont #1}
-\SetAlgoCaptionLayout{AlgoCapNameFmt}
 
 
 %%% CROSSREF & HYPERLINK %%%
@@ -831,6 +875,64 @@
 \pdfstringdefDisableCommands{\let\backslash\textbackslash}
 \hypersetup{bookmarksdepth=2}
 
+% Cleveref and its configuration
+\RequirePackage{cleveref}
+\ifthesis@english
+  \crefname{figure}{Figure}{Figures}
+  \crefname{subfigure}{Sub-figure}{Sub-figures}
+  \crefname{table}{Table}{Tables}
+  \crefname{subtable}{Sub-table}{Sub-tables}
+  \crefname{algorithm}{Algorithm}{Algorithms}
+  \crefname{listing}{Code}{Codes}
+  \crefname{proof}{Proof}{Proofs}
+  \crefname{theorem}{Theorem}{Theorems}
+  \crefname{axiom}{Axiom}{Axioms}
+  \crefname{corollary}{Corollary}{Corollaries}
+  \crefname{lemma}{Lemma}{Lemmas}
+  \crefname{definition}{Definition}{Definitions}
+  \crefname{example}{Example}{Examples}
+  \crefname{proposition}{Proposition}{Propositions}
+  \crefname{assumption}{Assumption}{Assumptions}
+  \crefname{remark}{Remark}{Remarks}
+  \crefname{problem}{Problem}{Problems}
+  \crefname{conjecture}{Conjecture}{Conjectures}
+\else
+  \crefformat{chapter}{第~#2#1#3~章}
+  \crefformat{section}{第~#2#1#3~节}
+  \crefformat{subsection}{第~#2#1#3~节}
+  \crefformat{equation}{式~(#2#1#3)}
+  \crefrangeformat{equation}{式~(#3#1#4)$\sim$(#5#2#6)}
+  \crefmultiformat{equation}{式~(#2#1#3)}{与式~(#2#1#3)}{，式~(#2#1#3)}{与式~(#2#1#3)}
+  \crefname{figure}{图}{图}
+  \crefname{subfigure}{子图}{子图}
+  \crefname{table}{表}{表}
+  \crefname{subtable}{子表}{子表}
+  \crefname{algorithm}{算法}{算法}
+  \crefname{listing}{源码}{源码}
+  \crefname{proof}{证明}{证明}
+  \crefname{theorem}{定理}{定理}
+  \crefname{axiom}{公理}{公理}
+  \crefname{corollary}{推论}{推论}
+  \crefname{lemma}{引理}{引理}
+  \crefname{definition}{定义}{定义}
+  \crefname{example}{例子}{例子}
+  \crefname{proposition}{命题}{命题}
+  \crefname{assumption}{假设}{假设}
+  \crefname{remark}{注}{注}
+  \crefname{problem}{问题}{问题}
+  \crefname{conjecture}{猜想}{猜想}
+\fi
+
+\AtBeginDocument
+ {
+   \def\ltx@label#1{\cref@label{#1}}%add braces
+   \def\label@in@display@noarg#1{\cref@old@label@in@display{#1}}%remove braces
+  \def\label@in@mmeasure@noarg#1{%
+    \begingroup%
+      \measuring@false%
+      \cref@old@label@in@display{#1}%remove braces for multline
+    \endgroup}%  
+ } %
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -846,6 +948,8 @@
 \newcommand{\thesistableofcontens}{}
 \newcommand{\thesisglossaries}{}
 \newcommand{\thesisbody}{}
+\newcommand{\thesisbodybegin}{}
+\newcommand{\thesisbodyend}{}
 \newcommand{\thesisacknowledegment}{}
 \newcommand{\thesisbibliography}{}
 \newcommand{\thesisappendix}{}
@@ -858,7 +962,7 @@
 %%% 题名页 %%%
 \newcommand{\zhasscociateinfo}{
   \ifthenelse{\equal{\zh@theadvisorassociate}{\chinesespace}}{
-    \ifthenelse{\equal{\zh@theadvisorteam}{\chinesespace}}{~}{
+    \ifthenelse{\equal{\zh@theadvisorteam}{\chinesespace}}{ }{
       导师团队：\zh@theadvisorteam\linebreak
     }
   }{
@@ -867,13 +971,15 @@
 }
 \newcommand{\enasscociateinfo}{
   \ifthenelse{\equal{\en@theadvisorassociate}{\chinesespace}}{
-    \ifthenelse{\equal{\en@theadvisorteam}{\chinesespace}}{~}{
+    \ifthenelse{\equal{\en@theadvisorteam}{\chinesespace}}{ }{
       Supervisor Team: \en@theadvisorteam\linebreak
     }
   }{
     Associate Supervisor: \en@theadvisorassociate\linebreak
   }
 }
+
+\ifthesis@plgck\else
 \renewcommand{\thesistitles}{
   \thispagestyle{empty}
   \ifthesis@english
@@ -881,67 +987,62 @@
   \else
     \pdfbookmark{题名页}{Title Page (Chinese)}
   \fi
+  \ifthesis@blind
+    \renewcommand{\zh@theauthor}{{}}
+    \renewcommand{\zh@theadvisor}{{}}
+    \renewcommand{\zhasscociateinfo}{{}}
+    \renewcommand{\en@theauthor}{\ }
+    \renewcommand{\en@theadvisor}{{}}
+    \renewcommand{\enasscociateinfo}{{}}
+  \fi
   \parbox[t][1.2cm]{2.5cm}{}
   \begin{center}
-    \includegraphics[width=8cm]{Materials/Icons/XJTU.pdf}\par\vspace{1.7cm}
+    \includegraphics[width=8cm]{Materials/VI/XJTU.pdf} \\[0.8cm]
     \fontsize{22pt}{22pt}\selectfont \chinesedegreename 学位论文\\
     \vskip 3.5cm
-    \sanhao {\bfseries \zh@thetitle}\par\vfill
+    \sanhao {\bfseries \zh@thetitle}\\
+    \vfill
     \begin{spacing}{2.5}\sanhao
-      \ifthesis@blind
-      学位申请人： ***\\
-      指导教师： ***\\
-      类别（领域）： ***\\
-      \else
       学位申请人： \zh@theauthor\\
       指导教师： \zh@theadvisor\\
       \zhasscociateinfo
-      类别（领域）： \zh@thesubject\\
-      \fi
+      \zh@thesubjectdisplay\\
       \zh@thesubmitdate\\
     \end{spacing}
   \end{center}
-  \cleardoublepage
+  \begingroup\pagestyle{empty}\cleardoublepage\endgroup
+  % \cleardoublepage
   \thispagestyle{empty}
   \ifthesis@english
     \pdfbookmark{Title Page (English)}{Title Page (English)}
   \else
     \pdfbookmark{Title Page}{Title Page (English)}
   \fi
+  \parbox[t][0.7cm]{2.5cm}{}
   \begin{center}
-    \vskip 1.2cm
-    \sanhao {\bfseries \en@thetitle}\par\vskip 3.5cm
-    \begin{spacing}{2}\sanhao
+    \sanhao {\bfseries \en@thetitle}\\
+    \vskip 3.5cm
+    \begin{spacing}{1.8}\sanhao
       \englishthesistype ~submitted to\\
       \en@UNIV\\
       in partial fulfillment of the requirements\\
       for the degree of\\
-      \ifthesis@blind
-      ***\\
-      \else
-      \englishdegreename~of \en@thedegree\\
-      \fi
+      \en@thedegree\\
     \end{spacing}
-    \vskip 6cm
-    \begin{spacing}{2}\sanhao
-      \ifthesis@blind
+    \vskip 4cm
+    \begin{spacing}{1.8}\sanhao
       By\\
-      ***\\
-      Supervisor: ***\\
-      ***\\
-      \else
-      By\\
-      \en@theauthor\\
-      Supervisor: \en@theadvisor\\
+      \en@theauthor \\
+      Supervisor: \en@theadvisor \\
       \enasscociateinfo
-      \en@thesubject\\
-      \fi
+      \en@thesubjectdisplay\\
       \en@thesubmitdate\\
     \end{spacing}
   \end{center}
-  \cleardoublepage
+  \begingroup\pagestyle{empty}\cleardoublepage\endgroup
+  % \cleardoublepage
 }
-
+\fi
 
 %%% Defense Committee Pages %%%
 %%% 答辩委员会页 %%%
@@ -975,14 +1076,42 @@
   \dim_new:N \spaceWidth
   \bp_set_to_width:Nn \spaceWidth {\clist_item:Nn \l_dcc_tl 1}
 
-  \tl_gput_right:Nn \g_dc_tabular_tl {{\clist_item:Nn \l_dcc_tl 1 \clist_item:Nn \l_dcc_tl 3}：&\sanhao\underline{\parbox[t]{10em}{\clist_item:Nn \l_dcc_tl 2}}\xiaowu（注：主席）\\}
+  \ifthesis@blind
+    \renewcommand{\zh@theauthor}{{}}
+    \renewcommand{\zh@theadvisor}{{}}
+    \renewcommand{\zhasscociateinfo}{{}}
+    \renewcommand{\en@theauthor}{\ }
+    \renewcommand{\en@theadvisor}{{}}
+    \renewcommand{\enasscociateinfo}{{}}
+  \fi
 
-  \seq_map_variable:NNn \g_defense_committee_seq \i {
-    \bp_set_to_width:Nn \spaceWidth {\clist_item:Nn \i 2}
-    \tl_gput_right:Nn \g_dc_tabular_tl {\sanhao}
-    \tl_gput_right:Nx \g_dc_tabular_tl {{\clist_item:Nn \i 1 \clist_item:Nn \i 3}：&}
-    \tl_gput_right:Nn \g_dc_tabular_tl {\sanhao}
-    \tl_gput_right:Nx \g_dc_tabular_tl {\underline{\exp_not:N \parbox[t]{10em}{\clist_item:Nn \i 2} }\\}
+  \tl_gput_right:Nn \g_dc_tabular_tl {%
+    \begin{tblr}{
+      width=\textwidth,
+      colspec={X[r,b]ll},
+      cell{1,2,Y,Z}{1}={r=1,c=3}{l},
+      row{1-Z} = {font=\sanhao},
+      rowsep=2.4ex,
+      column{1,3}={leftsep=0pt,rightsep=0pt}
+    }
+    答辩人：\zh@theauthor & & \\
+    答辩委员会委员： & & \\
+  }
+
+  \ifthesis@blind\else
+    \tl_gput_right:Nn \g_dc_tabular_tl {{\clist_item:Nn \l_dcc_tl 1 \clist_item:Nn \l_dcc_tl 3}：&\sanhao\underline{\parbox[t]{9em}{\clist_item:Nn \l_dcc_tl 2}} & \xiaowu（{\color{red}{注：主席}}）\\}
+
+    \seq_map_variable:NNn \g_defense_committee_seq \i {
+      \bp_set_to_width:Nn \spaceWidth {\clist_item:Nn \i 2}
+      \tl_gput_right:Nx \g_dc_tabular_tl {{\clist_item:Nn \i 1 \clist_item:Nn \i 3}：&}
+      \tl_gput_right:Nx \g_dc_tabular_tl {\underline{\exp_not:N \parbox[t]{9em}{\clist_item:Nn \i 2} }\\}
+    }
+  \fi
+
+  \tl_gput_right:Nn \g_dc_tabular_tl {%
+    答辩时间：\zh@thedefensedate & & \\
+    答辩地点：\zh@thedefenseloc & & \\
+    \end{tblr}
   }
 }
 \NewDocumentCommand \defencecommittelist {}{
@@ -990,6 +1119,7 @@
 }
 \ExplSyntaxOff
 
+\ifthesis@plgck\else
 \renewcommand{\thesiscommittes}{
   \gencommitteelist
   \thispagestyle{empty}
@@ -1008,19 +1138,12 @@
   \end{center}\end{spacing}
   \vfill
   \begin{center}
-    \renewcommand{\arraystretch}{2.5}
-    \begin{tabular}{rl}
-      \multicolumn{1}{l}{\sanhao 答辩人：\zh@theauthor}&\\
-      \multicolumn{1}{l}{\sanhao 答辩委员会委员：}&\\
-      \defencecommittelist
-      \multicolumn{1}{l}{\sanhao 答辩时间：\zh@thedefensedate}&\\
-      \multicolumn{2}{l}{\sanhao 答辩地点：\zh@thedefenseloc}\\
-    \end{tabular}
-    \renewcommand{\arraystretch}{1}
+    \defencecommittelist
   \end{center}
-  \cleardoublepage
+  \begingroup\pagestyle{empty}\cleardoublepage\endgroup
+  % \cleardoublepage
 }
-
+\fi
 
 %%% abstract %%%
 %%% 摘要 %%%
@@ -1031,7 +1154,7 @@
   \else
     \pdfbookmark{摘~~~~要}{ABSTRACT (Chinese)}
   \fi
-  \setlength{\parskip}{0.25\baselineskip}
+  % \setlength{\parskip}{0.25\baselineskip}
   \chapter*{摘~~~~要}
 
   \hypersetup{bookmarksdepth=-2}
@@ -1055,7 +1178,9 @@
   \hypersetup{bookmarksdepth=2}
   \markboth{ABSTRACT}{ABSTRACT}
   \setlength{\parindent}{0em}
-  \setlength{\parskip}{0.35\baselineskip}
+  \setstretch{1.2}
+  % \setlength{\parskip}{10pt}
+  \setlength{\parskip}{1\baselineskip}               %英文摘要段落间需要空一行，与word模板对应
 }{}
 
 \newcommand{\keywordswithtype}[4]{
@@ -1064,7 +1189,7 @@
   \vspace{0.1\baselineskip}
   \parbox[t]{\widthof{#1}}{#1}
   \parbox[t]{\linewidth - \widthof{#1}}{\fontsize{12pt}{12pt}\selectfont #3}
-  \\[0.5\baselineskip]
+  \\[.833\baselineskip]
   \parbox[t]{\widthof{#2}}{#2}
   \parbox[t]{\linewidth - \widthof{#2}}{\fontsize{12pt}{12pt}\selectfont #4}
   \end{minipage}
@@ -1108,14 +1233,28 @@
 % 目录前后距离
 \renewcommand{\cftchapfont}{}
 \renewcommand{\cftchappagefont}{}
-\setlength{\cftbeforesecskip}{0pt}
-\setlength{\cftbeforesubsecskip}{0pt}
-\setlength{\cftbeforechapskip}{0pt}
+% 取消点与页码间的距离
+\renewcommand{\cftchapfillnum}[1]{%
+  {\cftchapleader}\nobreak
+  {\cftchappagefont #1}\cftchapafterpnum\par
+}
+\renewcommand{\cftsecfillnum}[1]{%
+  {\cftsecleader}\nobreak
+  {\cftsecpagefont #1}\cftsecafterpnum\par
+}
+\renewcommand{\cftsubsecfillnum}[1]{%
+  {\cftsubsecleader}\nobreak
+  {\cftsubsecpagefont #1}\cftsubsecafterpnum\par
+}
+
+\setlength{\cftbeforechapskip}{4pt}
+\setlength{\cftbeforesecskip}{4pt}
+\setlength{\cftbeforesubsecskip}{4pt}
 
 \cftsetindents{chap}{0em}{0.9em}
-\cftsetindents{sec}{0.7em}{1.5em}
-\cftsetindents{subsec}{1.4em}{2.3em}
-\cftsetindents{subsubsec}{2.1em}{3.2em}
+\cftsetindents{sec}{1em}{1.5em}
+\cftsetindents{subsec}{2em}{2.3em}
+\cftsetindents{subsubsec}{3em}{3.2em}
 
 % 实在不想这样 但是没办法 手动添加 `声明'
 \renewcommand\contentsname{目~~~~录}
@@ -1134,6 +1273,7 @@
   \pdfbookmark{目~~~~录}{CONTENTS-zh}
   \@starttoc{toc}
   \if@restonecol\twocolumn\fi
+  \vspace{\cftbeforechapskip}
   \noindent 声明
 }
 
@@ -1152,7 +1292,8 @@
     }{\MakeUppercase\engcontentsname}}
   \pdfbookmark{\engcontentsname}{\engcontentsname}
   \@starttoc{toe}
-  \if@restonecol\twocolumn\fi  
+  \if@restonecol\twocolumn\fi
+  \vspace{\cftbeforechapskip}
   \noindent Declarations
 }
 \newcommand\addengcontents[2]{%
@@ -1321,18 +1462,29 @@
 }
 \ExplSyntaxOff
 
+\renewcommand{\thesisbodybegin}{
+  \setcounter{page}{1}
+  \pagenumbering{arabic}
+  \fancyfoot[LE,RO]{\fontsize{9pt}{10.8pt}\selectfont\arabic{page}}
+  \pagestyle{fancy}
+  \renewcommand{\chaptermark}[1]{\markboth{{\thechapter}\hspace{0.5em}##1}{}}
+  \hypersetup{bookmarksdepth=-2}
+}
+
+\renewcommand{\thesisbodyend}{
+  \pagecheck
+  \hypersetup{bookmarksdepth=2}
+}
 
 %%% acknowledgement %%%
 %%% 致谢 %%%
 \renewcommand{\thesisacknowledegment}{
   \renewcommand{\thechapter}{}
-  \begin{spacing}{1.5}
   \begin{acknowledgement}
   \ifthesis@blind\else
     \input{Main_Miscellaneous/acknowledegment}
   \fi
   \end{acknowledgement}
-  \end{spacing}
   \pagecheck
 }
 
@@ -1384,14 +1536,29 @@
 %   \end{spacing}
 % }{}{}
 
-\RequirePackage[hyperref=true,backend=biber,style=gb7714-2015,gbalign=left]{biblatex}
+% \RequirePackage[hyperref=true,backend=biber,defernumbers=true,style=gb7714-2015,gbalign=left,gbpub=false]{biblatex}
+\RequirePackage[hyperref=true,backend=biber,defernumbers=true,style=gb7714-2015,gbalign=left,gbpub=false,gbnamefmt=lowercase]{biblatex}           %参考文献作者姓名大小写格式与word版本对齐，为首字母大写而非全部大写
+
 \renewcommand{\bibfont}{\zihao{5}}
 \setlength{\bibitemsep}{0ex}
 \setlength{\bibnamesep}{0ex}
 \setlength{\bibinitsep}{0ex}
 
-\RenewDocumentCommand {\thesisbibliography} {  } {
-  \newcommand{\thesisbibname}{参考文献}
+\newcommand{\addreferenceresource}[1]{
+  \addbibresource{#1.bib}
+  \DeclareSourcemap{
+    \maps[datatype=bibtex]{
+      \map[overwrite]{
+        \perdatasource{#1.bib}
+        \step[fieldset=keywords, fieldvalue={,references}, append]
+      }
+    }
+  }
+}
+
+\newcommand{\thesisbibname}{}
+\RenewDocumentCommand {\thesisbibliography} { o } {
+  \renewcommand{\thesisbibname}{参考文献}
   \ifthesis@english
     \renewcommand{\thesisbibname}{References}
   \fi
@@ -1400,9 +1567,20 @@
   \addcontentsline{toc}{chapter}{参考文献}
   \addcontentsline{toe}{chapter}{References}
   \hypersetup{bookmarksdepth=2}
-  \nocite{*}
-  \printbibliography[heading=bibliography,title=\thesisbibname]
+  \printbibliography[heading=bibliography,title=\thesisbibname,keyword={references},resetnumbers=true]
   \pagecheck
+
+  \IfNoValueTF {#1} {
+  }{
+    \newpage
+    \edef\hmm{\pdfpagewidth=\the\pdfpagewidth \pdfpageheight=\the\pdfpageheight\relax}
+    \pdfpagewidth=80cm
+    \pdfpageheight=130cm
+    \newgeometry{top=1in,left=1in,textwidth=70cm,textheight=120cm}
+    \printbibliography[heading=bibliography,title=\thesisbibname,keyword={references},resetnumbers=true]
+    \restoregeometry
+    \hmm
+  }
 }
 
 
@@ -1458,12 +1636,12 @@
       \renewcommand{\figurename}{\appdname\Alph{chapter}-Figure}
       \renewcommand{\tablename}{\appdname\Alph{chapter}-Table}
       \renewcommand{\lstlistingname}{\appdname\Alph{chapter}-Code}
-      % \SetAlgorithmName{\appdname\Alph{chapter}-Algorithm}{\appdname\Alph{chapter}-Algorithm}{List of Algorithms}
+      \renewcommand{\listofalgorithms}{\appdname\Alph{chapter}-Algorithm}
     \else
       \renewcommand{\figurename}{\appdname\Alph{chapter}-图}
       \renewcommand{\tablename}{\appdname\Alph{chapter}-表}
       \renewcommand{\lstlistingname}{\appdname\Alph{chapter}-源码}
-      % \SetAlgorithmName{\appdname\Alph{chapter}-算法}{\appdname\Alph{chapter}-算法}{算法列表}
+      \renewcommand{\listofalgorithms}{\appdname\Alph{chapter}-算法}
     \fi
     \appendix
     \renewcommand{\thechapter}{\appdname~\Alph{chapter}}
@@ -1496,26 +1674,50 @@
   \begin{enumerate}[label={[\arabic*]},itemsep=1ex,align=left]
 }{\end{enumerate}}
 
-\renewcommand{\thesisachivements}{
-  \newcommand{\thesisaccomplishtitle}{攻读学位期间取得的研究成果}
-  \ifthesis@english
-    \renewcommand{\thesisaccomplishtitle}{Achievements}
-  \fi
-  \pdfbookmark{\thesisaccomplishtitle}{Achievements}
+\newcommand{\addachivementresource}[1]{
+  \addbibresource{#1.bib}
+  \DeclareSourcemap{
+    \maps[datatype=bibtex]{
+      \map[overwrite]{
+        \perdatasource{#1.bib}
+        \step[fieldset=keywords, fieldvalue={,achievements}, append]
+      }
+    }
+  }
+}
 
+% 标注指定的作者
+\renewcommand*{\mkbibnamegiven}[1]{\ifitemannotation{highlight}{\textbf{#1}}{#1}}
+\renewcommand*{\mkbibnamefamily}[1]{\ifitemannotation{highlight}{\textbf{#1}}{#1}}
+
+\RenewDocumentCommand {\thesisachivements} { o } {
+  \ifthesis@plgck\else
+  \renewcommand{\thesisbibname}{攻读学位期间取得的研究成果}
+  \ifthesis@english
+    \renewcommand{\thesisbibname}{Achievements}
+  \fi
+  \pdfbookmark{\thesisbibname}{Achievements}
   \hypersetup{bookmarksdepth=-2}
   \addcontentsline{toc}{chapter}{攻读学位期间取得的研究成果}
   \addcontentsline{toe}{chapter}{Achievements}
   \hypersetup{bookmarksdepth=2}
-  \chapter*{\thesisaccomplishtitle}
-  \chaptermark{\thesisaccomplishtitle}
-  \input{Main_Miscellaneous/achievement.tex}
+  \IfNoValueTF {#1} {
+    \chapter*{\thesisbibname}
+    \chaptermark{\thesisbibname}
+    \input{Main_Miscellaneous/achievement.tex}
+  }{
+    \begin{refsection}
+      \nocite{*}
+      \printbibliography[heading=bibliography,title=\thesisbibname,keyword={achievements},resetnumbers=true]
+    \end{refsection}
+  }
   \pagecheck
+  \fi
 }
-
 
 %%% Decision %%%
 %%% 答辩委员会决议 %%%
+\ifthesis@plgck\else
 \renewcommand{\thesisdecision}{
   \newcommand{\thesisdecisiontitle}{答辩委员会会议决议}
   \ifthesis@english
@@ -1528,14 +1730,17 @@
   \hypersetup{bookmarksdepth=2}
   \chapter*{\sanhao \thesisdecisiontitle}
   \chaptermark{\thesisdecisiontitle}
+  % 单独设置答辩委员会决议奇数页眉，以匹配官方 Word 模板
+  \fancyhead[CO]{\fontsize{10.5pt}{12.6pt}\selectfont 答辩委员会决议}
   \ifthesis@blind\else
     \begin{spacing}{1.5}
     \input{Main_Miscellaneous/decision.tex}
     \end{spacing}
   \fi
   \pagecheck
+  \fancyhead[CO]{\fontsize{10.5pt}{12.6pt}\selectfont\nouppercase\leftmark}
 }
-
+\fi
 
 %%% General Reviewers List %%%
 %%% 常规评阅人名单 %%%
@@ -1549,6 +1754,11 @@
 }
 \tl_set:Nn \g_gr_tabular_tl {}
 \NewDocumentCommand \genreviewerlist {}{
+  \tl_gput_right:Nn \g_gr_tabular_tl {%
+    \begin{tblr}{%
+      width=0.863\textwidth,%
+      colspec={X[c,1]X[c,1]X[c,2]}%
+    }}
     \seq_map_variable:NNn \g_general_reviewer_seq \i {
       \tl_gput_right:Nn \g_gr_tabular_tl {\xiaosi}
       \tl_gput_right:Nx \g_gr_tabular_tl {\clist_item:Nn \i 2 & }
@@ -1557,13 +1767,15 @@
       \tl_gput_right:Nn \g_gr_tabular_tl {\xiaosi}
       \tl_gput_right:Nx \g_gr_tabular_tl {\clist_item:Nn \i 1 \\}
     }
+  \tl_gput_right:Nn \g_gr_tabular_tl {\end{tblr}}
 }
-\NewDocumentCommand \generalreviewerlist {}{
+\def \generalreviewerlist {
   \tl_use:N \g_gr_tabular_tl
 }
 \ExplSyntaxOff
 
 \renewcommand{\thesisreviewers}[2]{
+  \ifthesis@plgck\else
   \genreviewerlist
   \newcommand{\thesisreviewerlisttitle}{常规评阅人名单}
   \ifthesis@english
@@ -1577,33 +1789,41 @@
   \addcontentsline{toc}{chapter}{常规评阅人名单}
   \addcontentsline{toe}{chapter}{General Reviewers List}
   \hypersetup{bookmarksdepth=2}
-  本学位论文共接受 #1 位专家评阅，其中常规评阅人 #2 名。
+  本学位论文共接受 #1 位专家评阅，其中常规评阅人 #2 名
+  \ifnum#2=0
+    。
+  \else
+    ，名单如下：
+  \fi
   \ifthesis@blind\else
-    \ifnum#2>0
-    \par\noindent 名单如下：
     \renewcommand{\arraystretch}{1.5}
     \begin{table}[H]
       \centering
-    \begin{tabular}{ccc}
       \generalreviewerlist
-    \end{tabular}
     \end{table}
     \renewcommand{\arraystretch}{1}
     % \vspace{\baselineskip}
     % {\color{red} 用于双盲评审的论文，此页内容全部隐去。}
     \vfill
-    \fi
   \fi
   \pagecheck
+  \fi
 }
 
 
 %%% Declarations %%%
 %%% 声明页 %%%
-\newcommand{\signline}[1]{
-  \vspace{0.5\baselineskip}
-  #1（签名）：\hspace{5cm}日期：\hspace{2cm}年\hspace{1cm}月\hspace{1cm}日
+\newcommand{\signline}[2]{
+  \vspace{#1\baselineskip}
+  #2（签名）：\hspace{5cm}日期：\hspace{2cm}年\hspace{1cm}月\hspace{1cm}日
 }
+\newcommand{\declareline}[2]{
+  \begin{center}
+    \vspace*{#1pt}
+    \sanhao #2
+  \end{center}
+}
+\ifthesis@plgck\else
 \renewcommand{\thesisdeclarations}{
   \newcommand{\thesisoriginalitytitle}{声明}
   \ifthesis@english
@@ -1613,25 +1833,21 @@
   \chaptermark{\thesisoriginalitytitle}
   \fancyfoot[]{}
 
-  \begin{center}
-  \sanhao 学位论文独创性声明（1）
-  \end{center}
+  \declareline{4}{学位论文独创性声明（1）}
 
   本人声明：所呈交的学位论文系在导师指导下本人独立完成的研究成果。文中依法引用他人的成果，均已做出明确标注或得到许可。论文内容未包含法律意义上已属于他人的任何形式的研究成果，也不包含本人已用于其他学位申请的论文或成果。
 
   本人如违反上述声明，愿意承担以下责任和后果：
-  \begin{enumerate}
+  \begin{enumerate}[leftmargin=0pt, itemindent=3.2em]
   \item 交回学校授予的学位证书；
   \item 学校可在相关媒体上对作者本人的行为进行通报；
   \item 本人按照学校规定的方式，对因不当取得学位给学校造成的名誉损害，进行公开道歉。
   \item 本人负责因论文成果不实产生的法律纠纷。
   \end{enumerate}
 
-  \signline{论文作者}
+  \signline{0.7}{论文作者}
 
-  \begin{center}
-  \sanhao 学位论文独创性声明（2）
-  \end{center}
+  \declareline{6}{学位论文独创性声明（2）}
 
   本人声明：研究生\hskip 2cm 所提交的本篇学位论文已经本人审阅，确系在本人指导下由该生独立完成的研究成果。
 
@@ -1642,23 +1858,22 @@
   \item 本人接受学校按照有关规定做出的任何处理。
   \end{enumerate}
 
-  \signline{指导教师}
+  \signline{0.7}{指导教师}
 
-  \begin{center}
-  \sanhao 学位论文知识产权权属声明
-  \end{center}
+  \declareline{6}{学位论文知识产权权属声明}
 
   我们声明，我们提交的学位论文及相关的职务作品，知识产权归属学校。学校享有以任何方式发表、复制、公开阅览、借阅以及申请专利等权利。学位论文作者离校后，或学位论文导师因故离校后，发表或使用学位论文或与该论文直接相关的学术论文或成果时，署名单位仍然为西安交通大学。
 
-  \signline{论文作者}
+  \signline{0.7}{论文作者}
 
-  \signline{指导教师}
+  \signline{0}{指导教师}
 
-  \vspace{0.7\baselineskip}
+  \vspace{\baselineskip}
 
   \noindent （本声明的版权归西安交通大学所有，未经许可，任何单位及任何个人不得擅自使用）
   \clearpage
 }
+\fi
 
 \makeatother
 

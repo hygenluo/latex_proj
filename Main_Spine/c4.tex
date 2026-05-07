@@ -25,7 +25,7 @@
   \label{tab:fscil-paradigm-compare}
   \begingroup
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{YYYY}
+  \begin{tabularx}{\textwidth}{XXXX}
   \toprule
   任务类型 & 基础会话训练数据 & 增量会话训练数据 & 测试范围 \\
   \midrule
@@ -257,7 +257,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
 \begin{table}[h]
   \caption{少样本类增量学习训练超参数}
   \label{tab:fscil-hyperparams}
-  \begin{tabularx}{\textwidth}{YYY}
+  \begin{tabularx}{\textwidth}{XXX}
   \toprule
   参数 & 基础训练（Session 0） & 增量学习（Session 1–5） \\
   \midrule
@@ -309,7 +309,7 @@ WiAR 类别规模小于 XRF，因此本文采用 6 个基础类和 5 个增量�
   \label{tab:fscil-metrics-desc}
   \begingroup
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{YYY}
+  \begin{tabularx}{\textwidth}{XXX}
   \toprule
   指标 & 含义 & 用途 \\
   \midrule
@@ -449,7 +449,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
 \begin{table}[h]
   \caption{消融实验：各模块配置下的准确率（\%）}
   \label{tab:fscil-ablation}
-  \begin{tabularx}{\textwidth}{p{1.2cm}p{1.2cm}p{1cm}p{1.2cm}YYYYYYYY}
+  \begin{tabularx}{\textwidth}{p{1.2cm}p{1.2cm}p{1cm}p{1.2cm}XXXXXXXX}
   \toprule
   多尺度编码 & 时序注意力 & 图注意力 & 双分类器 & S0 & S1 & S2 & S3 & S4 & S5 & PD $\downarrow$ & AA \\
   \midrule
@@ -515,7 +515,7 @@ DyCR\cite{pan2025dycr} 在 Session 0 为 89.88\%，Session 2--4 维持在 74.00\
   \label{tab:fscil-kshot}
   \begingroup
   \renewcommand{\tabularxcolumn}[1]{m{#1}}
-  \begin{tabularx}{\textwidth}{YYYYYY}
+  \begin{tabularx}{\textwidth}{XXXXXX}
   \toprule
   每类支持样本数 & S0 & S5 & PD $\downarrow$ & AA & 说明 \\
   \midrule
