@@ -33,8 +33,8 @@
                         %            they will always not show header and page number.
 ]{XJTU-thesis}
 
-% 表 4-8 等：勾选使用西文主字体（如 TIMES.TTF）中的 U+2713，避免依赖 AMS 符号字形
-\newcommand{\timescheck}{{\rmfamily\symbol{"2713}}}
+% 表 4-8 等：勾选使用 pifont（Zapf Dingbats）\ding{51}，避免 TIMES.TTF 缺 U+2713 导致方框
+\newcommand{\timescheck}{\mbox{\ding{51}}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
