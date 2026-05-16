@@ -1099,7 +1099,7 @@
   }
 
   \ifthesis@blind\else
-    \tl_gput_right:Nn \g_dc_tabular_tl {{\clist_item:Nn \l_dcc_tl 1 \clist_item:Nn \l_dcc_tl 3}：&\sanhao\underline{\parbox[t]{9em}{\clist_item:Nn \l_dcc_tl 2}} & \xiaowu（{\color{red}{注：主席}}）\\}
+    \tl_gput_right:Nn \g_dc_tabular_tl {{\clist_item:Nn \l_dcc_tl 1 \clist_item:Nn \l_dcc_tl 3}：&\sanhao\underline{\parbox[t]{9em}{\clist_item:Nn \l_dcc_tl 2}}\\}
 
     \seq_map_variable:NNn \g_defense_committee_seq \i {
       \bp_set_to_width:Nn \spaceWidth {\clist_item:Nn \i 2}
